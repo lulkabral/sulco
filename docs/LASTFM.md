@@ -89,6 +89,7 @@ Qualquer outro método deve ser recusado pela rota.
   - O nome da tag pode vir com maiúsculas diferentes ("Nu Metal", "Grunge") e até em português ("male vocalistas").
   - Artista inexistente responde HTTP 200 com `{"error": 6, "message": "The artist you supplied could not be found"}`. Na nossa rota de tags isso vira lista vazia, e não `USER_NOT_FOUND`.
   - Lixo comum entre as tags mais fortes: nacionalidade ("british", "american", "United States"), "female vocalists", nome de programa ("the voice", "X factor") e o nome do próprio artista ou de um pedaço dele. A lista de descarte fica em `src/lib/genres.ts`; `npm run genres -- USERNAME` mostra o que foi usado e o que foi descartado.
+  - Com um perfil real (15/11/2026) apareceram ainda: nomes de país ("Belgium", "spain", "argentina"), números soltos ("11"), tags de piada ("Better than Nicki Minaj") e nomes de pessoas usados como tag ("NandaTsunami", "DJ Caio Santos"). Os três primeiros entram por lista e regra. Nomes de pessoas não têm como ser listados; como só aparecem em artistas pouco marcados, o peso deles fica baixo e não chega ao top 5.
 - Placeholder de artista: confirmado, hash `2a96cbd8b46e442fc41c2b86b821562f`, em todos os tamanhos (`34s`, `64s`, `174s`, `300x300`).
 - Erro para perfil privado: ainda não testado (falta um perfil com histórico privado).
 - Tamanhos maiores de capa: funcionam trocando `300x300` por `600x600`, ou tirando o trecho (original). Ver armadilha 9.

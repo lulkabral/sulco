@@ -36,6 +36,11 @@ describe("isNotGenre", () => {
     "X Factor",
     "american",
     "United States",
+    "Belgium",
+    "spain",
+    "chilean",
+    "Icelandic",
+    "Better than Nicki Minaj",
     "welsh",
     "covers",
   ])(
@@ -45,13 +50,18 @@ describe("isNotGenre", () => {
     },
   );
 
-  it.each(["80s", "00s", "1990s", "2010"])("descarta ano/década %s", (tag) => {
+  it.each(["80s", "00s", "1990s", "2010", "11"])("descarta ano/década/número %s", (tag) => {
     expect(isNotGenre(tag, "qualquer")).toBe(true);
   });
 
   it("descarta o nome do próprio artista", () => {
     expect(isNotGenre("green day", "green day")).toBe(true);
     expect(isNotGenre("kpop demon hunters", genreKey("KPop Demon Hunters Cast"))).toBe(true);
+  });
+
+  it("não descarta gênero que só contém um país ou nacionalidade", () => {
+    expect(isNotGenre(genreKey("french pop"), "angèle")).toBe(false);
+    expect(isNotGenre(genreKey("latin pop"), "mon laferte")).toBe(false);
   });
 
   it("não descarta gênero de uma palavra que aparece no nome", () => {

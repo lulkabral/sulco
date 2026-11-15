@@ -70,6 +70,13 @@ const NOT_GENRE = new Set([
   "check out",
   "spotify",
   "under 2000 listeners",
+  "legend",
+  "queen of pop",
+  "king of pop",
+  "guitar",
+  "male",
+  "female",
+  "queer",
   // quem canta e de onde veio ("male vocalists" e parecidos saem pela VOCALIST_RE)
   "covers",
   "cover",
@@ -106,13 +113,55 @@ const NOT_GENRE = new Set([
   "brazilian",
   "brasil",
   "brazil",
+  "belgian",
+  "chilean",
+  "argentine",
+  "colombian",
+  "peruvian",
+  "uruguayan",
+  "venezuelan",
+  "cuban",
+  "puerto rican",
+  "icelandic",
+  // países (aparecem tanto quanto as nacionalidades)
+  "argentina",
+  "belgium",
+  "canada",
+  "chile",
+  "colombia",
+  "cuba",
+  "denmark",
+  "england",
+  "finland",
+  "france",
+  "germany",
+  "ireland",
+  "italy",
+  "japan",
+  "korea",
+  "south korea",
+  "mexico",
+  "netherlands",
+  "norway",
+  "peru",
+  "portugal",
+  "puerto rico",
+  "scotland",
+  "spain",
+  "sweden",
+  "uruguay",
+  "venezuela",
+  "california",
 ]);
 
-/** Anos e décadas: "80s", "00s", "1990s", "2010". */
-const YEAR_RE = /^(\d{2}s|\d{4}s?)$/;
+/** Anos, décadas e números soltos: "80s", "00s", "1990s", "2010", "11". */
+const YEAR_RE = /^(\d{2}s|\d{4}s|\d+)$/;
 
 /** "male vocalists", "female vocalist", "male vocalistas" (sim, aparece em português)... */
 const VOCALIST_RE = /vocalist/;
+
+/** Tags de piada/comparação: "better than nicki minaj". */
+const JOKE_RE = /^better than /;
 
 /**
  * Chave de comparação de um gênero: minúsculas, hífen e "_" viram espaço,
@@ -134,7 +183,8 @@ export function genreLabel(key: string, original = key): string {
  * `key` e `artistKey` já passaram por `genreKey`.
  */
 export function isNotGenre(key: string, artistKey: string): boolean {
-  if (key === "" || NOT_GENRE.has(key) || YEAR_RE.test(key) || VOCALIST_RE.test(key)) return true;
+  if (key === "" || NOT_GENRE.has(key) || YEAR_RE.test(key)) return true;
+  if (VOCALIST_RE.test(key) || JOKE_RE.test(key)) return true;
   if (key === artistKey) return true;
   // Pedaço do nome do artista com 2+ palavras ("kpop demon hunters" em "KPop Demon Hunters Cast").
   // Com 1 palavra não: "pop" não pode sumir só porque o artista se chama "Pop Smoke".
