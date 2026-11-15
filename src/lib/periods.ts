@@ -13,11 +13,17 @@ export type UiPeriod = (typeof UI_PERIODS)[number]["value"];
 
 export const DEFAULT_UI_PERIOD: UiPeriod = "1month";
 
-/** Lê o `?period=` do endereço. Valor ausente ou desconhecido vira o padrão. */
-export function parseUiPeriod(raw: string | string[] | undefined): UiPeriod {
+/** Período padrão da aba Grade: a "semaninha" (ver SPEC, Recurso 2). */
+export const DEFAULT_GRID_PERIOD: UiPeriod = "7day";
+
+/** Lê o `?period=` do endereço. Valor ausente ou desconhecido vira `fallback`. */
+export function parseUiPeriod(
+  raw: string | string[] | undefined,
+  fallback: UiPeriod = DEFAULT_UI_PERIOD,
+): UiPeriod {
   const value = Array.isArray(raw) ? raw[0] : raw;
   const found = UI_PERIODS.find((p) => p.value === value);
-  return found ? found.value : DEFAULT_UI_PERIOD;
+  return found ? found.value : fallback;
 }
 
 export function periodLabel(period: UiPeriod): string {

@@ -1,13 +1,15 @@
 import Link from "next/link";
 import { UI_PERIODS, type UiPeriod } from "@/lib/periods";
+import { userPageHref, type Tab } from "@/lib/tabs";
 
 type Props = {
   username: string;
   current: UiPeriod;
+  tab: Tab;
 };
 
-/** Links de período. Cada um leva para /u/USERNAME?period=... */
-export function PeriodSelector({ username, current }: Props) {
+/** Links de período. Cada um leva para /u/USERNAME?tab=...&period=... (mantendo a aba). */
+export function PeriodSelector({ username, current, tab }: Props) {
   return (
     <nav aria-label="Período">
       <ul className="flex flex-wrap gap-2">
@@ -16,7 +18,7 @@ export function PeriodSelector({ username, current }: Props) {
           return (
             <li key={p.value}>
               <Link
-                href={`/u/${encodeURIComponent(username)}?period=${p.value}`}
+                href={userPageHref(username, tab, p.value)}
                 aria-current={active ? "page" : undefined}
                 scroll={false}
                 className={

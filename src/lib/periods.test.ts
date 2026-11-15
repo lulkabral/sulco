@@ -14,6 +14,11 @@ describe("parseUiPeriod", () => {
     expect(parseUiPeriod("overall")).toBe("1month");
   });
 
+  it("aceita outro padrão (o da aba Grade)", () => {
+    expect(parseUiPeriod(undefined, "7day")).toBe("7day");
+    expect(parseUiPeriod("3month", "7day")).toBe("3month");
+  });
+
   it("pega o primeiro valor quando o parâmetro se repete", () => {
     expect(parseUiPeriod(["3month", "7day"])).toBe("3month");
   });

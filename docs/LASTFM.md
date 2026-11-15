@@ -79,7 +79,9 @@ Qualquer outro método deve ser recusado pela rota.
 
 ## Descobertas (preencher durante o desenvolvimento)
 
-- CORS do servidor de imagens: as capas vêm de `lastfm-img.freetls.fastly.net` (não `lastfm.freetls.fastly.net`) e a resposta traz `Access-Control-Allow-Origin: *` (curl em 15/11/2026). Falta confirmar no canvas do navegador (fase 3).
+- CORS do servidor de imagens: as capas vêm de `lastfm-img.freetls.fastly.net` (não `lastfm.freetls.fastly.net`) e a resposta traz `Access-Control-Allow-Origin: *` (curl em 15/11/2026).
+- **Capas no canvas (fase 3, testado no Chromium em 15/11/2026):** carregando a imagem com `img.crossOrigin = "anonymous"`, a capa é desenhada e o canvas exporta PNG normalmente (300 e 600 px). Sem o `crossOrigin`, a capa aparece, mas `toBlob`/`toDataURL` falham com "Tainted canvases may not be exported". Conclusão: **não precisamos de rota que repasse imagens**; o navegador busca as capas direto do servidor de imagens (`src/lib/canvas/image.ts`). Falta conferir no Safari do iPhone.
+- Algumas capas de 600 px demoram vários segundos (uma levou 6 s no teste). Por isso `loadImage` desiste depois de 15 s e trata o álbum como "sem capa".
 - Placeholder de artista: confirmado, hash `2a96cbd8b46e442fc41c2b86b821562f`, em todos os tamanhos (`34s`, `64s`, `174s`, `300x300`).
 - Erro para perfil privado: ainda não testado (falta um perfil com histórico privado).
 - Tamanhos maiores de capa: funcionam trocando `300x300` por `600x600`, ou tirando o trecho (original). Ver armadilha 9.

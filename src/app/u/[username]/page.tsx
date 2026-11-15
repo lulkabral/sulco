@@ -1,16 +1,28 @@
 import { Suspense } from "react";
+import { AlbumGrid } from "@/components/AlbumGrid";
 import { ErrorState } from "@/components/ErrorState";
 import { PeriodSelector } from "@/components/PeriodSelector";
 import { ListsSkeleton, ProfileSkeleton } from "@/components/ProfileSkeleton";
+import { ProfileTabs } from "@/components/ProfileTabs";
 import { TopList } from "@/components/TopList";
 import { UserHeader } from "@/components/UserHeader";
 import { getTop, getUserInfo } from "@/lib/lastfm/client";
 import { LastfmError } from "@/lib/lastfm/errors";
 import type { ErrorCode, TopAlbum, TopArtist, TopTrack } from "@/lib/lastfm/types";
 import { validateUsername } from "@/lib/lastfm/validate";
-import { parseUiPeriod, periodLabel, type UiPeriod } from "@/lib/periods";
+import {
+  DEFAULT_GRID_PERIOD,
+  DEFAULT_UI_PERIOD,
+  parseUiPeriod,
+  periodLabel,
+  UI_PERIODS,
+  type UiPeriod,
+} from "@/lib/periods";
+import { parseTab, type Tab } from "@/lib/tabs";
 
 const LIST_LIMIT = 10;
+/** Álbuns buscados: o bastante para a grade 5x5. As listas mostram só LIST_LIMIT. */
+const ALBUM_LIMIT = 25;
 
 // O username e o período só são conhecidos na hora do pedido,
 // então tudo que depende deles fica dentro de <Suspense>.
@@ -38,7 +50,11 @@ function safeDecode(value: string): string {
 
 async function Profile({ params, searchParams }: Pick<PageProps<"/u/[username]">, "params" | "searchParams">) {
   const { username: rawUsername } = await params;
-  const period = parseUiPeriod((await searchParams).period);
+  const query = await searchParams;
+  const tab = parseTab(query.tab);
+  const period = parseUiPeriod(query.period, tab === "grade" ? DEFAULT_GRID_PERIOD : DEFAULT_UI_PERIOD);
+  // Só repassamos o período para a outra aba se a pessoa escolheu um (cada aba tem seu padrão).
+  const chosenPeriod = UI_PERIODS.some((p) => p.value === query.period) ? period : undefined;
 
   const username = validateUsername(safeDecode(rawUsername));
   if (!username.ok) {
@@ -55,23 +71,24 @@ async function Profile({ params, searchParams }: Pick<PageProps<"/u/[username]">
   return (
     <>
       <UserHeader user={user} />
-      <PeriodSelector username={user.username} current={period} />
-      {/* key: ao trocar de período, mostra o esqueleto de novo enquanto carrega */}
-      <Suspense key={period} fallback={<ListsSkeleton />}>
-        <TopLists username={user.username} period={period} />
+      <ProfileTabs username={user.username} current={tab} period={chosenPeriod} />
+      <PeriodSelector username={user.username} current={period} tab={tab} />
+      {/* key: ao trocar de período ou aba, mostra o esqueleto de novo enquanto carrega */}
+      <Suspense key={`${tab}-${period}`} fallback={<ListsSkeleton />}>
+        <TopLists username={user.username} period={period} tab={tab} />
       </Suspense>
     </>
   );
 }
 
-async function TopLists({ username, period }: { username: string; period: UiPeriod }) {
+async function TopLists({ username, period, tab }: { username: string; period: UiPeriod; tab: Tab }) {
   let artists, tracks, albums;
   try {
     // 3 chamadas ao mesmo tempo (dentro do limite de 3 a 4 do projeto).
     [artists, tracks, albums] = await Promise.all([
       getTop(username, "artists", period, LIST_LIMIT),
       getTop(username, "tracks", period, LIST_LIMIT),
-      getTop(username, "albums", period, LIST_LIMIT),
+      getTop(username, "albums", period, ALBUM_LIMIT),
     ]);
   } catch (err) {
     return <ErrorState code={errorCodeOf(err)} username={username} />;
@@ -88,37 +105,59 @@ async function TopLists({ username, period }: { username: string; period: UiPeri
     );
   }
 
+  const albumItems = albums.items as TopAlbum[];
+
   return (
-    <div className="grid gap-8 md:grid-cols-3">
-      <TopList
-        title="Artistas"
-        items={(artists.items as TopArtist[]).map((a) => ({
-          rank: a.rank,
-          name: a.name,
-          playcount: a.playcount,
-          url: a.url,
-        }))}
-      />
-      <TopList
-        title="Músicas"
-        items={(tracks.items as TopTrack[]).map((t) => ({
-          rank: t.rank,
-          name: t.name,
-          detail: t.artist,
-          playcount: t.playcount,
-          url: t.url,
-        }))}
-      />
-      <TopList
-        title="Álbuns"
-        items={(albums.items as TopAlbum[]).map((a) => ({
-          rank: a.rank,
-          name: a.name,
-          detail: a.artist,
-          playcount: a.playcount,
-          url: a.url,
-        }))}
-      />
-    </div>
+    <>
+      {tab === "grade" ? (
+        <AlbumGrid
+          username={username}
+          period={period}
+          periodLabel={periodLabel(period)}
+          albums={albumItems.map((a) => ({
+            name: a.name,
+            artist: a.artist,
+            playcount: a.playcount,
+            imageUrl: a.imageUrl,
+          }))}
+        />
+      ) : (
+        <p className="rounded-xl border border-dashed border-zinc-300 p-5 text-zinc-600 dark:border-zinc-700 dark:text-zinc-400">
+          A imagem do recap chega em breve. Por enquanto, veja seus tops abaixo ou monte a grade de
+          álbuns na aba Grade.
+        </p>
+      )}
+      <div className="grid gap-8 md:grid-cols-3">
+        <TopList
+          title="Artistas"
+          items={(artists.items as TopArtist[]).map((a) => ({
+            rank: a.rank,
+            name: a.name,
+            playcount: a.playcount,
+            url: a.url,
+          }))}
+        />
+        <TopList
+          title="Músicas"
+          items={(tracks.items as TopTrack[]).map((t) => ({
+            rank: t.rank,
+            name: t.name,
+            detail: t.artist,
+            playcount: t.playcount,
+            url: t.url,
+          }))}
+        />
+        <TopList
+          title="Álbuns"
+          items={albumItems.slice(0, LIST_LIMIT).map((a) => ({
+            rank: a.rank,
+            name: a.name,
+            detail: a.artist,
+            playcount: a.playcount,
+            url: a.url,
+          }))}
+        />
+      </div>
+    </>
   );
 }

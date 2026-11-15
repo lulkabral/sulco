@@ -79,10 +79,10 @@ Comece testando se as capas do Last.fm podem ser desenhadas e exportadas no canv
 
 Pronto quando:
 
-- [ ] a grade aparece e o PNG baixado abre certo
-- [ ] álbum sem capa vira quadrado com o nome
-- [ ] legenda e contagem ligam e desligam
-- [ ] se existir rota de imagem, ela recusa qualquer outro domínio
+- [x] a grade aparece e o PNG baixado abre certo (PNG de 1500 px gerado no Chromium; falta abrir um baixado no celular)
+- [x] álbum sem capa vira quadrado com o nome
+- [x] legenda e contagem ligam e desligam
+- [x] se existir rota de imagem, ela recusa qualquer outro domínio (não se aplica: as capas funcionam no canvas sem rota, ver `LASTFM.md`)
 
 ## Fase 4: Recap em imagem
 
