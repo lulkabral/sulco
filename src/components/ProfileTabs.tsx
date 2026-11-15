@@ -9,13 +9,13 @@ type Props = {
 };
 
 /**
- * Abas Recap | Grade. São links (como o seletor de período), então a aba fica no endereço
- * e dá para voltar ou compartilhar o link.
+ * Abas Recap | Grade, como um seletor de dois lados. São links (como os períodos),
+ * então a aba fica no endereço e dá para voltar ou compartilhar o link.
  */
 export function ProfileTabs({ username, current, period }: Props) {
   return (
     <nav aria-label="Abas">
-      <ul className="flex border-b border-zinc-200 dark:border-zinc-800">
+      <ul className="grid grid-cols-2 gap-1 rounded-2xl bg-card p-1 sm:inline-grid sm:w-72">
         {TABS.map((t) => {
           const active = t.value === current;
           return (
@@ -25,10 +25,8 @@ export function ProfileTabs({ username, current, period }: Props) {
                 aria-current={active ? "page" : undefined}
                 scroll={false}
                 className={
-                  "-mb-px inline-block border-b-2 px-4 py-2 font-medium focus-visible:outline-2 focus-visible:outline-indigo-500 " +
-                  (active
-                    ? "border-indigo-600 text-indigo-700 dark:text-indigo-400"
-                    : "border-transparent text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100")
+                  "block rounded-xl px-4 py-2 text-center font-semibold transition " +
+                  (active ? "bg-card-2 text-ink shadow-sm ring-1 ring-line" : "text-ink-soft hover:text-ink")
                 }
               >
                 {t.label}

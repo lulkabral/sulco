@@ -39,10 +39,10 @@ export function ErrorState({ code, username, onRetry }: Props) {
   const canRetry = code === "RATE_LIMITED" || code === "LASTFM_DOWN";
 
   return (
-    <div role="alert" className="flex flex-col items-start gap-4 rounded-xl border border-zinc-200 p-5 dark:border-zinc-800">
+    <div role="alert" className="flex flex-col items-start gap-4 rounded-2xl bg-card p-5">
       <div>
         <h2 className="text-lg font-semibold">{title}</h2>
-        <p className="mt-1 text-zinc-600 dark:text-zinc-400">{text}</p>
+        <p className="mt-1 text-ink-soft">{text}</p>
       </div>
       {askUsername && <UsernameForm defaultValue={username} />}
       {canRetry &&
@@ -50,7 +50,7 @@ export function ErrorState({ code, username, onRetry }: Props) {
           <button
             type="button"
             onClick={onRetry}
-            className="rounded-lg bg-indigo-600 px-4 py-2 font-medium text-white hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+            className="rounded-xl bg-amber px-4 py-2 font-bold text-amber-ink transition hover:bg-amber-hover active:scale-95"
           >
             Tentar de novo
           </button>

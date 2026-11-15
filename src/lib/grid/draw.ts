@@ -1,5 +1,6 @@
 import { truncateText, wrapText } from "@/lib/canvas/text";
 import { formatPlays } from "@/lib/format";
+import { THEME } from "@/lib/theme";
 import { GRID_CANVAS_SIDE, gridLayout, type GridCell, type GridSize } from "./layout";
 
 export type GridAlbum = {
@@ -17,10 +18,11 @@ export type GridOptions = {
   fontFamily: string;
 };
 
-const BG = "#18181b"; // fundo da imagem e quadrados vazios
-const NO_COVER_BG = "#3f3f46"; // álbum sem capa
-const TEXT = "#ffffff";
-const TEXT_SOFT = "rgba(255,255,255,0.8)";
+// Cores da identidade "Sala escura" (src/lib/theme.ts).
+const BG = THEME.room; // fundo da imagem e quadrados vazios
+const NO_COVER_BG = THEME.card2; // álbum sem capa
+const TEXT = THEME.ink;
+const TEXT_SOFT = "rgba(244,238,230,0.82)";
 
 /** Desenha a grade inteira no canvas (que fica com 1500 x 1500 px). */
 export function drawGrid(canvas: HTMLCanvasElement, albums: GridAlbum[], opts: GridOptions): void {

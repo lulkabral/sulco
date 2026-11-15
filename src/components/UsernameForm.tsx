@@ -29,11 +29,11 @@ export function UsernameForm({ defaultValue = "" }: Props) {
 
   return (
     // action="/u": sem JavaScript, o navegador envia para /u?username=..., que redireciona.
-    <form action="/u" method="get" onSubmit={handleSubmit} noValidate className="flex w-full max-w-sm flex-col gap-2">
-      <label htmlFor="username" className="text-sm font-medium">
+    <form action="/u" method="get" onSubmit={handleSubmit} noValidate className="flex w-full flex-col gap-2">
+      <label htmlFor="username" className="text-sm font-semibold text-ink-soft">
         Username do Last.fm
       </label>
-      <div className="flex gap-2">
+      <div className="flex gap-1.5 rounded-2xl border border-line bg-card p-1.5 focus-within:border-amber focus-within:ring-1 focus-within:ring-amber">
         <input
           id="username"
           name="username"
@@ -41,23 +41,23 @@ export function UsernameForm({ defaultValue = "" }: Props) {
           autoComplete="off"
           autoCapitalize="none"
           spellCheck={false}
-          placeholder="ex.: seu_usuario"
+          placeholder="seu_usuario"
           value={value}
           onChange={(e) => setValue(e.target.value)}
           aria-invalid={error !== null}
           aria-describedby={error ? "username-error" : undefined}
-          className="min-w-0 flex-1 rounded-lg border border-zinc-300 bg-white px-3 py-2 text-base text-zinc-900 outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
+          className="min-w-0 flex-1 bg-transparent px-3 py-2 text-base text-ink outline-none placeholder:text-ink-faint focus-visible:outline-none"
         />
         <button
           type="submit"
           disabled={sending}
-          className="rounded-lg bg-indigo-600 px-4 py-2 font-medium text-white hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 disabled:opacity-60"
+          className="rounded-xl bg-amber px-5 py-2 font-bold text-amber-ink transition hover:bg-amber-hover active:scale-95 disabled:opacity-60"
         >
           {sending ? "Abrindo…" : "Gerar"}
         </button>
       </div>
       {error && (
-        <p id="username-error" role="alert" className="text-sm text-red-600 dark:text-red-400">
+        <p id="username-error" role="alert" className="text-sm text-[#ff9b85]">
           {error}
         </p>
       )}

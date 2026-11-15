@@ -11,8 +11,8 @@ export default function PrivacyPage() {
   return (
     <main id="conteudo" className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-8 px-4 py-12">
       <div className="flex flex-col gap-3">
-        <h1 className="text-3xl font-bold tracking-tight">Privacidade</h1>
-        <p className="text-lg text-zinc-600 dark:text-zinc-400">
+        <h1 className="text-4xl font-extrabold tracking-tight">Privacidade</h1>
+        <p className="text-lg text-ink-soft">
           Resumo: o site só precisa do seu username do Last.fm, lê apenas o que já é público no
           seu perfil e não guarda nada sobre você.
         </p>
@@ -76,7 +76,7 @@ export default function PrivacyPage() {
       </Section>
 
       <p>
-        <Link href="/" className="font-medium text-indigo-700 underline dark:text-indigo-400">
+        <Link href="/" className="font-medium text-amber underline underline-offset-2">
           Voltar ao início
         </Link>
       </p>
@@ -86,8 +86,8 @@ export default function PrivacyPage() {
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="flex flex-col gap-2 text-zinc-800 dark:text-zinc-200">
-      <h2 className="text-xl font-semibold">{title}</h2>
+    <section className="flex flex-col gap-2 text-ink">
+      <h2 className="text-xl font-bold">{title}</h2>
       {children}
     </section>
   );

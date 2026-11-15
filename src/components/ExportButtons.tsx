@@ -35,10 +35,9 @@ export function ExportButtons({ canvasRef, filename, shareTitle, disabled }: Pro
     }
   }
 
-  const base =
-    "rounded-lg px-4 py-2.5 font-medium focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 disabled:opacity-50";
-  const primary = `${base} bg-indigo-600 text-white hover:bg-indigo-700`;
-  const secondary = `${base} border border-zinc-300 hover:border-zinc-500 dark:border-zinc-700`;
+  const base = "rounded-xl px-5 py-2.5 font-bold transition active:scale-95 disabled:opacity-50";
+  const primary = `${base} bg-amber text-amber-ink hover:bg-amber-hover`;
+  const secondary = `${base} border border-line text-ink hover:border-ink-faint`;
 
   return (
     <div className="flex flex-wrap gap-2">

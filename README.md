@@ -62,7 +62,7 @@ O site lê apenas dados públicos do perfil no Last.fm. Não tem cadastro, banco
 
 ## Tecnologias
 
-Next.js, TypeScript, Tailwind CSS, Canvas 2D e Vitest. Fontes: Geist e Fraunces (licença OFL; o arquivo em `assets/` é usado na imagem de compartilhamento).
+Next.js, TypeScript, Tailwind CSS, Canvas 2D e Vitest. Fonte: Geist (licença OFL; os arquivos TTF em `assets/` são usados na imagem de compartilhamento).
 
 ## Créditos
 

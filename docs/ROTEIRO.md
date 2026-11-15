@@ -147,6 +147,15 @@ Pronto quando:
 - [x] página de privacidade no ar e linkada no rodapé (no ar localmente; publicação na fase 8)
 - [x] README atualizado
 
+## Redesign "Sala escura" (entre as fases 7 e 8)
+
+Pedido do dono do projeto: site mais atrativo e moderno, com movimento. Direção escolhida entre três mockups.
+
+- [x] tema escuro com destaque âmbar, em todas as telas
+- [x] faixas de capas passando (página inicial e topo da página do usuário)
+- [x] recap, grade e imagem de compartilhamento na mesma identidade
+- [x] contraste e "reduzir movimento" conferidos
+
 ## Fase 8: Publicação
 
 ```

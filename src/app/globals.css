@@ -1,26 +1,87 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
+/*
+ * Identidade "Sala escura": tema escuro sempre, preto quente, cartões um pouco mais claros
+ * e um único destaque âmbar. As mesmas cores, para o canvas, ficam em src/lib/theme.ts
+ * (se mudar aqui, mude lá também).
+ */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-room: #15120f; /* fundo da página */
+  --color-card: #221d19; /* cartões */
+  --color-card-2: #2c2621; /* cartão em destaque / hover */
+  --color-line: #3a322c; /* bordas e divisórias */
+  --color-ink: #f4eee6; /* texto principal */
+  --color-ink-soft: #b5aba0; /* texto de apoio */
+  --color-ink-faint: #958b7f; /* detalhes pequenos (datas, contagens) */
+  --color-amber: #e8a13a; /* destaque */
+  --color-amber-hover: #f0b257;
+  --color-amber-ink: #2a1a05; /* texto sobre o âmbar */
+
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  /* Faixas de capas passando (metade do conteúdo é repetida, por isso -50%). */
+  --animate-marquee: marquee var(--marquee-duration, 60s) linear infinite;
+  --animate-rise: rise 0.5s ease-out both;
+  --animate-grow: grow 0.8s ease-out both;
+  --animate-scan: scan 1.4s ease-in-out infinite;
+
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @keyframes scan {
+    from {
+      transform: translateX(-100%);
+    }
+    to {
+      transform: translateX(300%);
+    }
+  }
+  @keyframes grow {
+    from {
+      transform: scaleX(0);
+    }
+    to {
+      transform: scaleX(1);
+    }
   }
 }
 
+:root {
+  color-scheme: dark;
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--color-room);
+  color: var(--color-ink);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
+
+/* Contorno de foco âmbar em tudo que recebe foco pelo teclado. */
+:focus-visible {
+  outline: 2px solid var(--color-amber);
+  outline-offset: 2px;
+}
+
+/* Rolagem horizontal sem barra visível (fileira de períodos no celular). */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }

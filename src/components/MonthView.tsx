@@ -118,9 +118,9 @@ export function MonthView({ username, month, tab }: Props) {
   const { tops, range, truncated, genres } = state;
   if (tops.total === 0 || !recapData) {
     return (
-      <div className="rounded-xl border border-zinc-200 p-5 dark:border-zinc-800">
+      <div className="rounded-2xl bg-card p-5">
         <h2 className="text-lg font-semibold">Nenhuma música em {label.toLowerCase()}</h2>
-        <p className="mt-1 text-zinc-600 dark:text-zinc-400">
+        <p className="mt-1 text-ink-soft">
           Não há scrobbles neste mês. Tente outro mês ou um dos períodos acima.
         </p>
       </div>
@@ -130,7 +130,7 @@ export function MonthView({ username, month, tab }: Props) {
   return (
     <>
       {truncated && (
-        <p role="note" className="rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-700 dark:bg-amber-950 dark:text-amber-200">
+        <p role="note" className="rounded-2xl border border-amber/40 bg-amber/10 p-4 text-sm text-ink">
           Este mês tem mais de {formatNumber(MAX_SCROBBLE_PAGES * 200)} scrobbles. Para não
           sobrecarregar o Last.fm, a conta usa só os {formatNumber(tops.total)} mais recentes do mês.
         </p>
@@ -153,7 +153,7 @@ export function MonthView({ username, month, tab }: Props) {
         />
       )}
 
-      <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <TopList
           title="Artistas"
           items={tops.artists.slice(0, LIST_LIMIT).map((a) => ({
@@ -196,16 +196,28 @@ function MonthProgressBar({ label, progress }: { label: string; progress: MonthP
     ? `Lendo seus scrobbles de ${label.toLowerCase()}: página ${progress.pagesDone} de ${progress.totalPages}`
     : `Buscando seus scrobbles de ${label.toLowerCase()}…`;
   return (
-    <div className="flex flex-col gap-2 rounded-xl border border-zinc-200 p-5 dark:border-zinc-800">
-      <p role="status" className="text-zinc-700 dark:text-zinc-300">
+    <div className="flex flex-col gap-2 rounded-2xl bg-card p-5">
+      <p role="status" className="text-ink">
         {text}
       </p>
-      <progress
-        max={progress?.totalPages ?? 1}
-        value={progress?.pagesDone}
+      <div
+        role="progressbar"
         aria-label="Progresso da leitura dos scrobbles"
-        className="h-2 w-full overflow-hidden rounded-full accent-indigo-600"
-      />
+        aria-valuemin={0}
+        aria-valuemax={progress?.totalPages}
+        aria-valuenow={progress?.pagesDone}
+        className="h-2 w-full overflow-hidden rounded-full bg-line"
+      >
+        {progress ? (
+          <div
+            className="h-full rounded-full bg-amber transition-[width] duration-500 ease-out"
+            style={{ width: `${Math.round((progress.pagesDone / progress.totalPages) * 100)}%` }}
+          />
+        ) : (
+          // Ainda sem saber quantas páginas: um trecho âmbar indo e voltando.
+          <div className="h-full w-1/3 rounded-full bg-amber motion-safe:animate-scan" />
+        )}
+      </div>
     </div>
   );
 }

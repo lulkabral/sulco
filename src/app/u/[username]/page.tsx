@@ -33,6 +33,8 @@ const LIST_LIMIT = 10;
 const ALBUM_LIMIT = 25;
 /** Itens de cada top na imagem do recap. */
 const RECAP_LIMIT = 5;
+/** Capas na faixa do topo da página. */
+const HEADER_COVERS = 20;
 
 export async function generateMetadata({ params }: PageProps<"/u/[username]">): Promise<Metadata> {
   const username = validateUsername(safeDecode((await params).username));
@@ -50,7 +52,7 @@ export async function generateMetadata({ params }: PageProps<"/u/[username]">): 
 // então tudo que depende deles fica dentro de <Suspense>.
 export default function UserPage({ params, searchParams }: PageProps<"/u/[username]">) {
   return (
-    <main id="conteudo" className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-6 px-4 py-8">
+    <main id="conteudo" className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-6 px-4 pb-10 sm:pt-6">
       <Suspense fallback={<ProfileSkeleton />}>
         <Profile params={params} searchParams={searchParams} />
       </Suspense>
@@ -91,15 +93,25 @@ async function Profile({ params, searchParams }: Pick<PageProps<"/u/[username]">
   }
 
   let user;
+  let covers: string[] = [];
   try {
-    user = await getUserInfo(username.value);
+    // 2 chamadas juntas: dados do usuário e capas do último ano para a faixa do topo
+    // (a faixa não muda ao trocar de período). Se só as capas falharem, segue sem elas.
+    const [info, topAlbums] = await Promise.all([
+      getUserInfo(username.value),
+      getTop(username.value, "albums", "12month", HEADER_COVERS).catch(() => null),
+    ]);
+    user = info;
+    covers = ((topAlbums?.items ?? []) as TopAlbum[])
+      .map((a) => a.imageUrl)
+      .filter((url): url is string => url !== null);
   } catch (err) {
     return <ErrorState code={errorCodeOf(err)} username={username.value} />;
   }
 
   return (
     <>
-      <UserHeader user={user} />
+      <UserHeader user={user} covers={covers} />
       <ProfileTabs username={user.username} current={tab} period={chosenPeriod} />
       <PeriodSelector username={user.username} current={current} tab={tab} months={months} />
       {month ? (
@@ -136,9 +148,9 @@ async function TopLists({ username, period, tab }: { username: string; period: U
 
   if (artists.items.length === 0 && tracks.items.length === 0 && albums.items.length === 0) {
     return (
-      <div className="rounded-xl border border-zinc-200 p-5 dark:border-zinc-800">
+      <div className="rounded-2xl bg-card p-5">
         <h2 className="text-lg font-semibold">Nenhuma música neste período</h2>
-        <p className="mt-1 text-zinc-600 dark:text-zinc-400">
+        <p className="mt-1 text-ink-soft">
           Não há scrobbles em “{periodLabel(period).toLowerCase()}”. Tente um período maior.
         </p>
       </div>
@@ -191,7 +203,7 @@ async function TopLists({ username, period, tab }: { username: string; period: U
           }))}
         />
       )}
-      <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <TopList
           title="Artistas"
           items={artistItems.slice(0, LIST_LIMIT).map((a) => ({

@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { lastClosedMonths, monthLabel, monthRange, parseMonthId } from "./months";
+import { lastClosedMonths, monthLabel, monthPillLabel, monthRange, parseMonthId } from "./months";
 
 describe("parseMonthId", () => {
   it("aceita AAAA-MM", () => {
@@ -65,5 +65,13 @@ describe("monthRange", () => {
 
   it("mês inválido -> null", () => {
     expect(monthRange("2026-13")).toBeNull();
+  });
+});
+
+describe("monthPillLabel", () => {
+  it("só o nome no ano de referência; com o ano nos outros", () => {
+    expect(monthPillLabel("2026-10", 2026)).toBe("Outubro");
+    expect(monthPillLabel("2025-12", 2026)).toBe("Dezembro 2025");
+    expect(monthPillLabel("abc", 2026)).toBe("");
   });
 });

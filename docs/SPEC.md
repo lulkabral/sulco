@@ -17,10 +17,23 @@ Quem usa Spotify, Deezer, YouTube Music etc. só precisa ter o scrobbling ligado
 
 ### 2. Página do usuário (`/u/[username]`)
 
-- Cabeçalho com avatar, username (link para o perfil no Last.fm) e total de scrobbles.
-- Seletor de período.
+- Cabeçalho com avatar, username (link para o perfil no Last.fm), total de scrobbles e uma faixa com as capas mais ouvidas do último ano (1 chamada `user.getTopAlbums` com `12month`, com cache).
+- Seletor de período: uma fileira só, com os períodos do Last.fm e os 12 meses fechados (no celular, rola para o lado).
 - Duas abas: **Recap** e **Grade**.
 - Listas em texto dos tops (artistas, músicas, álbuns), que servem de conferência e de versão acessível da imagem.
+
+## Identidade visual: "Sala escura"
+
+Escolhida no redesign entre as fases 7 e 8, no lugar da direção "Encarte" da fase 4.
+
+- **Tema escuro sempre.** Fundo preto quente (`#15120F`), cartões `#221D19`, texto `#F4EEE6`, destaque âmbar (`#E8A13A`). Nada de verde nem de degradês coloridos (não lembrar o Spotify).
+- **Tipografia:** só Geist, com títulos bem pesados (800).
+- **Movimento:**
+  - faixas de capas passando: peças abstratas na página inicial e as capas do usuário (últimos 12 meses) no topo da página dele;
+  - entrada suave de cartões e barrinhas.
+  - Tudo para com "reduzir movimento" no sistema; as faixas também param com o mouse em cima.
+- As cores ficam em `src/app/globals.css` (site) e `src/lib/theme.ts` (canvas). Mudou uma, mude a outra.
+- Recap, grade e imagem de compartilhamento usam a mesma identidade.
 
 ### 3. Privacidade (`/privacidade`)
 
@@ -60,7 +73,7 @@ Regras:
 - Exportar em PNG. No celular, oferecer compartilhar pelo menu nativo (Web Share API com arquivo); se não houver suporte, baixar.
 - Artistas não têm foto disponível na API (ver `LASTFM.md`). Usar capas de álbum ou composição só com texto.
 
-Direção visual escolhida na fase 4: **"Encarte"**, parecida com a contracapa de um disco. Fundo creme (`#F3EEE4`), tinta quase preta (`#1C1A17`), destaque vermelho-tijolo (`#B8432C`), Fraunces nos títulos e Geist no resto. Identidade própria, sem lembrar o Spotify Wrapped.
+A imagem segue a identidade visual do site (ver "Identidade visual"): fundo escuro, fileira com as 5 capas mais ouvidas no topo, cartões escuros e destaque âmbar. (Na fase 4 a imagem era "Encarte", em papel creme; mudou no redesign.)
 
 ## Recurso 2: Grade de álbuns
 

@@ -68,3 +68,14 @@ export function monthRange(id: string): { from: number; to: number } | null {
   const nextStart = new Date(parsed.year, parsed.month, 1).getTime();
   return { from: start / 1000, to: nextStart / 1000 - 1 };
 }
+
+/**
+ * Rótulo curto para a fileira de períodos: "Outubro"; com o ano só quando for
+ * diferente de `referenceYear` (ex.: "Dezembro 2025").
+ */
+export function monthPillLabel(id: string, referenceYear: number): string {
+  const parsed = parseMonthId(id);
+  if (!parsed) return "";
+  const name = monthLabel(id).split(" de ")[0];
+  return parsed.year === referenceYear ? name : `${name} ${parsed.year}`;
+}

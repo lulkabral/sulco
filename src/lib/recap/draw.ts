@@ -1,8 +1,10 @@
-// Desenho do recap no formato story (1080 x 1920), direção visual "Encarte":
-// papel creme, tinta quase preta, um destaque em vermelho-tijolo, serifada nos títulos.
+// Desenho do recap no formato story (1080 x 1920), identidade "Sala escura":
+// fundo preto quente, cartões escuros, Geist pesada e um único destaque âmbar.
+// No topo, uma fileira com as capas mais ouvidas (como as faixas do site).
 
 import { truncateText, wrapText } from "@/lib/canvas/text";
 import { formatNumber, formatPlays } from "@/lib/format";
+import { THEME, TILE_COLORS } from "@/lib/theme";
 
 export const RECAP_WIDTH = 1080;
 export const RECAP_HEIGHT = 1920;
@@ -16,9 +18,9 @@ export type RecapListItem = {
 
 export type RecapData = {
   username: string;
-  /** Ex.: "Últimos 30 dias" (na fase 6, "Outubro de 2026"). */
+  /** Ex.: "Últimos 30 dias" ou "Outubro de 2026". */
   title: string;
-  /** Ex.: "16 out – 15 nov 2026". */
+  /** Ex.: "1 – 31 out 2026". */
   dateRange: string;
   total: number;
   artists: RecapListItem[];
@@ -26,24 +28,20 @@ export type RecapData = {
   albums: RecapListItem[];
   /** Álbum nº 1, com a capa já carregada (ou null se não tiver capa). */
   featured: (RecapListItem & { cover: HTMLImageElement | null }) | null;
+  /** Capas da fileira do topo (álbuns 1 a 5; null onde não houver capa). */
+  stripCovers: (HTMLImageElement | null)[];
   /** Top gêneros. null = não deu para calcular; [] = artistas sem tags. */
   genres: string[] | null;
   /** Endereço do site, mostrado no rodapé. */
   siteHost: string;
 };
 
-export type RecapFonts = { serif: string; sans: string };
-
-const PAPER = "#F3EEE4";
-const PAPER_DARK = "#E3DACB";
-const INK = "#1C1A17";
-const INK_SOFT = "#6B655C";
-const ACCENT = "#B8432C";
+export type RecapFonts = { sans: string };
 
 const M = 80; // margem lateral
 const INNER = RECAP_WIDTH - M * 2; // 920
-const COL_GAP = 40;
-const COL_W = (INNER - COL_GAP) / 2; // 440
+const GAP = 24;
+const COL_W = (INNER - GAP) / 2; // 448
 const LIST_SIZE = 5;
 
 type Ctx = CanvasRenderingContext2D;
@@ -53,193 +51,209 @@ export function drawRecap(canvas: HTMLCanvasElement, data: RecapData, fonts: Rec
   canvas.height = RECAP_HEIGHT;
   const ctx = canvas.getContext("2d");
   if (!ctx) return;
+  const f = fonts.sans;
 
-  ctx.fillStyle = PAPER;
+  ctx.fillStyle = THEME.room;
   ctx.fillRect(0, 0, RECAP_WIDTH, RECAP_HEIGHT);
   ctx.textBaseline = "alphabetic";
 
-  drawHeader(ctx, data, fonts);
-  hRule(ctx, 320, 2);
-  drawFeature(ctx, data, fonts, 356);
-  hRule(ctx, 856, 2);
+  drawStrip(ctx, data.stripCovers);
+  drawHeader(ctx, data, f);
+  drawFeature(ctx, data, f, 460);
 
-  const left = M;
-  const right = M + COL_W + COL_GAP;
-  vRule(ctx, M + COL_W + COL_GAP / 2, 896, 1266);
-  drawList(ctx, fonts, left, 896, "Artistas", data.artists);
-  drawList(ctx, fonts, right, 896, "Músicas", data.tracks);
+  drawListCard(ctx, f, M, 900, "Artistas", data.artists);
+  drawListCard(ctx, f, M + COL_W + GAP, 900, "Músicas", data.tracks);
+  drawListCard(ctx, f, M, 1334, "Álbuns", data.albums);
+  drawGenresCard(ctx, f, M + COL_W + GAP, 1334, data.genres);
 
-  hRule(ctx, 1296, 1);
-  vRule(ctx, M + COL_W + COL_GAP / 2, 1326, 1696);
-  drawList(ctx, fonts, left, 1326, "Álbuns", data.albums);
-  drawGenres(ctx, fonts, right, 1326, data.genres);
-
-  hRule(ctx, 1764, 2);
-  drawFooter(ctx, data, fonts, 1820);
+  drawFooter(ctx, data, f, 1840);
 }
 
 // ---------- partes ----------
 
-function drawHeader(ctx: Ctx, data: RecapData, fonts: RecapFonts) {
-  eyebrow(ctx, fonts, "Recap", M, 124);
-
-  ctx.font = `500 30px ${fonts.sans}`;
-  ctx.fillStyle = INK_SOFT;
-  ctx.textAlign = "right";
-  const user = truncateText(`@${data.username}`, INNER / 2, measureWith(ctx));
-  ctx.fillText(user, M + INNER, 124);
-  ctx.textAlign = "left";
-
-  ctx.font = `600 88px ${fonts.serif}`;
-  ctx.fillStyle = INK;
-  ctx.fillText(truncateText(data.title, INNER, measureWith(ctx)), M - 4, 226);
-
-  ctx.font = `400 32px ${fonts.sans}`;
-  ctx.fillStyle = INK_SOFT;
-  ctx.fillText(data.dateRange, M, 278);
+/** Fileira de 5 capas no topo, cortada em cima e sumindo no fundo embaixo. */
+function drawStrip(ctx: Ctx, covers: (HTMLImageElement | null)[]) {
+  const side = 200;
+  const gap = 20;
+  for (let i = 0; i < 5; i++) {
+    const x = i * (side + gap);
+    const y = -40;
+    ctx.save();
+    roundRect(ctx, x, y, side, side, 20);
+    ctx.clip();
+    const cover = covers[i];
+    if (cover) {
+      ctx.drawImage(cover, x, y, side, side);
+    } else {
+      ctx.fillStyle = TILE_COLORS[(i * 3) % TILE_COLORS.length];
+      ctx.fillRect(x, y, side, side);
+    }
+    ctx.restore();
+  }
+  // Escurece de cima para baixo: as capas "afundam" no fundo.
+  const fade = ctx.createLinearGradient(0, 20, 0, 200);
+  fade.addColorStop(0, "rgba(21,18,15,0.15)");
+  fade.addColorStop(1, THEME.room);
+  ctx.fillStyle = fade;
+  ctx.fillRect(0, 0, RECAP_WIDTH, 200);
 }
 
-function drawFeature(ctx: Ctx, data: RecapData, fonts: RecapFonts, top: number) {
-  const side = 460;
+function drawHeader(ctx: Ctx, data: RecapData, f: string) {
+  eyebrow(ctx, f, `Recap · @${data.username}`, M, 256, THEME.amber, INNER);
+
+  const size = fitFontSize(ctx, data.title, INNER, 104, 64, (px) => `800 ${px}px ${f}`);
+  ctx.font = `800 ${size}px ${f}`;
+  ctx.fillStyle = THEME.ink;
+  ctx.letterSpacing = "-2px";
+  ctx.fillText(truncateText(data.title, INNER, measureWith(ctx)), M - 4, 352);
+  ctx.letterSpacing = "0px";
+
+  ctx.font = `500 32px ${f}`;
+  ctx.fillStyle = THEME.inkSoft;
+  ctx.fillText(data.dateRange, M, 408);
+}
+
+/** Cartão grande: capa do álbum nº 1, total de scrobbles e nome do álbum. */
+function drawFeature(ctx: Ctx, data: RecapData, f: string, top: number) {
+  const h = 400;
+  card(ctx, M, top, INNER, h, 36);
+
+  const pad = 40;
+  const side = h - pad * 2; // 320
   const featured = data.featured;
-
-  // Capa com "sombra" de papel deslocada, como um disco sobre a mesa.
-  ctx.fillStyle = PAPER_DARK;
-  ctx.fillRect(M + 14, top + 14, side, side);
+  ctx.save();
+  roundRect(ctx, M + pad, top + pad, side, side, 20);
+  ctx.clip();
   if (featured?.cover) {
-    ctx.drawImage(featured.cover, M, top, side, side);
+    ctx.drawImage(featured.cover, M + pad, top + pad, side, side);
   } else {
-    drawNoCover(ctx, fonts, M, top, side, featured);
+    ctx.fillStyle = THEME.card2;
+    ctx.fillRect(M + pad, top + pad, side, side);
+    if (featured) {
+      ctx.font = `800 34px ${f}`;
+      ctx.fillStyle = THEME.ink;
+      ctx.textAlign = "center";
+      const lines = wrapText(featured.name, side - 48, 4, measureWith(ctx));
+      let y = top + pad + side / 2 - ((lines.length - 1) * 40) / 2 + 12;
+      for (const line of lines) {
+        ctx.fillText(line, M + pad + side / 2, y);
+        y += 40;
+      }
+      ctx.textAlign = "left";
+    }
   }
-  ctx.strokeStyle = INK;
-  ctx.lineWidth = 2;
-  ctx.strokeRect(M + 1, top + 1, side - 2, side - 2);
+  ctx.restore();
 
-  // Coluna da direita.
-  const x = M + side + 60;
-  const w = M + INNER - x; // 400
+  const x = M + pad + side + 40; // 480
+  const w = M + INNER - pad - x; // 440
   const measure = measureWith(ctx);
 
-  eyebrow(ctx, fonts, "Scrobbles", x, top + 30);
+  eyebrow(ctx, f, "Scrobbles", x, top + 76, THEME.inkSoft, w);
   const totalText = formatNumber(data.total);
-  const size = fitFontSize(ctx, totalText, w, 120, 56, (px) => `600 ${px}px ${fonts.serif}`);
-  ctx.font = `600 ${size}px ${fonts.serif}`;
-  ctx.fillStyle = INK;
-  ctx.fillText(totalText, x - 2, top + 30 + 18 + size * 0.8);
-
-  hRule(ctx, top + 190, 1, x, w);
+  const size = fitFontSize(ctx, totalText, w, 128, 56, (px) => `800 ${px}px ${f}`);
+  ctx.font = `800 ${size}px ${f}`;
+  ctx.fillStyle = THEME.amber;
+  ctx.letterSpacing = "-3px";
+  ctx.fillText(totalText, x - 4, top + 96 + size * 0.78);
+  ctx.letterSpacing = "0px";
 
   if (!featured) return;
-  eyebrow(ctx, fonts, "Álbum nº 1", x, top + 240);
-
-  // No máximo 2 linhas: com nome, artista e plays, o bloco termina na altura da capa.
-  ctx.font = `500 42px ${fonts.serif}`;
-  ctx.fillStyle = INK;
-  let y = top + 294;
-  for (const line of wrapText(featured.name, w, 2, measure)) {
+  eyebrow(ctx, f, "Álbum nº 1", x, top + 270, THEME.inkSoft, w);
+  ctx.font = `700 34px ${f}`;
+  ctx.fillStyle = THEME.ink;
+  const lines = wrapText(featured.name, w, 2, measure);
+  let y = top + 314;
+  for (const line of lines) {
     ctx.fillText(line, x, y);
-    y += 50;
-  }
-
-  ctx.font = `400 28px ${fonts.sans}`;
-  ctx.fillStyle = INK_SOFT;
-  if (featured.artist) {
-    ctx.fillText(truncateText(featured.artist, w, measure), x, y + 2);
     y += 40;
   }
-  ctx.fillStyle = ACCENT;
-  ctx.fillText(formatPlays(featured.playcount), x, y + 2);
+  ctx.font = `500 26px ${f}`;
+  ctx.fillStyle = THEME.inkSoft;
+  const sub = featured.artist
+    ? `${featured.artist} · ${formatPlays(featured.playcount)}`
+    : formatPlays(featured.playcount);
+  ctx.fillText(truncateText(sub, w, measure), x, y + 4);
 }
 
-/** Capa ausente: quadrado de papel mais escuro com o nome do álbum. */
-function drawNoCover(
-  ctx: Ctx,
-  fonts: RecapFonts,
-  x: number,
-  y: number,
-  side: number,
-  album: RecapListItem | null,
-) {
-  ctx.fillStyle = PAPER_DARK;
-  ctx.fillRect(x, y, side, side);
-  if (!album) return;
-  ctx.font = `600 44px ${fonts.serif}`;
-  ctx.fillStyle = INK;
-  ctx.textAlign = "center";
-  const lines = wrapText(album.name, side - 80, 4, measureWith(ctx));
-  let cy = y + side / 2 - ((lines.length - 1) * 52) / 2 + 14;
-  for (const line of lines) {
-    ctx.fillText(line, x + side / 2, cy);
-    cy += 52;
-  }
-  ctx.textAlign = "left";
-}
-
-function drawList(
-  ctx: Ctx,
-  fonts: RecapFonts,
-  x: number,
-  top: number,
-  title: string,
-  items: RecapListItem[],
-) {
-  eyebrow(ctx, fonts, title, x, top + 24);
+function drawListCard(ctx: Ctx, f: string, x: number, top: number, title: string, items: RecapListItem[]) {
+  card(ctx, x, top, COL_W, 410, 32);
+  const pad = 32;
+  const inner = COL_W - pad * 2;
+  const left = x + pad;
+  eyebrow(ctx, f, title, left, top + 58, THEME.inkSoft, inner);
   const measure = measureWith(ctx);
-  const rankW = 46;
+  const rankW = 44;
 
   items.slice(0, LIST_SIZE).forEach((item, i) => {
-    const base = top + 80 + i * 66;
+    const base = top + 120 + i * 58;
 
-    ctx.font = `600 30px ${fonts.serif}`;
-    ctx.fillStyle = ACCENT;
-    ctx.fillText(String(i + 1), x, base);
+    ctx.font = `800 30px ${f}`;
+    ctx.fillStyle = THEME.amber;
+    ctx.fillText(String(i + 1), left, base);
 
-    // Plays alinhados à direita, na linha do nome.
-    ctx.font = `400 24px ${fonts.sans}`;
-    ctx.fillStyle = INK_SOFT;
-    ctx.textAlign = "right";
-    const plays = formatNumber(item.playcount);
-    ctx.fillText(plays, x + COL_W, base);
-    ctx.textAlign = "left";
-    const playsW = measure(plays) + 16;
-
-    ctx.font = `600 30px ${fonts.sans}`;
-    ctx.fillStyle = INK;
-    ctx.fillText(truncateText(item.name, COL_W - rankW - playsW, measure), x + rankW, base);
-
+    // Artistas: só o nome, com os plays na linha de baixo.
+    // Músicas e álbuns: plays à direita do nome, artista na linha de baixo.
+    let nameWidth = inner - rankW;
     if (item.artist) {
-      ctx.font = `400 24px ${fonts.sans}`;
-      ctx.fillStyle = INK_SOFT;
-      ctx.fillText(truncateText(item.artist, COL_W - rankW, measure), x + rankW, base + 30);
+      ctx.font = `600 22px ${f}`;
+      ctx.fillStyle = THEME.inkFaint;
+      ctx.textAlign = "right";
+      const plays = formatNumber(item.playcount);
+      ctx.fillText(plays, left + inner, base);
+      ctx.textAlign = "left";
+      nameWidth -= measure(plays) + 14;
     }
+
+    ctx.font = `700 28px ${f}`;
+    ctx.fillStyle = THEME.ink;
+    ctx.fillText(truncateText(item.name, nameWidth, measure), left + rankW, base);
+
+    ctx.font = `500 22px ${f}`;
+    ctx.fillStyle = THEME.inkSoft;
+    const sub = item.artist ?? formatPlays(item.playcount);
+    ctx.fillText(truncateText(sub, inner - rankW, measure), left + rankW, base + 28);
   });
 }
 
-function drawGenres(ctx: Ctx, fonts: RecapFonts, x: number, top: number, genres: string[] | null) {
-  eyebrow(ctx, fonts, "Gêneros", x, top + 24);
+function drawGenresCard(ctx: Ctx, f: string, x: number, top: number, genres: string[] | null) {
+  card(ctx, x, top, COL_W, 410, 32);
+  const pad = 32;
+  const inner = COL_W - pad * 2;
+  const left = x + pad;
+  eyebrow(ctx, f, "Gêneros", left, top + 58, THEME.inkSoft, inner);
+
   if (!genres || genres.length === 0) {
-    ctx.font = `italic 400 30px ${fonts.serif}`;
-    ctx.fillStyle = INK_SOFT;
-    ctx.fillText(genres ? "sem tags suficientes" : "indisponível", x, top + 80);
+    ctx.font = `500 26px ${f}`;
+    ctx.fillStyle = THEME.inkSoft;
+    ctx.fillText(genres ? "sem tags suficientes" : "indisponível", left, top + 120);
     return;
   }
   const measure = measureWith(ctx);
   genres.slice(0, LIST_SIZE).forEach((genre, i) => {
-    const base = top + 80 + i * 66;
-    ctx.font = `600 30px ${fonts.serif}`;
-    ctx.fillStyle = ACCENT;
-    ctx.fillText(String(i + 1), x, base);
-    ctx.font = `600 30px ${fonts.sans}`;
-    ctx.fillStyle = INK;
-    ctx.fillText(truncateText(genre, COL_W - 46, measure), x + 46, base);
+    const base = top + 120 + i * 58;
+    ctx.font = `800 30px ${f}`;
+    ctx.fillStyle = THEME.amber;
+    ctx.fillText(String(i + 1), left, base);
+    ctx.font = `700 28px ${f}`;
+    ctx.fillStyle = THEME.ink;
+    ctx.fillText(truncateText(genre, inner - 44, measure), left + 44, base);
+    // Barrinha decrescente, como na página.
+    ctx.fillStyle = THEME.line;
+    roundRect(ctx, left + 44, base + 14, inner - 44, 6, 3);
+    ctx.fill();
+    ctx.fillStyle = i === 0 ? THEME.amber : "rgba(232,161,58,0.6)";
+    roundRect(ctx, left + 44, base + 14, (inner - 44) * (1 - i * 0.16), 6, 3);
+    ctx.fill();
   });
 }
 
-function drawFooter(ctx: Ctx, data: RecapData, fonts: RecapFonts, baseline: number) {
-  ctx.font = `400 26px ${fonts.sans}`;
-  ctx.fillStyle = INK_SOFT;
+function drawFooter(ctx: Ctx, data: RecapData, f: string, baseline: number) {
+  ctx.font = `500 26px ${f}`;
+  ctx.fillStyle = THEME.inkFaint;
   ctx.fillText("dados: Last.fm", M, baseline);
   ctx.textAlign = "right";
+  ctx.font = `700 26px ${f}`;
+  ctx.fillStyle = THEME.inkSoft;
   ctx.fillText(truncateText(data.siteHost, INNER / 2, measureWith(ctx)), M + INNER, baseline);
   ctx.textAlign = "left";
 }
@@ -250,23 +264,24 @@ function measureWith(ctx: Ctx) {
   return (s: string) => ctx.measureText(s).width;
 }
 
-/** Rótulo pequeno em maiúsculas, espaçado, na cor de destaque. */
-function eyebrow(ctx: Ctx, fonts: RecapFonts, text: string, x: number, baseline: number) {
-  ctx.font = `600 24px ${fonts.sans}`;
-  ctx.fillStyle = ACCENT;
+/** Rótulo pequeno em maiúsculas e espaçado. */
+function eyebrow(ctx: Ctx, f: string, text: string, x: number, baseline: number, color: string, maxWidth: number) {
+  ctx.font = `700 24px ${f}`;
+  ctx.fillStyle = color;
   ctx.letterSpacing = "4px"; // navegadores sem suporte ignoram
-  ctx.fillText(text.toLocaleUpperCase("pt-BR"), x, baseline);
+  ctx.fillText(truncateText(text.toLocaleUpperCase("pt-BR"), maxWidth, measureWith(ctx)), x, baseline);
   ctx.letterSpacing = "0px";
 }
 
-function hRule(ctx: Ctx, y: number, width: number, x = M, w = INNER) {
-  ctx.fillStyle = INK;
-  ctx.fillRect(x, y - width / 2, w, width);
+function card(ctx: Ctx, x: number, y: number, w: number, h: number, r: number) {
+  ctx.fillStyle = THEME.card;
+  roundRect(ctx, x, y, w, h, r);
+  ctx.fill();
 }
 
-function vRule(ctx: Ctx, x: number, y1: number, y2: number) {
-  ctx.fillStyle = PAPER_DARK;
-  ctx.fillRect(x - 1, y1, 2, y2 - y1);
+function roundRect(ctx: Ctx, x: number, y: number, w: number, h: number, r: number) {
+  ctx.beginPath();
+  ctx.roundRect(x, y, w, h, r);
 }
 
 /** Maior tamanho de fonte (entre max e min) em que o texto cabe na largura. */
