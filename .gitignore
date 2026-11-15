@@ -1,0 +1,29 @@
+# dependências
+node_modules/
+/.pnp
+.pnp.*
+
+# testes
+/coverage
+
+# build
+.next/
+out/
+/build
+
+# variáveis de ambiente (a chave do Last.fm fica aqui)
+.env
+.env*.local
+!.env.example
+
+# deploy
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# sistema e editor
+.DS_Store
+*.pem
+*.log

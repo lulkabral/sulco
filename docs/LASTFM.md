@@ -1,0 +1,83 @@
+# Cola da API do Last.fm
+
+Documentação oficial: https://www.last.fm/api
+Termos de uso: https://www.last.fm/api/tos
+
+Itens marcados com **(confirmar)** vêm de relatos da comunidade ou de memória. Teste com uma chamada real antes de depender deles e atualize este arquivo com o resultado.
+
+## Básico
+
+- Endereço único: `https://ws.audioscrobbler.com/2.0/`
+- Parâmetros sempre presentes: `method`, `api_key`, `format=json`
+- Os métodos abaixo são de leitura e não exigem login do usuário, só a nossa chave.
+- Exemplo:
+
+```
+GET https://ws.audioscrobbler.com/2.0/?method=user.gettopalbums&user=USERNAME&period=7day&limit=25&api_key=CHAVE&format=json
+```
+
+## Métodos permitidos nas nossas rotas
+
+| Método | Para quê | Parâmetros principais |
+|---|---|---|
+| `user.getInfo` | validar o username, avatar, total de scrobbles | `user` |
+| `user.getTopArtists` | top artistas | `user`, `period`, `limit`, `page` |
+| `user.getTopAlbums` | top álbuns e grade | `user`, `period`, `limit`, `page` |
+| `user.getTopTracks` | top músicas | `user`, `period`, `limit`, `page` |
+| `user.getRecentTracks` | scrobbles de um intervalo (mês fechado) | `user`, `from`, `to`, `limit` (máx. 200), `page` |
+| `artist.getTopTags` | tags do artista (gêneros) | `artist` |
+
+Qualquer outro método deve ser recusado pela rota.
+
+`period` aceita: `overall`, `7day`, `1month`, `3month`, `6month`, `12month`.
+
+## Armadilhas
+
+1. **`1month` não é mês do calendário.** São os últimos 30 dias corridos. Para "outubro de 2026", usar `user.getRecentTracks` com `from` e `to` e somar.
+2. **`from` e `to` são timestamps UNIX em UTC.** O começo e o fim do mês devem ser calculados no fuso da pessoa (no navegador) e convertidos.
+3. **Faixa tocando agora.** `user.getRecentTracks` pode devolver no topo a música em reprodução, com `@attr.nowplaying = "true"` e sem campo `date`. Ignorar na soma.
+4. **Paginação.** A resposta traz `@attr.totalPages` e `@attr.total`. Buscar página a página, com limite máximo.
+5. **Formato cru estranho.** Campos como `artist["#text"]`, `image[].#text`, `@attr`. Números chegam como texto. Normalizar tudo no servidor antes de devolver.
+6. **Um item só pode vir como objeto em vez de lista (confirmar).** Tratar os dois casos ao normalizar.
+7. **Fotos de artista não existem na API.** Desde 2019 o campo de imagem de artista devolve um placeholder (estrela branca em fundo cinza). Capas de álbum funcionam normalmente. O placeholder costuma ter `2a96cbd8b46e442fc41c2b86b821562f` no endereço **(confirmar)**; se aparecer, tratar como "sem imagem".
+8. **Álbum sem capa.** O campo de imagem vem como texto vazio.
+9. **Tamanho das capas.** O maior tamanho listado é `extralarge` (300 px). Há relatos de que trocar o trecho de tamanho no endereço (ex.: `300x300`) por um maior funciona **(confirmar)**. Para a grade 5x5, 300 px por capa já dá 1500 px de largura.
+10. **Erros.** Conferir o campo `error` no JSON; não confiar só no status HTTP.
+
+| Código | Significado | Nosso código |
+|---|---|---|
+| 6 | parâmetro inválido / usuário não encontrado | `USER_NOT_FOUND` |
+| 10 | chave inválida | `LASTFM_DOWN` (e registrar no log do servidor, sem a chave) |
+| 11, 16 | serviço fora do ar / erro temporário | `LASTFM_DOWN` |
+| 17 | exige login: histórico recente privado **(confirmar)** | `PRIVATE_PROFILE` |
+| 26 | chave suspensa | `LASTFM_DOWN` |
+| 29 | limite de requisições | `RATE_LIMITED` |
+
+## Uso responsável
+
+- O Last.fm não publica um limite numérico, mas os termos avisam que a conta pode ser suspensa se o app fizer várias chamadas por segundo continuamente. Meta do projeto: no máximo 3 a 4 chamadas simultâneas por pedido e cache em tudo.
+- Tempo de cache sugerido (cabeçalho `Cache-Control` com `s-maxage`):
+  - `user.getInfo` e tops por período: 10 a 30 minutos
+  - páginas de scrobbles de mês já encerrado: 24 horas ou mais
+  - páginas de scrobbles do mês corrente: 10 minutos
+  - tags de artista: 7 dias
+- Enviar um `User-Agent` que identifique o projeto.
+
+## Termos de uso (resumo do que nos afeta)
+
+- Uso permitido apenas não comercial. Para uso comercial, é preciso pedir acordo ao Last.fm (partners@last.fm).
+- Exigem crédito com link para o Last.fm. Links de perfil devem apontar para `https://www.last.fm/user/USERNAME`; links de artista, álbum ou música, para a página correspondente no Last.fm.
+- Há um teto de dados do Last.fm que se pode manter armazenado; como não guardamos nada além de cache temporário, não nos afeta.
+
+## Como criar a chave
+
+1. Entrar no Last.fm e abrir https://www.last.fm/api/account/create
+2. Preencher nome e descrição do app. O campo de callback pode ficar vazio.
+3. Copiar a "API key" para o arquivo `.env.local`. O "shared secret" não é usado neste projeto.
+
+## Descobertas (preencher durante o desenvolvimento)
+
+- CORS do servidor de imagens:
+- Placeholder de artista:
+- Erro para perfil privado:
+- Tamanhos maiores de capa:
