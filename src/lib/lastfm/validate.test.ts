@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { HTTP_STATUS, mapLastfmError } from "./errors";
-import { validateLimit, validatePeriod, validateTopType, validateUsername } from "./validate";
+import {
+  validateArtistName,
+  validateLimit,
+  validatePeriod,
+  validateTopType,
+  validateUsername,
+} from "./validate";
 
 describe("validateUsername", () => {
   it.each(["exemplo", "Ab", "user_name-1", "a12345678901234"])("aceita %s", (name) => {
@@ -68,5 +74,19 @@ describe("mapLastfmError", () => {
   it("cada código tem um status HTTP", () => {
     expect(HTTP_STATUS.USER_NOT_FOUND).toBe(404);
     expect(HTTP_STATUS.BAD_REQUEST).toBe(400);
+  });
+});
+
+describe("validateArtistName", () => {
+  it("aceita nomes com acento, espaço e símbolos", () => {
+    expect(validateArtistName(" Sigur Rós ")).toEqual({ ok: true, value: "Sigur Rós" });
+    expect(validateArtistName("AC/DC")).toEqual({ ok: true, value: "AC/DC" });
+  });
+
+  it("recusa vazio, longo demais e caractere de controle", () => {
+    expect(validateArtistName(null).ok).toBe(false);
+    expect(validateArtistName("   ").ok).toBe(false);
+    expect(validateArtistName("a".repeat(201)).ok).toBe(false);
+    expect(validateArtistName("a\nb").ok).toBe(false);
   });
 });

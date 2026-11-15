@@ -112,9 +112,9 @@ Depois de pronto, rode com meu username e me mostre o resultado para ajustarmos 
 
 Pronto quando:
 
-- [ ] os gêneros fazem sentido para o meu perfil
-- [ ] tags como "seen live" não aparecem
-- [ ] testes passam
+- [ ] os gêneros fazem sentido para o meu perfil (testado com o perfil público `rj`; falta rodar `npm run genres -- MEU_USER`)
+- [x] tags como "seen live" não aparecem
+- [x] testes passam
 
 ## Fase 6: Mês fechado
 

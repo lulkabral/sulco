@@ -3,14 +3,23 @@
 import "server-only";
 
 import { cacheLife } from "next/cache";
+import { computeTopGenres, mapWithLimit, type Genre } from "@/lib/genres";
 import { LastfmError, mapLastfmError } from "./errors";
 import {
   getLastfmErrorNumber,
+  normalizeArtistTags,
   normalizeRecentTotal,
   normalizeTop,
   normalizeUserInfo,
 } from "./normalize";
-import type { ErrorCode, Period, TopResponse, TopType, UserInfo } from "./types";
+import type {
+  ArtistTagsResponse,
+  ErrorCode,
+  Period,
+  TopResponse,
+  TopType,
+  UserInfo,
+} from "./types";
 
 const API_URL = "https://ws.audioscrobbler.com/2.0/";
 const USER_AGENT = "RecapMensal/0.1 (projeto não comercial)";
@@ -35,12 +44,27 @@ const RETRY_DELAY_MS = 500;
 const TRANSIENT_ERRORS = new Set([8, 11, 16]);
 
 /**
+ * Por quanto tempo guardar cada tipo de resposta (docs/LASTFM.md):
+ * - short: dados do usuário, 10 min "fresco", expira em 30 min;
+ * - week: tags de artista, mudam pouco: 7 dias "fresco", expira em 14.
+ */
+const CACHE_PROFILES = {
+  short: { revalidate: 600, expire: 1800 },
+  week: { revalidate: 604_800, expire: 1_209_600 },
+} as const;
+type CacheProfile = keyof typeof CACHE_PROFILES;
+
+/**
  * Faz a chamada e guarda o resultado em cache (por método + parâmetros).
- * Sucesso fica 10 min "fresco" e expira em 30 min. Erro fica só alguns segundos:
+ * Sucesso fica em cache pelo perfil escolhido. Erro fica só alguns segundos:
  * o bastante para não martelar o Last.fm, curto para o botão "Tentar de novo" funcionar.
  * Erros viram valor de retorno (e não exceção) para atravessar o cache sem perder o código.
  */
-async function fetchLastfmCached(method: Method, params: Record<string, string>): Promise<RawResult> {
+async function fetchLastfmCached(
+  method: Method,
+  params: Record<string, string>,
+  cache: CacheProfile,
+): Promise<RawResult> {
   "use cache";
 
   let result = await fetchLastfm(method, params);
@@ -50,7 +74,7 @@ async function fetchLastfmCached(method: Method, params: Record<string, string>)
     result = await fetchLastfm(method, params);
   }
   if (result.ok) {
-    cacheLife({ revalidate: 600, expire: 1800 });
+    cacheLife(CACHE_PROFILES[cache]);
   } else {
     cacheLife({ revalidate: 5, expire: 15 });
   }
@@ -110,11 +134,15 @@ async function fetchLastfm(method: Method, params: Record<string, string>): Prom
 }
 
 /** Chama um método permitido e devolve o JSON cru; lança LastfmError em caso de erro. */
-async function callLastfm(method: Method, params: Record<string, string>): Promise<unknown> {
+async function callLastfm(
+  method: Method,
+  params: Record<string, string>,
+  cache: CacheProfile = "short",
+): Promise<unknown> {
   if (!(ALLOWED_METHODS as readonly string[]).includes(method)) {
     throw new LastfmError("BAD_REQUEST", "Método não permitido.");
   }
-  const result = await fetchLastfmCached(method, params);
+  const result = await fetchLastfmCached(method, params, cache);
   if (!result.ok) throw new LastfmError(result.code);
   return result.body;
 }
@@ -158,4 +186,39 @@ export async function getScrobbleTotal(username: string, from: number, to: numbe
     limit: "1",
   });
   return normalizeRecentTotal(raw);
+}
+
+/**
+ * Tags de um artista (cache de 7 dias). Artista que o Last.fm não conhece
+ * (erro 6, que viraria USER_NOT_FOUND) devolve lista vazia em vez de erro.
+ */
+export async function getArtistTags(artist: string): Promise<ArtistTagsResponse> {
+  try {
+    const raw = await callLastfm("artist.getTopTags", { artist }, "week");
+    return normalizeArtistTags(raw, artist);
+  } catch (err) {
+    if (err instanceof LastfmError && err.code === "USER_NOT_FOUND") return { artist, tags: [] };
+    throw err;
+  }
+}
+
+/** Máximo de buscas de tags ao mesmo tempo (regra do projeto: 3 a 4). */
+const TAGS_CONCURRENCY = 3;
+
+/**
+ * Top de gêneros dos artistas dados (SPEC, "Gêneros"). Nunca lança erro:
+ * artista cujas tags falharem só fica de fora; se falharem todos, devolve null.
+ */
+export async function getTopGenres(
+  artists: { name: string; playcount: number }[],
+): Promise<Genre[] | null> {
+  const tags = await mapWithLimit(artists, TAGS_CONCURRENCY, async (artist) => {
+    try {
+      return (await getArtistTags(artist.name)).tags;
+    } catch {
+      return null;
+    }
+  });
+  if (artists.length > 0 && tags.every((t) => t === null)) return null;
+  return computeTopGenres(artists.map((a, i) => ({ ...a, tags: tags[i] ?? [] })));
 }

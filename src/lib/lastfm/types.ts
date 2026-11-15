@@ -66,3 +66,14 @@ export type ErrorCode = (typeof ERROR_CODES)[number];
 export type ApiError = {
   error: { code: ErrorCode; message: string };
 };
+
+/** Tag de um artista. `count` é a força da tag, de 0 a 100 (a mais forte vale 100). */
+export type ArtistTag = {
+  name: string;
+  count: number;
+};
+
+export type ArtistTagsResponse = {
+  artist: string;
+  tags: ArtistTag[];
+};

@@ -7,6 +7,8 @@ import type { ErrorCode } from "./types";
 export const CACHE_SECONDS = {
   /** user.getInfo e tops por período: 10 minutos (docs/LASTFM.md). */
   short: 600,
+  /** Tags de artista: 7 dias (docs/LASTFM.md). */
+  week: 604_800,
 } as const;
 
 export function jsonOk(data: unknown, cacheSeconds: number): Response {

@@ -1,7 +1,15 @@
 // Funções puras que transformam o JSON cru do Last.fm nos nossos tipos.
 // Recebem `unknown` de propósito: a resposta vem de fora e não confiamos no formato.
 
-import type { TopAlbum, TopArtist, TopItem, TopTrack, TopType, UserInfo } from "./types";
+import type {
+  ArtistTagsResponse,
+  TopAlbum,
+  TopArtist,
+  TopItem,
+  TopTrack,
+  TopType,
+  UserInfo,
+} from "./types";
 
 /** Trecho presente no endereço da imagem genérica (estrela) que o Last.fm usa no lugar de fotos. */
 export const PLACEHOLDER_IMAGE_HASH = "2a96cbd8b46e442fc41c2b86b821562f";
@@ -138,4 +146,17 @@ export function normalizeTop(type: TopType, raw: unknown): { total: number; item
  */
 export function normalizeRecentTotal(raw: unknown): number {
   return num(obj(obj(obj(raw).recenttracks)["@attr"]).total);
+}
+
+/**
+ * Tags de `artist.getTopTags`. Mantém o nome como veio (a normalização de gênero
+ * fica em src/lib/genres.ts) e descarta tags sem nome.
+ */
+export function normalizeArtistTags(raw: unknown, artist: string): ArtistTagsResponse {
+  const root = obj(obj(raw).toptags);
+  const tags = toArray(root.tag)
+    .filter(isObj)
+    .map((t) => ({ name: str(t.name).trim(), count: num(t.count) }))
+    .filter((t) => t.name !== "");
+  return { artist: str(obj(root["@attr"]).artist) || artist, tags };
 }

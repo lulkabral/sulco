@@ -76,10 +76,12 @@ O Last.fm não tem campo de gênero. O cálculo usa as tags dos artistas:
 
 1. pegar os ~20 artistas mais ouvidos do período;
 2. buscar as tags de cada um (`artist.getTopTags`);
-3. para cada artista, usar as 3 a 5 tags mais fortes; peso = plays do artista x (força da tag / 100);
-4. normalizar nomes (minúsculas, juntar variações óbvias como "hip hop" e "hip-hop");
-5. descartar tags que não são gênero (lista configurável: "seen live", "favorites", "favourites", "albums i own", anos e décadas, o próprio nome do artista etc.);
+3. normalizar nomes (minúsculas, juntar variações óbvias como "hip hop" e "hip-hop");
+4. descartar tags que não são gênero (lista configurável: "seen live", "favorites", "favourites", "albums i own", anos e décadas, nacionalidades, "female vocalists", o próprio nome do artista etc.);
+5. para cada artista, usar as 5 tags mais fortes que sobraram; peso = plays do artista x (força da tag / 100);
 6. somar e mostrar o top 5.
+
+Descartar antes de escolher as 5 mais fortes evita que lixo forte ("the voice": 100) tome a vaga de um gênero de verdade. Implementação: `src/lib/genres.ts`.
 
 ## Mês fechado (fase 6)
 

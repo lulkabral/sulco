@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { ExportButtons } from "@/components/ExportButtons";
 import { cssFontFamily, loadImage, pageFontFamily, waitForFonts } from "@/lib/canvas/image";
 import { formatDateRange } from "@/lib/format";
+import type { Genre } from "@/lib/genres";
 import { coverUrl } from "@/lib/grid/layout";
 import { drawRecap, RECAP_HEIGHT, RECAP_WIDTH, type RecapListItem } from "@/lib/recap/draw";
 
@@ -15,6 +16,8 @@ type Props = {
   from: number;
   to: number;
   total: number;
+  /** Gêneros calculados no servidor; chegam depois do resto (null = não deu para calcular). */
+  genres: Promise<Genre[] | null>;
   artists: RecapListItem[];
   tracks: RecapListItem[];
   albums: (RecapListItem & { imageUrl: string | null })[];
@@ -22,7 +25,7 @@ type Props = {
 
 /** Aba Recap: imagem story (1080 x 1920) desenhada no canvas, com baixar/compartilhar. */
 export function RecapImage(props: Props) {
-  const { username, period, periodLabel, from, to, total, artists, tracks, albums } = props;
+  const { username, period, periodLabel, from, to, total, genres, artists, tracks, albums } = props;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [drawn, setDrawn] = useState(false);
 
@@ -35,7 +38,11 @@ export function RecapImage(props: Props) {
       await waitForFonts(sans, serif);
 
       const first = albums[0] ?? null;
-      const cover = first?.imageUrl ? await loadImage(coverUrl(first.imageUrl, 600)) : null;
+      // Capa e gêneros chegam em paralelo.
+      const [cover, genreList] = await Promise.all([
+        first?.imageUrl ? loadImage(coverUrl(first.imageUrl, 600)) : null,
+        genres,
+      ]);
       if (cancelled || !canvasRef.current) return;
 
       drawRecap(
@@ -50,7 +57,7 @@ export function RecapImage(props: Props) {
           tracks,
           albums,
           featured: first ? { ...first, cover } : null,
-          genres: null, // fase 5
+          genres: genreList ? genreList.map((g) => g.name) : null,
           siteHost: window.location.host,
         },
         { serif, sans },
@@ -61,7 +68,7 @@ export function RecapImage(props: Props) {
     return () => {
       cancelled = true;
     };
-  }, [username, periodLabel, from, to, total, artists, tracks, albums]);
+  }, [username, periodLabel, from, to, total, genres, artists, tracks, albums]);
 
   return (
     <section aria-labelledby="recap-titulo" className="flex flex-col gap-4 md:flex-row md:items-start md:gap-8">

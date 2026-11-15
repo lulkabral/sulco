@@ -2,13 +2,15 @@ import { connection } from "next/server";
 import { Suspense } from "react";
 import { AlbumGrid } from "@/components/AlbumGrid";
 import { ErrorState } from "@/components/ErrorState";
+import { GenreList } from "@/components/GenreList";
 import { PeriodSelector } from "@/components/PeriodSelector";
 import { ListsSkeleton, ProfileSkeleton } from "@/components/ProfileSkeleton";
 import { ProfileTabs } from "@/components/ProfileTabs";
 import { RecapImage } from "@/components/RecapImage";
 import { TopList } from "@/components/TopList";
 import { UserHeader } from "@/components/UserHeader";
-import { getScrobbleTotal, getTop, getUserInfo } from "@/lib/lastfm/client";
+import { GENRE_ARTISTS } from "@/lib/genres";
+import { getScrobbleTotal, getTop, getTopGenres, getUserInfo } from "@/lib/lastfm/client";
 import { LastfmError } from "@/lib/lastfm/errors";
 import type { ErrorCode, TopAlbum, TopArtist, TopTrack } from "@/lib/lastfm/types";
 import { validateUsername } from "@/lib/lastfm/validate";
@@ -95,7 +97,8 @@ async function TopLists({ username, period, tab }: { username: string; period: U
   try {
     // Até 4 chamadas ao mesmo tempo (limite do projeto). O total só é preciso no recap.
     [artists, tracks, albums, total] = await Promise.all([
-      getTop(username, "artists", period, LIST_LIMIT),
+      // 20 artistas: a lista mostra 10, o cálculo de gêneros usa todos.
+      getTop(username, "artists", period, GENRE_ARTISTS),
       getTop(username, "tracks", period, LIST_LIMIT),
       getTop(username, "albums", period, ALBUM_LIMIT),
       tab === "recap" ? getScrobbleTotal(username, range.from, range.to) : null,
@@ -116,6 +119,13 @@ async function TopLists({ username, period, tab }: { username: string; period: U
   }
 
   const albumItems = albums.items as TopAlbum[];
+  const artistItems = artists.items as TopArtist[];
+
+  // Começa o cálculo de gêneros (até 20 buscas de tags, 3 por vez) sem esperar:
+  // as listas aparecem já, e a lista de gêneros e a imagem do recap recebem a "promessa".
+  const genres = getTopGenres(
+    artistItems.map((a) => ({ name: a.name, playcount: a.playcount })),
+  );
 
   return (
     <>
@@ -139,7 +149,8 @@ async function TopLists({ username, period, tab }: { username: string; period: U
           from={range.from}
           to={range.to}
           total={total ?? 0}
-          artists={(artists.items as TopArtist[])
+          genres={genres}
+          artists={artistItems
             .slice(0, RECAP_LIMIT)
             .map((a) => ({ name: a.name, playcount: a.playcount }))}
           tracks={(tracks.items as TopTrack[])
@@ -153,10 +164,10 @@ async function TopLists({ username, period, tab }: { username: string; period: U
           }))}
         />
       )}
-      <div className="grid gap-8 md:grid-cols-3">
+      <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
         <TopList
           title="Artistas"
-          items={(artists.items as TopArtist[]).map((a) => ({
+          items={artistItems.slice(0, LIST_LIMIT).map((a) => ({
             rank: a.rank,
             name: a.name,
             playcount: a.playcount,
@@ -183,6 +194,7 @@ async function TopLists({ username, period, tab }: { username: string; period: U
             url: a.url,
           }))}
         />
+        <GenreList genres={genres} />
       </div>
     </>
   );

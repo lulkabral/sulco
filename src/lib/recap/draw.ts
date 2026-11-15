@@ -26,7 +26,7 @@ export type RecapData = {
   albums: RecapListItem[];
   /** Álbum nº 1, com a capa já carregada (ou null se não tiver capa). */
   featured: (RecapListItem & { cover: HTMLImageElement | null }) | null;
-  /** Top gêneros (fase 5). null = ainda não calculado. */
+  /** Top gêneros. null = não deu para calcular; [] = artistas sem tags. */
   genres: string[] | null;
   /** Endereço do site, mostrado no rodapé. */
   siteHost: string;
@@ -220,7 +220,7 @@ function drawGenres(ctx: Ctx, fonts: RecapFonts, x: number, top: number, genres:
   if (!genres || genres.length === 0) {
     ctx.font = `italic 400 30px ${fonts.serif}`;
     ctx.fillStyle = INK_SOFT;
-    ctx.fillText("em breve", x, top + 80);
+    ctx.fillText(genres ? "sem tags suficientes" : "indisponível", x, top + 80);
     return;
   }
   const measure = measureWith(ctx);

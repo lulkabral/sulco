@@ -84,6 +84,11 @@ Qualquer outro método deve ser recusado pela rota.
 - Algumas capas de 600 px demoram vários segundos (uma levou 6 s no teste). Por isso `loadImage` desiste depois de 15 s e trata o álbum como "sem capa".
 - **Total de scrobbles de um período (fase 4, testado em 15/11/2026):** os tops não trazem esse número (o `total` deles é a quantidade de itens *diferentes*). Usamos `user.getRecentTracks` com `from`, `to` e `limit=1`: o `@attr.total` da resposta é o total do intervalo, e bate exatamente com a soma dos plays de `user.getTopArtists` no mesmo período.
 - **Quantos dias cada período tem:** `7day` = 7, `1month` = 30, `3month` = 90, `6month` = 180, `12month` = 365 dias, contados para trás a partir de agora (com 182 dias, por exemplo, o total de `6month` já não bate). Ficam em `PERIOD_DAYS` (`src/lib/periods.ts`). O fim do intervalo é arredondado em blocos de 10 min para o cache funcionar.
+- **`artist.getTopTags` (fase 5, testado em 15/11/2026):**
+  - Veio no máximo 10 tags por artista, já ordenadas. `count` vai de 0 a 100 (a mais forte vale 100) e chega como número.
+  - O nome da tag pode vir com maiúsculas diferentes ("Nu Metal", "Grunge") e até em português ("male vocalistas").
+  - Artista inexistente responde HTTP 200 com `{"error": 6, "message": "The artist you supplied could not be found"}`. Na nossa rota de tags isso vira lista vazia, e não `USER_NOT_FOUND`.
+  - Lixo comum entre as tags mais fortes: nacionalidade ("british", "american", "United States"), "female vocalists", nome de programa ("the voice", "X factor") e o nome do próprio artista ou de um pedaço dele. A lista de descarte fica em `src/lib/genres.ts`; `npm run genres -- USERNAME` mostra o que foi usado e o que foi descartado.
 - Placeholder de artista: confirmado, hash `2a96cbd8b46e442fc41c2b86b821562f`, em todos os tamanhos (`34s`, `64s`, `174s`, `300x300`).
 - Erro para perfil privado: ainda não testado (falta um perfil com histórico privado).
 - Tamanhos maiores de capa: funcionam trocando `300x300` por `600x600`, ou tirando o trecho (original). Ver armadilha 9.

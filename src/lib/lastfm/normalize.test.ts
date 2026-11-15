@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  normalizeArtistTags,
   normalizeRecentTotal,
   getLastfmErrorNumber,
   normalizeTop,
@@ -18,6 +19,7 @@ import topAlbumsEdgeRaw from "./__fixtures__/user-gettopalbums-edge.json";
 import topAlbumsEmptyRaw from "./__fixtures__/user-gettopalbums-empty.json";
 import notFoundRaw from "./__fixtures__/error-user-not-found.json";
 import recentTotalRaw from "./__fixtures__/user-getrecenttracks-total.json";
+import artistTagsRaw from "./__fixtures__/artist-gettoptags.json";
 
 describe("normalizeUserInfo", () => {
   const user = normalizeUserInfo(userInfoRaw);
@@ -169,5 +171,25 @@ describe("normalizeRecentTotal", () => {
     expect(normalizeRecentTotal({})).toBe(0);
     expect(normalizeRecentTotal(null)).toBe(0);
     expect(normalizeRecentTotal({ recenttracks: { "@attr": { total: "abc" } } })).toBe(0);
+  });
+});
+
+describe("normalizeArtistTags", () => {
+  it("lê nome e força das tags, na ordem do Last.fm", () => {
+    const out = normalizeArtistTags(artistTagsRaw, "green day");
+    expect(out.artist).toBe("Green Day");
+    expect(out.tags[0]).toEqual({ name: "punk rock", count: 100 });
+    expect(out.tags[1]).toEqual({ name: "rock", count: 64 });
+  });
+
+  it("aceita tag única como objeto e ignora tag sem nome", () => {
+    const raw = { toptags: { tag: { name: " pop ", count: "100" } } };
+    expect(normalizeArtistTags(raw, "X")).toEqual({ artist: "X", tags: [{ name: "pop", count: 100 }] });
+    const empty = { toptags: { tag: [{ name: "", count: 5 }] } };
+    expect(normalizeArtistTags(empty, "X").tags).toEqual([]);
+  });
+
+  it("resposta estranha vira lista vazia", () => {
+    expect(normalizeArtistTags({}, "X")).toEqual({ artist: "X", tags: [] });
   });
 });

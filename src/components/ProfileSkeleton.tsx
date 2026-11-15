@@ -6,8 +6,8 @@ function Bar({ className }: { className: string }) {
 
 export function ListsSkeleton() {
   return (
-    <div aria-hidden className="grid animate-pulse gap-8 md:grid-cols-3">
-      {[0, 1, 2].map((col) => (
+    <div aria-hidden className="grid animate-pulse gap-8 sm:grid-cols-2 lg:grid-cols-4">
+      {[0, 1, 2, 3].map((col) => (
         <div key={col} className="flex flex-col gap-3">
           <Bar className="h-6 w-28" />
           {Array.from({ length: 10 }, (_, i) => (
@@ -41,6 +41,17 @@ export function ProfileSkeleton() {
         ))}
       </div>
       <ListsSkeleton />
+    </div>
+  );
+}
+
+/** Esqueleto só da lista de gêneros (que chega depois das outras). */
+export function GenresSkeleton() {
+  return (
+    <div aria-hidden className="flex animate-pulse flex-col gap-3">
+      {Array.from({ length: 5 }, (_, i) => (
+        <Bar key={i} className="h-4 w-2/3" />
+      ))}
     </div>
   );
 }

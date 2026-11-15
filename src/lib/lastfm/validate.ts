@@ -49,3 +49,12 @@ export function validateLimit(raw: string | null): Validated<number> {
   }
   return { ok: true, value };
 }
+
+/** Nome de artista: 1 a 200 caracteres, sem caracteres de controle. */
+export function validateArtistName(raw: string | null): Validated<string> {
+  const value = (raw ?? "").trim();
+  if (value.length === 0 || value.length > 200 || /[\u0000-\u001f\u007f]/.test(value)) {
+    return { ok: false, message: "Nome de artista inválido." };
+  }
+  return { ok: true, value };
+}
