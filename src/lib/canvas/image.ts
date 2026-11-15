@@ -29,14 +29,24 @@ export function pageFontFamily(): string {
   return getComputedStyle(document.body).fontFamily || "sans-serif";
 }
 
+/**
+ * Família de fonte guardada numa variável CSS do next/font (ex.: "--font-fraunces").
+ * Sem a variável, usa `fallback`.
+ */
+export function cssFontFamily(variable: string, fallback: string): string {
+  return getComputedStyle(document.documentElement).getPropertyValue(variable).trim() || fallback;
+}
+
 /** Espera as fontes da página ficarem prontas, para o canvas não desenhar com a fonte reserva. */
-export async function waitForFonts(family: string): Promise<void> {
+export async function waitForFonts(...families: string[]): Promise<void> {
   if (!document.fonts) return; // sem a API de fontes: desenha com o que houver
   // Cada `load` pode falhar sozinho (ex.: a fonte reserva "Geist Fallback" aponta para
   // uma fonte local que não existe no Linux). Falha de uma não impede esperar as outras.
-  await Promise.allSettled([
-    document.fonts.load(`400 16px ${family}`),
-    document.fonts.load(`700 16px ${family}`),
-  ]);
+  await Promise.allSettled(
+    families.flatMap((family) => [
+      document.fonts.load(`400 16px ${family}`),
+      document.fonts.load(`700 16px ${family}`),
+    ]),
+  );
   await document.fonts.ready;
 }

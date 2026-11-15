@@ -131,3 +131,11 @@ export function normalizeTop(type: TopType, raw: unknown): { total: number; item
     items: list.map((item, i) => normalizeItem(item, i)),
   };
 }
+
+/**
+ * Total de scrobbles de uma resposta de `user.getRecentTracks`
+ * (campo `recenttracks["@attr"].total`, que conta o intervalo `from`/`to` inteiro).
+ */
+export function normalizeRecentTotal(raw: unknown): number {
+  return num(obj(obj(obj(raw).recenttracks)["@attr"]).total);
+}

@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
-import { canShareFiles, canvasToPng, downloadBlob, shareOrDownload } from "@/lib/canvas/export";
+import { useEffect, useRef, useState } from "react";
+import { ExportButtons } from "@/components/ExportButtons";
 import { loadImage, pageFontFamily, waitForFonts } from "@/lib/canvas/image";
 import { drawGrid } from "@/lib/grid/draw";
 import {
@@ -20,9 +20,6 @@ type Props = {
   albums: Pick<TopAlbum, "name" | "artist" | "playcount" | "imageUrl">[];
 };
 
-// Web Share não muda durante a visita: "assina" sem nunca avisar mudança.
-const subscribeNever = () => () => {};
-
 /** Aba Grade: colagem das capas em canvas, com opções e botão de baixar/compartilhar. */
 export function AlbumGrid({ username, period, periodLabel, albums }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -33,8 +30,6 @@ export function AlbumGrid({ username, period, periodLabel, albums }: Props) {
   const [showCaption, setShowCaption] = useState(true);
   const [showPlays, setShowPlays] = useState(false);
   const [drawnKey, setDrawnKey] = useState<string | null>(null);
-  const [busy, setBusy] = useState(false);
-  const canShare = useSyncExternalStore(subscribeNever, canShareFiles, () => false);
 
   const key = `${size}-${showCaption}-${showPlays}`;
   const loading = drawnKey !== key;
@@ -80,25 +75,9 @@ export function AlbumGrid({ username, period, periodLabel, albums }: Props) {
     };
   }, [albums, size, showCaption, showPlays]);
 
-  async function handleExport(share: boolean) {
-    if (!canvasRef.current) return;
-    setBusy(true);
-    try {
-      const blob = await canvasToPng(canvasRef.current);
-      const filename = `grade-${username}-${period}-${size}x${size}.png`;
-      if (share) await shareOrDownload(blob, filename, `Meus álbuns: ${periodLabel.toLowerCase()}`);
-      else downloadBlob(blob, filename);
-    } finally {
-      setBusy(false);
-    }
-  }
-
   if (albums.length === 0) {
     return <p className="text-zinc-600 dark:text-zinc-400">Nenhum álbum neste período.</p>;
   }
-
-  const buttonBase =
-    "rounded-lg px-4 py-2.5 font-medium focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 disabled:opacity-50";
 
   return (
     <section aria-labelledby="grade-titulo" className="flex flex-col gap-4 md:flex-row md:items-start md:gap-8">
@@ -175,30 +154,12 @@ export function AlbumGrid({ username, period, periodLabel, albums }: Props) {
           </label>
         </fieldset>
 
-        <div className="flex flex-wrap gap-2">
-          {canShare && (
-            <button
-              type="button"
-              onClick={() => handleExport(true)}
-              disabled={loading || busy}
-              className={`${buttonBase} bg-indigo-600 text-white hover:bg-indigo-700`}
-            >
-              Compartilhar
-            </button>
-          )}
-          <button
-            type="button"
-            onClick={() => handleExport(false)}
-            disabled={loading || busy}
-            className={
-              canShare
-                ? `${buttonBase} border border-zinc-300 hover:border-zinc-500 dark:border-zinc-700`
-                : `${buttonBase} bg-indigo-600 text-white hover:bg-indigo-700`
-            }
-          >
-            Baixar PNG
-          </button>
-        </div>
+        <ExportButtons
+          canvasRef={canvasRef}
+          filename={`grade-${username}-${period}-${size}x${size}.png`}
+          shareTitle={`Meus álbuns: ${periodLabel.toLowerCase()}`}
+          disabled={loading}
+        />
       </div>
     </section>
   );

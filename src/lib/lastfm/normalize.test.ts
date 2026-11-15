@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  normalizeRecentTotal,
   getLastfmErrorNumber,
   normalizeTop,
   normalizeUserInfo,
@@ -16,6 +17,7 @@ import topTracksRaw from "./__fixtures__/user-gettoptracks.json";
 import topAlbumsEdgeRaw from "./__fixtures__/user-gettopalbums-edge.json";
 import topAlbumsEmptyRaw from "./__fixtures__/user-gettopalbums-empty.json";
 import notFoundRaw from "./__fixtures__/error-user-not-found.json";
+import recentTotalRaw from "./__fixtures__/user-getrecenttracks-total.json";
 
 describe("normalizeUserInfo", () => {
   const user = normalizeUserInfo(userInfoRaw);
@@ -155,5 +157,17 @@ describe("getLastfmErrorNumber", () => {
   it("devolve null quando não é erro", () => {
     expect(getLastfmErrorNumber(userInfoRaw)).toBeNull();
     expect(getLastfmErrorNumber(null)).toBeNull();
+  });
+});
+
+describe("normalizeRecentTotal", () => {
+  it("lê o total do intervalo (vem como texto)", () => {
+    expect(normalizeRecentTotal(recentTotalRaw)).toBe(108);
+  });
+
+  it("resposta estranha vira 0", () => {
+    expect(normalizeRecentTotal({})).toBe(0);
+    expect(normalizeRecentTotal(null)).toBe(0);
+    expect(normalizeRecentTotal({ recenttracks: { "@attr": { total: "abc" } } })).toBe(0);
   });
 });

@@ -1,12 +1,14 @@
+import { connection } from "next/server";
 import { Suspense } from "react";
 import { AlbumGrid } from "@/components/AlbumGrid";
 import { ErrorState } from "@/components/ErrorState";
 import { PeriodSelector } from "@/components/PeriodSelector";
 import { ListsSkeleton, ProfileSkeleton } from "@/components/ProfileSkeleton";
 import { ProfileTabs } from "@/components/ProfileTabs";
+import { RecapImage } from "@/components/RecapImage";
 import { TopList } from "@/components/TopList";
 import { UserHeader } from "@/components/UserHeader";
-import { getTop, getUserInfo } from "@/lib/lastfm/client";
+import { getScrobbleTotal, getTop, getUserInfo } from "@/lib/lastfm/client";
 import { LastfmError } from "@/lib/lastfm/errors";
 import type { ErrorCode, TopAlbum, TopArtist, TopTrack } from "@/lib/lastfm/types";
 import { validateUsername } from "@/lib/lastfm/validate";
@@ -15,6 +17,7 @@ import {
   DEFAULT_UI_PERIOD,
   parseUiPeriod,
   periodLabel,
+  currentPeriodRange,
   UI_PERIODS,
   type UiPeriod,
 } from "@/lib/periods";
@@ -23,6 +26,8 @@ import { parseTab, type Tab } from "@/lib/tabs";
 const LIST_LIMIT = 10;
 /** Álbuns buscados: o bastante para a grade 5x5. As listas mostram só LIST_LIMIT. */
 const ALBUM_LIMIT = 25;
+/** Itens de cada top na imagem do recap. */
+const RECAP_LIMIT = 5;
 
 // O username e o período só são conhecidos na hora do pedido,
 // então tudo que depende deles fica dentro de <Suspense>.
@@ -82,13 +87,18 @@ async function Profile({ params, searchParams }: Pick<PageProps<"/u/[username]">
 }
 
 async function TopLists({ username, period, tab }: { username: string; period: UiPeriod; tab: Tab }) {
-  let artists, tracks, albums;
+  // O intervalo depende da hora atual: `connection()` diz ao Next que isto roda a cada pedido.
+  await connection();
+  const range = currentPeriodRange(period);
+
+  let artists, tracks, albums, total;
   try {
-    // 3 chamadas ao mesmo tempo (dentro do limite de 3 a 4 do projeto).
-    [artists, tracks, albums] = await Promise.all([
+    // Até 4 chamadas ao mesmo tempo (limite do projeto). O total só é preciso no recap.
+    [artists, tracks, albums, total] = await Promise.all([
       getTop(username, "artists", period, LIST_LIMIT),
       getTop(username, "tracks", period, LIST_LIMIT),
       getTop(username, "albums", period, ALBUM_LIMIT),
+      tab === "recap" ? getScrobbleTotal(username, range.from, range.to) : null,
     ]);
   } catch (err) {
     return <ErrorState code={errorCodeOf(err)} username={username} />;
@@ -122,10 +132,26 @@ async function TopLists({ username, period, tab }: { username: string; period: U
           }))}
         />
       ) : (
-        <p className="rounded-xl border border-dashed border-zinc-300 p-5 text-zinc-600 dark:border-zinc-700 dark:text-zinc-400">
-          A imagem do recap chega em breve. Por enquanto, veja seus tops abaixo ou monte a grade de
-          álbuns na aba Grade.
-        </p>
+        <RecapImage
+          username={username}
+          period={period}
+          periodLabel={periodLabel(period)}
+          from={range.from}
+          to={range.to}
+          total={total ?? 0}
+          artists={(artists.items as TopArtist[])
+            .slice(0, RECAP_LIMIT)
+            .map((a) => ({ name: a.name, playcount: a.playcount }))}
+          tracks={(tracks.items as TopTrack[])
+            .slice(0, RECAP_LIMIT)
+            .map((t) => ({ name: t.name, artist: t.artist, playcount: t.playcount }))}
+          albums={albumItems.slice(0, RECAP_LIMIT).map((a) => ({
+            name: a.name,
+            artist: a.artist,
+            playcount: a.playcount,
+            imageUrl: a.imageUrl,
+          }))}
+        />
       )}
       <div className="grid gap-8 md:grid-cols-3">
         <TopList

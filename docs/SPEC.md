@@ -60,7 +60,7 @@ Regras:
 - Exportar em PNG. No celular, oferecer compartilhar pelo menu nativo (Web Share API com arquivo); se não houver suporte, baixar.
 - Artistas não têm foto disponível na API (ver `LASTFM.md`). Usar capas de álbum ou composição só com texto.
 
-Direção visual: definir junto com o dono do projeto na fase 4 (apresentar 2 ou 3 opções antes de codar). Identidade própria, sem lembrar o Spotify Wrapped.
+Direção visual escolhida na fase 4: **"Encarte"**, parecida com a contracapa de um disco. Fundo creme (`#F3EEE4`), tinta quase preta (`#1C1A17`), destaque vermelho-tijolo (`#B8432C`), Fraunces nos títulos e Geist no resto. Identidade própria, sem lembrar o Spotify Wrapped.
 
 ## Recurso 2: Grade de álbuns
 

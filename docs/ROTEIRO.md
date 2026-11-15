@@ -96,9 +96,9 @@ Nomes longos devem ser cortados com reticências. Espere as fontes carregarem an
 
 Pronto quando:
 
-- [ ] o recap dos últimos 30 dias sai legível e sem texto estourando
-- [ ] baixar e compartilhar funcionam
-- [ ] nada no visual lembra a marca do Spotify
+- [x] o recap dos últimos 30 dias sai legível e sem texto estourando (testado também com total de 6 dígitos, álbum sem capa e nome enorme)
+- [x] baixar e compartilhar funcionam (PNG gerado no Chromium; compartilhar usa o mesmo código da grade e falta testar num celular)
+- [x] nada no visual lembra a marca do Spotify (direção "Encarte": papel creme, serifada, vermelho-tijolo)
 
 ## Fase 5: Gêneros
 

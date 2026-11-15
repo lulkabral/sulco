@@ -4,7 +4,12 @@ import "server-only";
 
 import { cacheLife } from "next/cache";
 import { LastfmError, mapLastfmError } from "./errors";
-import { getLastfmErrorNumber, normalizeTop, normalizeUserInfo } from "./normalize";
+import {
+  getLastfmErrorNumber,
+  normalizeRecentTotal,
+  normalizeTop,
+  normalizeUserInfo,
+} from "./normalize";
 import type { ErrorCode, Period, TopResponse, TopType, UserInfo } from "./types";
 
 const API_URL = "https://ws.audioscrobbler.com/2.0/";
@@ -139,4 +144,18 @@ export async function getTop(
   const { total, items } = normalizeTop(type, raw);
   // O Last.fm às vezes devolve mais itens que o limit pedido; cortamos aqui.
   return { user: username, type, period, total, items: items.slice(0, limit) };
+}
+
+/**
+ * Total de scrobbles entre `from` e `to` (timestamps UNIX em segundos).
+ * Uma chamada só: pede 1 faixa e lê o total que vem junto.
+ */
+export async function getScrobbleTotal(username: string, from: number, to: number): Promise<number> {
+  const raw = await callLastfm("user.getRecentTracks", {
+    user: username,
+    from: String(from),
+    to: String(to),
+    limit: "1",
+  });
+  return normalizeRecentTotal(raw);
 }

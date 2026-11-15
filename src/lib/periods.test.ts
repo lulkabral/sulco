@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { DEFAULT_UI_PERIOD, parseUiPeriod, periodLabel } from "./periods";
+import { DEFAULT_UI_PERIOD, parseUiPeriod, periodLabel, periodRange } from "./periods";
 
 describe("parseUiPeriod", () => {
   it("aceita os períodos da tela", () => {
@@ -27,5 +27,24 @@ describe("parseUiPeriod", () => {
 describe("periodLabel", () => {
   it("devolve o rótulo em português", () => {
     expect(periodLabel("1month")).toBe("Últimos 30 dias");
+  });
+});
+
+describe("periodRange", () => {
+  it("termina no bloco de 10 min e volta o número de dias do período", () => {
+    const now = 1_794_600_123; // 13/11/2026, alguns segundos depois de um bloco
+    const { from, to } = periodRange("7day", now);
+    expect(to).toBe(1_794_600_000);
+    expect(to - from).toBe(7 * 86_400);
+  });
+
+  it("30 dias para 1month e 365 para 12month", () => {
+    const now = 1_794_600_000;
+    expect(now - periodRange("1month", now).from).toBe(30 * 86_400);
+    expect(now - periodRange("12month", now).from).toBe(365 * 86_400);
+  });
+
+  it("chamadas no mesmo bloco dão o mesmo intervalo (cache)", () => {
+    expect(periodRange("7day", 1_794_600_001)).toEqual(periodRange("7day", 1_794_600_599));
   });
 });
