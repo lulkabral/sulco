@@ -112,7 +112,7 @@ Depois de pronto, rode com meu username e me mostre o resultado para ajustarmos 
 
 Pronto quando:
 
-- [ ] os gêneros fazem sentido para o meu perfil (testado com o perfil público `rj`; falta rodar `npm run genres -- MEU_USER`)
+- [x] os gêneros fazem sentido para o meu perfil (conferido com o meu perfil em 15/11/2026, depois de ajustar o descarte)
 - [x] tags como "seen live" não aparecem
 - [x] testes passam
 
