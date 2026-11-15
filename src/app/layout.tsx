@@ -20,9 +20,21 @@ const fraunces = Fraunces({
   subsets: ["latin"],
 });
 
+const DESCRIPTION =
+  "Veja seus artistas, músicas, álbuns e gêneros mais ouvidos de qualquer mês e baixe uma imagem pronta para compartilhar. Basta o username do Last.fm.";
+
+// Na Vercel, o Next completa os endereços absolutos (ex.: da imagem de compartilhamento)
+// com o domínio do projeto sozinho; por isso não fixamos `metadataBase` aqui.
 export const metadata: Metadata = {
-  title: "Recap Mensal",
-  description: "Seu recap do mês a partir do Last.fm.",
+  title: { default: "Recap Mensal", template: "%s · Recap Mensal" },
+  description: DESCRIPTION,
+  openGraph: {
+    siteName: "Recap Mensal",
+    title: "Recap Mensal",
+    description: DESCRIPTION,
+    locale: "pt_BR",
+    type: "website",
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -32,6 +44,13 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${geistSans.variable} ${geistMono.variable} ${fraunces.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
+        {/* Primeiro item do Tab: pula direto para o conteúdo (some até receber foco). */}
+        <a
+          href="#conteudo"
+          className="sr-only rounded-lg bg-indigo-600 px-4 py-2 font-medium text-white focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50"
+        >
+          Pular para o conteúdo
+        </a>
         {children}
         <footer className="border-t border-zinc-200 px-4 py-6 text-sm text-zinc-600 dark:border-zinc-800 dark:text-zinc-400">
           <div className="mx-auto flex max-w-5xl flex-col gap-2">

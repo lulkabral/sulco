@@ -1,20 +1,18 @@
 # Recap Mensal
 
-Nome provisório. Site que gera um resumo mensal do que você ouviu, a partir do seu username do Last.fm.
+Nome provisório. Site que gera um resumo do que você ouviu, a partir do seu username do Last.fm.
 
 ## O que faz
 
-- Recap do mês em imagem: artistas, músicas, álbuns e gêneros mais ouvidos.
-- Grade de capas dos álbuns mais ouvidos (3x3, 4x4 ou 5x5), por semana, mês ou outros períodos.
-- Sem cadastro e sem login: basta o username.
-
-## Status
-
-Em desenvolvimento. O andamento está em [docs/ROTEIRO.md](docs/ROTEIRO.md).
+- **Recap em imagem** (story 1080×1920): artistas, músicas, álbuns e gêneros mais ouvidos, total de scrobbles e capa do álbum nº 1.
+- **Grade de capas** (3x3, 4x4 ou 5x5), com nome do álbum e número de reproduções opcionais.
+- **Períodos:** últimos 7 dias, 30 dias, 3, 6 e 12 meses, ou um **mês fechado** do calendário (os últimos 12).
+- Baixar em PNG ou, no celular, compartilhar pelo menu nativo.
+- Sem cadastro e sem login: basta o username. Funciona com qualquer serviço que faça scrobble no Last.fm (Spotify, Deezer, YouTube Music etc.).
 
 ## Como rodar
 
-Pré-requisitos: Node.js LTS e uma chave da API do Last.fm.
+Pré-requisitos: Node.js LTS e uma chave da API do Last.fm (crie em https://www.last.fm/api/account/create; o passo a passo está em [docs/LASTFM.md](docs/LASTFM.md)).
 
 ```
 cp .env.example .env.local   # cole sua chave no arquivo
@@ -24,13 +22,47 @@ npm run dev
 
 Depois abra http://localhost:3000.
 
+## Comandos
+
+| Comando | O que faz |
+|---|---|
+| `npm run dev` | servidor local |
+| `npm run lint` | confere o estilo do código |
+| `npm run test` | roda os testes uma vez (Vitest) |
+| `npm run test:watch` | testes em modo contínuo |
+| `npm run build` | build de produção |
+| `npm run genres -- USERNAME [periodo]` | relatório de gêneros, para ajustar a lista de descarte |
+
+## Como está organizado
+
+```
+src/
+  app/                   páginas e rotas (Next.js App Router)
+    api/lastfm/          rotas que conversam com o Last.fm (só leitura): user, top, tags, scrobbles
+    u/[username]/        página do usuário
+    privacidade/         página de privacidade
+  components/            partes da tela (listas, grade, recap, seletores)
+  lib/
+    lastfm/              cliente do Last.fm (só no servidor), validação e normalização
+    canvas/              desenho e exportação de imagens
+    grid/, recap/        desenho da grade e do recap
+    aggregate.ts         soma de scrobbles do mês fechado (no navegador)
+    genres.ts            cálculo de gêneros a partir das tags
+docs/                    especificação, notas da API e roteiro
+scripts/                 ferramentas de desenvolvimento
+```
+
+Como funciona, em uma frase: o servidor busca e limpa os dados do Last.fm (com cache), e o navegador desenha as imagens e, no mês fechado, soma os scrobbles.
+
+Mais detalhes: [docs/SPEC.md](docs/SPEC.md) (o que o site faz), [docs/LASTFM.md](docs/LASTFM.md) (como a API se comporta), [docs/SEGURANCA.md](docs/SEGURANCA.md) (revisão de segurança) e [docs/ROTEIRO.md](docs/ROTEIRO.md) (andamento).
+
 ## Privacidade
 
-O site lê apenas dados públicos do perfil no Last.fm. Não tem banco de dados, não guarda buscas e gera as imagens no próprio navegador.
+O site lê apenas dados públicos do perfil no Last.fm. Não tem cadastro, banco de dados nem cookies de rastreio, não guarda buscas e gera as imagens no próprio navegador. A chave da API fica só no servidor. Texto completo na página `/privacidade`.
 
 ## Tecnologias
 
-Next.js, TypeScript e Tailwind CSS.
+Next.js, TypeScript, Tailwind CSS, Canvas 2D e Vitest. Fontes: Geist e Fraunces (licença OFL; o arquivo em `assets/` é usado na imagem de compartilhamento).
 
 ## Créditos
 

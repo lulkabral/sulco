@@ -143,9 +143,9 @@ Depois faça uma revisão de segurança e me entregue um relatório curto: a cha
 
 Pronto quando:
 
-- [ ] relatório de segurança sem pendências
-- [ ] página de privacidade no ar e linkada no rodapé
-- [ ] README atualizado
+- [x] relatório de segurança sem pendências (`docs/SEGURANCA.md`; fica a recomendação de limitar pedidos na Vercel, na fase 8)
+- [x] página de privacidade no ar e linkada no rodapé (no ar localmente; publicação na fase 8)
+- [x] README atualizado
 
 ## Fase 8: Publicação
 

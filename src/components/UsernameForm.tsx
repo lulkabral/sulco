@@ -28,7 +28,8 @@ export function UsernameForm({ defaultValue = "" }: Props) {
   }
 
   return (
-    <form onSubmit={handleSubmit} noValidate className="flex w-full max-w-sm flex-col gap-2">
+    // action="/u": sem JavaScript, o navegador envia para /u?username=..., que redireciona.
+    <form action="/u" method="get" onSubmit={handleSubmit} noValidate className="flex w-full max-w-sm flex-col gap-2">
       <label htmlFor="username" className="text-sm font-medium">
         Username do Last.fm
       </label>

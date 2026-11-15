@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { connection } from "next/server";
 import { Suspense } from "react";
 import { AlbumGrid } from "@/components/AlbumGrid";
@@ -33,11 +34,23 @@ const ALBUM_LIMIT = 25;
 /** Itens de cada top na imagem do recap. */
 const RECAP_LIMIT = 5;
 
+export async function generateMetadata({ params }: PageProps<"/u/[username]">): Promise<Metadata> {
+  const username = validateUsername(safeDecode((await params).username));
+  return {
+    title: username.ok ? username.value : "Usuário",
+    description: username.ok
+      ? `Recap e grade de álbuns de ${username.value}, a partir do Last.fm.`
+      : undefined,
+    // Páginas de usuário não entram em buscadores (o username fica fora do Google).
+    robots: { index: false, follow: true },
+  };
+}
+
 // O username e o período só são conhecidos na hora do pedido,
 // então tudo que depende deles fica dentro de <Suspense>.
 export default function UserPage({ params, searchParams }: PageProps<"/u/[username]">) {
   return (
-    <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-6 px-4 py-8">
+    <main id="conteudo" className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-6 px-4 py-8">
       <Suspense fallback={<ProfileSkeleton />}>
         <Profile params={params} searchParams={searchParams} />
       </Suspense>

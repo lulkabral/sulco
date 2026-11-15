@@ -2,7 +2,7 @@ import { UsernameForm } from "@/components/UsernameForm";
 
 export default function Home() {
   return (
-    <main className="mx-auto flex w-full max-w-xl flex-1 flex-col justify-center gap-8 px-4 py-12">
+    <main id="conteudo" className="mx-auto flex w-full max-w-xl flex-1 flex-col justify-center gap-8 px-4 py-12">
       <div className="flex flex-col gap-3">
         <h1 className="text-4xl font-bold tracking-tight">Recap Mensal</h1>
         <p className="text-lg text-zinc-600 dark:text-zinc-400">

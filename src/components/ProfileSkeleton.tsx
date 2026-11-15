@@ -6,7 +6,7 @@ function Bar({ className }: { className: string }) {
 
 export function ListsSkeleton() {
   return (
-    <div aria-hidden className="grid animate-pulse gap-8 sm:grid-cols-2 lg:grid-cols-4">
+    <div aria-hidden className="grid motion-safe:animate-pulse gap-8 sm:grid-cols-2 lg:grid-cols-4">
       {[0, 1, 2, 3].map((col) => (
         <div key={col} className="flex flex-col gap-3">
           <Bar className="h-6 w-28" />
@@ -28,14 +28,14 @@ export function ProfileSkeleton() {
       <p className="sr-only" role="status">
         Carregando…
       </p>
-      <div aria-hidden className="flex animate-pulse items-center gap-4">
+      <div aria-hidden className="flex motion-safe:animate-pulse items-center gap-4">
         <div className="size-16 rounded-full bg-zinc-200 dark:bg-zinc-800" />
         <div className="flex flex-col gap-2">
           <Bar className="h-7 w-40" />
           <Bar className="h-4 w-32" />
         </div>
       </div>
-      <div aria-hidden className="flex animate-pulse flex-wrap gap-2">
+      <div aria-hidden className="flex motion-safe:animate-pulse flex-wrap gap-2">
         {[0, 1, 2, 3, 4].map((i) => (
           <Bar key={i} className="h-8 w-28 rounded-full" />
         ))}
@@ -48,7 +48,7 @@ export function ProfileSkeleton() {
 /** Esqueleto só da lista de gêneros (que chega depois das outras). */
 export function GenresSkeleton() {
   return (
-    <div aria-hidden className="flex animate-pulse flex-col gap-3">
+    <div aria-hidden className="flex motion-safe:animate-pulse flex-col gap-3">
       {Array.from({ length: 5 }, (_, i) => (
         <Bar key={i} className="h-4 w-2/3" />
       ))}
