@@ -35,7 +35,7 @@ Qualquer outro método deve ser recusado pela rota.
 
 1. **`1month` não é mês do calendário.** São os últimos 30 dias corridos. Para "outubro de 2026", usar `user.getRecentTracks` com `from` e `to` e somar.
 2. **`from` e `to` são timestamps UNIX em UTC.** O começo e o fim do mês devem ser calculados no fuso da pessoa (no navegador) e convertidos.
-3. **Faixa tocando agora.** `user.getRecentTracks` pode devolver no topo a música em reprodução, com `@attr.nowplaying = "true"` e sem campo `date`. Ignorar na soma.
+3. **Faixa tocando agora.** `user.getRecentTracks` pode devolver no topo a música em reprodução, com `@attr.nowplaying = "true"` e sem campo `date`. Ignorar na soma. **Ela aparece mesmo com `from`/`to` de um mês passado** (confirmado em 15/11/2026: a página 1 de outubro veio com 201 itens para `limit=200`). Descartada em `normalizeScrobblePage`.
 4. **Paginação.** A resposta traz `@attr.totalPages` e `@attr.total`. Buscar página a página, com limite máximo.
 5. **Formato cru estranho.** Campos como `artist["#text"]`, `image[].#text`, `@attr`. Números chegam como texto. Normalizar tudo no servidor antes de devolver.
 6. **Um item só pode vir como objeto em vez de lista.** Nos tops com `limit=1` veio lista (testado em 15/11/2026), mas a normalização trata os dois casos por segurança.
@@ -84,6 +84,13 @@ Qualquer outro método deve ser recusado pela rota.
 - Algumas capas de 600 px demoram vários segundos (uma levou 6 s no teste). Por isso `loadImage` desiste depois de 15 s e trata o álbum como "sem capa".
 - **Total de scrobbles de um período (fase 4, testado em 15/11/2026):** os tops não trazem esse número (o `total` deles é a quantidade de itens *diferentes*). Usamos `user.getRecentTracks` com `from`, `to` e `limit=1`: o `@attr.total` da resposta é o total do intervalo, e bate exatamente com a soma dos plays de `user.getTopArtists` no mesmo período.
 - **Quantos dias cada período tem:** `7day` = 7, `1month` = 30, `3month` = 90, `6month` = 180, `12month` = 365 dias, contados para trás a partir de agora (com 182 dias, por exemplo, o total de `6month` já não bate). Ficam em `PERIOD_DAYS` (`src/lib/periods.ts`). O fim do intervalo é arredondado em blocos de 10 min para o cache funcionar.
+- **Páginas de scrobbles (fase 6, testado em 15/11/2026):**
+  - Cada página leva de 1 a 4 s para responder. Por isso buscamos até 3 páginas ao mesmo tempo, e não uma por vez.
+  - Página além da última (`page=999`) devolve lista vazia, sem erro.
+  - `limit` acima de 200 funciona na prática (`limit=1000` devolveu 1000 itens), mas a documentação diz que o máximo é 200. Ficamos com 200.
+  - A faixa traz só o artista *da faixa*, não o artista *do álbum*. Em coletâneas e trilhas, faixas do mesmo álbum podem virar "álbuns" diferentes na soma.
+  - **Conferência:** outubro de 2026 de um perfil real, somado pelo site, bateu exatamente com a biblioteca do Last.fm (`/user/USERNAME/library/artists?from=2026-10-01&to=2026-10-31`): 564 scrobbles, 54 artistas e os mesmos números no top 5.
+  - Cache: intervalo encerrado há mais de 1 dia fica 1 dia na CDN (e 1 hora no navegador). Esse dia de folga existe porque scrobbles de um aparelho que estava offline ainda podem chegar depois.
 - **`artist.getTopTags` (fase 5, testado em 15/11/2026):**
   - Veio no máximo 10 tags por artista, já ordenadas. `count` vai de 0 a 100 (a mais forte vale 100) e chega como número.
   - O nome da tag pode vir com maiúsculas diferentes ("Nu Metal", "Grunge") e até em português ("male vocalistas").

@@ -126,10 +126,10 @@ Adicione ao seletor os últimos 12 meses do calendário. Crie a rota paginada de
 
 Pronto quando:
 
-- [ ] "outubro de 2026" gera recap e grade
-- [ ] os números batem com a página do meu perfil no Last.fm para o mesmo intervalo
-- [ ] aparece progresso durante o carregamento
-- [ ] testes passam
+- [x] "outubro de 2026" gera recap e grade
+- [x] os números batem com a página do meu perfil no Last.fm para o mesmo intervalo (564 scrobbles, 54 artistas, top 5 igual)
+- [x] aparece progresso durante o carregamento
+- [x] testes passam
 
 ## Fase 7: Acabamento
 

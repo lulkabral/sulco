@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { AlbumGrid } from "@/components/AlbumGrid";
 import { ErrorState } from "@/components/ErrorState";
 import { GenreList } from "@/components/GenreList";
+import { MonthView } from "@/components/MonthView";
 import { PeriodSelector } from "@/components/PeriodSelector";
 import { ListsSkeleton, ProfileSkeleton } from "@/components/ProfileSkeleton";
 import { ProfileTabs } from "@/components/ProfileTabs";
@@ -23,6 +24,7 @@ import {
   UI_PERIODS,
   type UiPeriod,
 } from "@/lib/periods";
+import { currentClosedMonths } from "@/lib/months";
 import { parseTab, type Tab } from "@/lib/tabs";
 
 const LIST_LIMIT = 10;
@@ -59,9 +61,16 @@ async function Profile({ params, searchParams }: Pick<PageProps<"/u/[username]">
   const { username: rawUsername } = await params;
   const query = await searchParams;
   const tab = parseTab(query.tab);
+  // Os 12 meses fechados dependem da data de hoje: `connection()` diz ao Next que isto roda a cada pedido.
+  await connection();
+  const months = currentClosedMonths();
+  const rawPeriod = Array.isArray(query.period) ? query.period[0] : query.period;
+  // Mês fechado ("2026-10"), só se for um dos 12 oferecidos; senão, um período do Last.fm.
+  const month = rawPeriod && (months as string[]).includes(rawPeriod) ? rawPeriod : null;
   const period = parseUiPeriod(query.period, tab === "grade" ? DEFAULT_GRID_PERIOD : DEFAULT_UI_PERIOD);
+  const current = month ?? period;
   // Só repassamos o período para a outra aba se a pessoa escolheu um (cada aba tem seu padrão).
-  const chosenPeriod = UI_PERIODS.some((p) => p.value === query.period) ? period : undefined;
+  const chosenPeriod = month ?? (UI_PERIODS.some((p) => p.value === rawPeriod) ? period : undefined);
 
   const username = validateUsername(safeDecode(rawUsername));
   if (!username.ok) {
@@ -79,11 +88,16 @@ async function Profile({ params, searchParams }: Pick<PageProps<"/u/[username]">
     <>
       <UserHeader user={user} />
       <ProfileTabs username={user.username} current={tab} period={chosenPeriod} />
-      <PeriodSelector username={user.username} current={period} tab={tab} />
-      {/* key: ao trocar de período ou aba, mostra o esqueleto de novo enquanto carrega */}
-      <Suspense key={`${tab}-${period}`} fallback={<ListsSkeleton />}>
-        <TopLists username={user.username} period={period} tab={tab} />
-      </Suspense>
+      <PeriodSelector username={user.username} current={current} tab={tab} months={months} />
+      {month ? (
+        // Mês fechado: a soma acontece no navegador (SPEC, "Mês fechado").
+        <MonthView key={`${tab}-${month}`} username={user.username} month={month} tab={tab} />
+      ) : (
+        // key: ao trocar de período ou aba, mostra o esqueleto de novo enquanto carrega
+        <Suspense key={`${tab}-${period}`} fallback={<ListsSkeleton />}>
+          <TopLists username={user.username} period={period} tab={tab} />
+        </Suspense>
+      )}
     </>
   );
 }

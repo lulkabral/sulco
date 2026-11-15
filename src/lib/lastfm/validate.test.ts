@@ -3,6 +3,8 @@ import { HTTP_STATUS, mapLastfmError } from "./errors";
 import {
   validateArtistName,
   validateLimit,
+  validatePage,
+  validateRange,
   validatePeriod,
   validateTopType,
   validateUsername,
@@ -88,5 +90,43 @@ describe("validateArtistName", () => {
     expect(validateArtistName("   ").ok).toBe(false);
     expect(validateArtistName("a".repeat(201)).ok).toBe(false);
     expect(validateArtistName("a\nb").ok).toBe(false);
+  });
+});
+
+describe("validateRange", () => {
+  const oct1 = 1_790_823_600; // 1/10/2026 00:00 em São Paulo
+  const nov1 = 1_793_502_000;
+
+  it("aceita um mês", () => {
+    expect(validateRange(String(oct1), String(nov1 - 1))).toEqual({
+      ok: true,
+      value: { from: oct1, to: nov1 - 1 },
+    });
+  });
+
+  it("recusa intervalo maior que 32 dias", () => {
+    expect(validateRange(String(oct1), String(oct1 + 33 * 86_400)).ok).toBe(false);
+  });
+
+  it.each([
+    [null, "2"],
+    ["abc", "2"],
+    ["-5", "10"],
+    ["100", "200"], // antes de 2002
+    [String(nov1), String(oct1)], // invertido
+    ["1790823600.5", "1793502000"],
+  ])("recusa from=%s to=%s", (from, to) => {
+    expect(validateRange(from, to).ok).toBe(false);
+  });
+});
+
+describe("validatePage", () => {
+  it("padrão 1, aceita até 50", () => {
+    expect(validatePage(null)).toEqual({ ok: true, value: 1 });
+    expect(validatePage("50")).toEqual({ ok: true, value: 50 });
+  });
+
+  it.each(["0", "51", "abc", "1.5", "-1"])("recusa %s", (raw) => {
+    expect(validatePage(raw).ok).toBe(false);
   });
 });

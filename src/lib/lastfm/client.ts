@@ -9,6 +9,7 @@ import {
   getLastfmErrorNumber,
   normalizeArtistTags,
   normalizeRecentTotal,
+  normalizeScrobblePage,
   normalizeTop,
   normalizeUserInfo,
 } from "./normalize";
@@ -16,6 +17,7 @@ import type {
   ArtistTagsResponse,
   ErrorCode,
   Period,
+  ScrobblePage,
   TopResponse,
   TopType,
   UserInfo,
@@ -46,10 +48,12 @@ const TRANSIENT_ERRORS = new Set([8, 11, 16]);
 /**
  * Por quanto tempo guardar cada tipo de resposta (docs/LASTFM.md):
  * - short: dados do usuário, 10 min "fresco", expira em 30 min;
+ * - day: scrobbles de intervalo encerrado: 1 dia "fresco", expira em 7;
  * - week: tags de artista, mudam pouco: 7 dias "fresco", expira em 14.
  */
 const CACHE_PROFILES = {
   short: { revalidate: 600, expire: 1800 },
+  day: { revalidate: 86_400, expire: 604_800 },
   week: { revalidate: 604_800, expire: 1_209_600 },
 } as const;
 type CacheProfile = keyof typeof CACHE_PROFILES;
@@ -221,4 +225,37 @@ export async function getTopGenres(
   });
   if (artists.length > 0 && tags.every((t) => t === null)) return null;
   return computeTopGenres(artists.map((a, i) => ({ ...a, tags: tags[i] ?? [] })));
+}
+
+/** Scrobbles por página (máximo documentado do `user.getRecentTracks`). */
+const SCROBBLES_PER_PAGE = 200;
+
+/**
+ * Intervalo já encerrado? Damos 1 dia de folga porque scrobbles atrasados
+ * (de aparelho que estava offline) ainda podem chegar logo depois.
+ */
+export function isClosedRange(to: number, nowSeconds: number): boolean {
+  return to < nowSeconds - 86_400;
+}
+
+/** Uma página de scrobbles entre `from` e `to`. Intervalo encerrado fica 1 dia em cache. */
+export async function getScrobblePage(
+  username: string,
+  from: number,
+  to: number,
+  page: number,
+): Promise<ScrobblePage> {
+  const closed = isClosedRange(to, Date.now() / 1000);
+  const raw = await callLastfm(
+    "user.getRecentTracks",
+    {
+      user: username,
+      from: String(from),
+      to: String(to),
+      limit: String(SCROBBLES_PER_PAGE),
+      page: String(page),
+    },
+    closed ? "day" : "short",
+  );
+  return normalizeScrobblePage(raw);
 }

@@ -9,12 +9,19 @@ export const CACHE_SECONDS = {
   short: 600,
   /** Tags de artista: 7 dias (docs/LASTFM.md). */
   week: 604_800,
+  /** Scrobbles de intervalo já encerrado: 1 dia. */
+  day: 86_400,
 } as const;
 
-export function jsonOk(data: unknown, cacheSeconds: number): Response {
+/**
+ * Resposta JSON com cache na CDN (`s-maxage`). `browserSeconds` deixa o próprio navegador
+ * guardar também (útil para dados que não mudam, como meses encerrados).
+ */
+export function jsonOk(data: unknown, cacheSeconds: number, browserSeconds = 0): Response {
+  const browser = browserSeconds > 0 ? `max-age=${browserSeconds}, ` : "";
   return Response.json(data, {
     headers: {
-      "Cache-Control": `public, s-maxage=${cacheSeconds}, stale-while-revalidate=${cacheSeconds * 2}`,
+      "Cache-Control": `public, ${browser}s-maxage=${cacheSeconds}, stale-while-revalidate=${cacheSeconds * 2}`,
     },
   });
 }

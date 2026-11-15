@@ -87,7 +87,8 @@ Descartar antes de escolher as 5 mais fortes evita que lixo forte ("the voice": 
 
 - Seletor com os últimos 12 meses.
 - O navegador calcula início e fim do mês no fuso da pessoa e envia como timestamps.
-- O navegador pede as páginas de scrobbles uma a uma pela nossa rota e soma por artista, álbum e música. A soma acontece no navegador; o servidor não guarda nada.
+- O navegador pede as páginas de scrobbles pela nossa rota (a 1ª sozinha, depois até 3 ao mesmo tempo, porque cada página leva de 1 a 4 s) e soma por artista, álbum e música. A soma acontece no navegador; o servidor não guarda nada.
+- Os 12 meses oferecidos são os já encerrados (o mês corrente fica de fora). No endereço: `?period=AAAA-MM`.
 - Mostrar progresso ("página 3 de 12").
 - Limite de páginas por consulta (ex.: 50 páginas = 10 mil scrobbles), com aviso se for atingido.
 - Mês já encerrado não muda: pode ter cache longo.

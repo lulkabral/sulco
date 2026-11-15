@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   normalizeArtistTags,
+  normalizeScrobblePage,
   normalizeRecentTotal,
   getLastfmErrorNumber,
   normalizeTop,
@@ -20,6 +21,7 @@ import topAlbumsEmptyRaw from "./__fixtures__/user-gettopalbums-empty.json";
 import notFoundRaw from "./__fixtures__/error-user-not-found.json";
 import recentTotalRaw from "./__fixtures__/user-getrecenttracks-total.json";
 import artistTagsRaw from "./__fixtures__/artist-gettoptags.json";
+import scrobblePageRaw from "./__fixtures__/user-getrecenttracks-page.json";
 
 describe("normalizeUserInfo", () => {
   const user = normalizeUserInfo(userInfoRaw);
@@ -191,5 +193,37 @@ describe("normalizeArtistTags", () => {
 
   it("resposta estranha vira lista vazia", () => {
     expect(normalizeArtistTags({}, "X")).toEqual({ artist: "X", tags: [] });
+  });
+});
+
+describe("normalizeScrobblePage", () => {
+  const page = normalizeScrobblePage(scrobblePageRaw);
+
+  it("lê a paginação (números chegam como texto)", () => {
+    expect(page).toMatchObject({ page: 1, totalPages: 86, total: 257 });
+  });
+
+  it("descarta a faixa tocando agora (sem data)", () => {
+    expect(page.tracks).toHaveLength(4);
+    expect(page.tracks.every((t) => t.playedAt > 0)).toBe(true);
+  });
+
+  it("normaliza cada scrobble", () => {
+    expect(page.tracks[0]).toEqual({
+      artist: "The Offspring",
+      album: "Americana",
+      name: "Staring at the Sun",
+      url: expect.stringContaining("last.fm/music/The+Offspring"),
+      imageUrl: expect.stringContaining("/300x300/"),
+      playedAt: 1793118557,
+    });
+  });
+
+  it("faixa sem álbum fica com album vazio e sem capa", () => {
+    expect(page.tracks[3]).toMatchObject({ album: "", imageUrl: null });
+  });
+
+  it("resposta estranha vira página vazia", () => {
+    expect(normalizeScrobblePage({})).toEqual({ page: 1, totalPages: 0, total: 0, tracks: [] });
   });
 });

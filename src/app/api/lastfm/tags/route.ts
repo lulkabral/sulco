@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
   if (!artist.ok) return jsonError("BAD_REQUEST", artist.message);
 
   try {
-    return jsonOk(await getArtistTags(artist.value), CACHE_SECONDS.week);
+    return jsonOk(await getArtistTags(artist.value), CACHE_SECONDS.week, CACHE_SECONDS.day);
   } catch (err) {
     return handleRouteError(err);
   }

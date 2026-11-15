@@ -77,3 +77,24 @@ export type ArtistTagsResponse = {
   artist: string;
   tags: ArtistTag[];
 };
+
+/** Um scrobble (uma vez que uma música tocou), de `user.getRecentTracks`. */
+export type Scrobble = {
+  artist: string;
+  /** Nome do álbum, ou "" se o Last.fm não souber. */
+  album: string;
+  name: string;
+  url: string;
+  /** Capa do álbum (300 px), ou null. */
+  imageUrl: string | null;
+  /** Quando tocou, em timestamp UNIX (segundos). */
+  playedAt: number;
+};
+
+export type ScrobblePage = {
+  page: number;
+  totalPages: number;
+  /** Total de scrobbles do intervalo inteiro. */
+  total: number;
+  tracks: Scrobble[];
+};

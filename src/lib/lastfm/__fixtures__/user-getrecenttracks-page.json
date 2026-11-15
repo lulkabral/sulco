@@ -1,0 +1,192 @@
+{
+  "recenttracks": {
+    "track": [
+      {
+        "artist": {
+          "mbid": "23a03e33-a603-404e-bcbf-2c00159d7067",
+          "#text": "The Offspring"
+        },
+        "streamable": "0",
+        "image": [
+          {
+            "size": "small",
+            "#text": "https://lastfm-img.freetls.fastly.net/i/u/34s/97e6083f8d0975d5380dba08bd60d720.jpg"
+          },
+          {
+            "size": "medium",
+            "#text": "https://lastfm-img.freetls.fastly.net/i/u/64s/97e6083f8d0975d5380dba08bd60d720.jpg"
+          },
+          {
+            "size": "large",
+            "#text": "https://lastfm-img.freetls.fastly.net/i/u/174s/97e6083f8d0975d5380dba08bd60d720.jpg"
+          },
+          {
+            "size": "extralarge",
+            "#text": "https://lastfm-img.freetls.fastly.net/i/u/300x300/97e6083f8d0975d5380dba08bd60d720.jpg"
+          }
+        ],
+        "mbid": "92196b13-9b71-436a-afd8-06c2c53dd583",
+        "album": {
+          "mbid": "2e5af9d2-f262-3f73-ab47-4884e945fa8e",
+          "#text": "Americana"
+        },
+        "name": "Staring at the Sun",
+        "url": "https://www.last.fm/music/The+Offspring/_/Staring+at+the+Sun",
+        "@attr": {
+          "nowplaying": "true"
+        }
+      },
+      {
+        "artist": {
+          "mbid": "23a03e33-a603-404e-bcbf-2c00159d7067",
+          "#text": "The Offspring"
+        },
+        "streamable": "0",
+        "image": [
+          {
+            "size": "small",
+            "#text": "https://lastfm-img.freetls.fastly.net/i/u/34s/97e6083f8d0975d5380dba08bd60d720.jpg"
+          },
+          {
+            "size": "medium",
+            "#text": "https://lastfm-img.freetls.fastly.net/i/u/64s/97e6083f8d0975d5380dba08bd60d720.jpg"
+          },
+          {
+            "size": "large",
+            "#text": "https://lastfm-img.freetls.fastly.net/i/u/174s/97e6083f8d0975d5380dba08bd60d720.jpg"
+          },
+          {
+            "size": "extralarge",
+            "#text": "https://lastfm-img.freetls.fastly.net/i/u/300x300/97e6083f8d0975d5380dba08bd60d720.jpg"
+          }
+        ],
+        "mbid": "92196b13-9b71-436a-afd8-06c2c53dd583",
+        "album": {
+          "mbid": "2e5af9d2-f262-3f73-ab47-4884e945fa8e",
+          "#text": "Americana"
+        },
+        "name": "Staring at the Sun",
+        "url": "https://www.last.fm/music/The+Offspring/_/Staring+at+the+Sun",
+        "date": {
+          "uts": "1793118557",
+          "#text": "27 Oct 2026, 16:29"
+        }
+      },
+      {
+        "artist": {
+          "mbid": "bcb95908-5c6e-453a-97fc-d69003d250ff",
+          "#text": "Bowling for Soup"
+        },
+        "streamable": "0",
+        "image": [
+          {
+            "size": "small",
+            "#text": "https://lastfm-img.freetls.fastly.net/i/u/34s/46018409ee8f4b04bc3fa34fe0f80462.png"
+          },
+          {
+            "size": "medium",
+            "#text": "https://lastfm-img.freetls.fastly.net/i/u/64s/46018409ee8f4b04bc3fa34fe0f80462.png"
+          },
+          {
+            "size": "large",
+            "#text": "https://lastfm-img.freetls.fastly.net/i/u/174s/46018409ee8f4b04bc3fa34fe0f80462.png"
+          },
+          {
+            "size": "extralarge",
+            "#text": "https://lastfm-img.freetls.fastly.net/i/u/300x300/46018409ee8f4b04bc3fa34fe0f80462.png"
+          }
+        ],
+        "mbid": "",
+        "album": {
+          "mbid": "79d6b7c2-e707-4804-b9f1-03ca03960172",
+          "#text": "The Great Burrito Extortion Case"
+        },
+        "name": "High School Never Ends - Main Version - Explicit",
+        "url": "https://www.last.fm/music/Bowling+for+Soup/_/High+School+Never+Ends+-+Main+Version+-+Explicit",
+        "date": {
+          "uts": "1793118421",
+          "#text": "27 Oct 2026, 16:27"
+        }
+      },
+      {
+        "artist": {
+          "mbid": "bbc5b66b-d037-4f26-aecf-0b129e7f876a",
+          "#text": "Jimmy Eat World"
+        },
+        "streamable": "0",
+        "image": [
+          {
+            "size": "small",
+            "#text": "https://lastfm-img.freetls.fastly.net/i/u/34s/5f6bed4795106f6a5ace9295accf4493.jpg"
+          },
+          {
+            "size": "medium",
+            "#text": "https://lastfm-img.freetls.fastly.net/i/u/64s/5f6bed4795106f6a5ace9295accf4493.jpg"
+          },
+          {
+            "size": "large",
+            "#text": "https://lastfm-img.freetls.fastly.net/i/u/174s/5f6bed4795106f6a5ace9295accf4493.jpg"
+          },
+          {
+            "size": "extralarge",
+            "#text": "https://lastfm-img.freetls.fastly.net/i/u/300x300/5f6bed4795106f6a5ace9295accf4493.jpg"
+          }
+        ],
+        "mbid": "",
+        "album": {
+          "mbid": "10a4bf38-d84b-4f87-9c9c-d93183b675e4",
+          "#text": "Bleed American"
+        },
+        "name": "The Middle",
+        "url": "https://www.last.fm/music/Jimmy+Eat+World/_/The+Middle",
+        "date": {
+          "uts": "1793118254",
+          "#text": "27 Oct 2026, 16:24"
+        }
+      },
+      {
+        "artist": {
+          "mbid": "bcb95908-5c6e-453a-97fc-d69003d250ff",
+          "#text": "Bowling for Soup"
+        },
+        "streamable": "0",
+        "image": [
+          {
+            "size": "small",
+            "#text": ""
+          },
+          {
+            "size": "medium",
+            "#text": ""
+          },
+          {
+            "size": "large",
+            "#text": ""
+          },
+          {
+            "size": "extralarge",
+            "#text": ""
+          }
+        ],
+        "mbid": "",
+        "album": {
+          "mbid": "79d6b7c2-e707-4804-b9f1-03ca03960172",
+          "#text": ""
+        },
+        "name": "High School Never Ends - Main Version - Explicit",
+        "url": "https://www.last.fm/music/Bowling+for+Soup/_/High+School+Never+Ends+-+Main+Version+-+Explicit",
+        "date": {
+          "uts": "1793118421",
+          "#text": "27 Oct 2026, 16:27"
+        }
+      }
+    ],
+    "@attr": {
+      "user": "RJ",
+      "totalPages": "86",
+      "page": "1",
+      "total": "257",
+      "perPage": "3"
+    }
+  }
+}

@@ -3,6 +3,8 @@
 
 import type {
   ArtistTagsResponse,
+  Scrobble,
+  ScrobblePage,
   TopAlbum,
   TopArtist,
   TopItem,
@@ -159,4 +161,33 @@ export function normalizeArtistTags(raw: unknown, artist: string): ArtistTagsRes
     .map((t) => ({ name: str(t.name).trim(), count: num(t.count) }))
     .filter((t) => t.name !== "");
   return { artist: str(obj(root["@attr"]).artist) || artist, tags };
+}
+
+/**
+ * Uma página de `user.getRecentTracks` com `from`/`to`.
+ * Descarta a faixa "tocando agora" (vem sem `date`, até em meses passados: armadilha 3).
+ */
+export function normalizeScrobblePage(raw: unknown): ScrobblePage {
+  const root = obj(obj(raw).recenttracks);
+  const attr = obj(root["@attr"]);
+  const tracks: Scrobble[] = [];
+  for (const item of toArray(root.track).filter(isObj)) {
+    if (str(obj(item["@attr"]).nowplaying) === "true") continue;
+    const playedAt = num(obj(item.date).uts);
+    if (playedAt <= 0) continue;
+    tracks.push({
+      artist: artistName(item.artist),
+      album: str(obj(item.album)["#text"]).trim(),
+      name: str(item.name),
+      url: str(item.url),
+      imageUrl: pickImage(item.image),
+      playedAt,
+    });
+  }
+  return {
+    page: num(attr.page) || 1,
+    totalPages: num(attr.totalPages),
+    total: num(attr.total),
+    tracks,
+  };
 }

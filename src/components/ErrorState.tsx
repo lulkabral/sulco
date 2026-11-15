@@ -5,6 +5,8 @@ import { UsernameForm } from "./UsernameForm";
 type Props = {
   code: ErrorCode;
   username?: string;
+  /** Ação de "Tentar de novo" feita no navegador (ex.: mês fechado). Sem ela, recarrega do servidor. */
+  onRetry?: () => void;
 };
 
 const CONTENT: Record<ErrorCode, { title: string; text: string }> = {
@@ -31,7 +33,7 @@ const CONTENT: Record<ErrorCode, { title: string; text: string }> = {
 };
 
 /** Mensagem para cada um dos nossos códigos de erro. */
-export function ErrorState({ code, username }: Props) {
+export function ErrorState({ code, username, onRetry }: Props) {
   const { title, text } = CONTENT[code];
   const askUsername = code === "BAD_REQUEST" || code === "USER_NOT_FOUND";
   const canRetry = code === "RATE_LIMITED" || code === "LASTFM_DOWN";
@@ -43,7 +45,18 @@ export function ErrorState({ code, username }: Props) {
         <p className="mt-1 text-zinc-600 dark:text-zinc-400">{text}</p>
       </div>
       {askUsername && <UsernameForm defaultValue={username} />}
-      {canRetry && <RetryButton />}
+      {canRetry &&
+        (onRetry ? (
+          <button
+            type="button"
+            onClick={onRetry}
+            className="rounded-lg bg-indigo-600 px-4 py-2 font-medium text-white hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+          >
+            Tentar de novo
+          </button>
+        ) : (
+          <RetryButton />
+        ))}
     </div>
   );
 }

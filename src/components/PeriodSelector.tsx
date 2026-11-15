@@ -1,17 +1,21 @@
 import Link from "next/link";
-import { UI_PERIODS, type UiPeriod } from "@/lib/periods";
+import { UI_PERIODS } from "@/lib/periods";
 import { userPageHref, type Tab } from "@/lib/tabs";
+import { MonthSelect } from "./MonthSelect";
 
 type Props = {
   username: string;
-  current: UiPeriod;
+  /** Período atual: um dos períodos do Last.fm ("7day"...) ou um mês ("2026-10"). */
+  current: string;
   tab: Tab;
+  /** Meses fechados oferecidos na caixa de seleção. */
+  months: string[];
 };
 
 /** Links de período. Cada um leva para /u/USERNAME?tab=...&period=... (mantendo a aba). */
-export function PeriodSelector({ username, current, tab }: Props) {
+export function PeriodSelector({ username, current, tab, months }: Props) {
   return (
-    <nav aria-label="Período">
+    <nav aria-label="Período" className="flex flex-col gap-3">
       <ul className="flex flex-wrap gap-2">
         {UI_PERIODS.map((p) => {
           const active = p.value === current;
@@ -34,6 +38,12 @@ export function PeriodSelector({ username, current, tab }: Props) {
           );
         })}
       </ul>
+      <MonthSelect
+        username={username}
+        tab={tab}
+        months={months}
+        current={months.includes(current) ? current : undefined}
+      />
     </nav>
   );
 }
