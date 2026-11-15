@@ -62,10 +62,10 @@ Ainda sem imagens geradas: o objetivo é ver os dados certos na tela.
 
 Pronto quando:
 
-- [ ] digitar meu username leva à página com meus tops
-- [ ] trocar o período atualiza as listas
-- [ ] usuário inexistente e período vazio mostram mensagens claras
-- [ ] funciona bem na largura de celular
+- [x] digitar meu username leva à página com meus tops
+- [x] trocar o período atualiza as listas
+- [x] usuário inexistente e período vazio mostram mensagens claras (período vazio ainda não visto com dados reais: falta uma conta sem scrobbles recentes)
+- [x] funciona bem na largura de celular
 
 ## Fase 3: Grade de álbuns
 

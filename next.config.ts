@@ -9,6 +9,12 @@ const nextConfig: NextConfig = {
   logging: {
     incomingRequests: { ignore: [/^\/api\/lastfm\//, /^\/u\//] },
   },
+  // next/image só aceita imagens do servidor de imagens do Last.fm (nada de proxy aberto).
+  images: {
+    remotePatterns: [
+      { protocol: "https", hostname: "lastfm-img.freetls.fastly.net", pathname: "/i/u/**" },
+    ],
+  },
   turbopack: {
     rules: {
       "*.css": {

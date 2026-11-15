@@ -23,22 +23,31 @@ const ALLOWED_METHODS = [
 type Method = (typeof ALLOWED_METHODS)[number];
 
 /** O que a função com cache devolve: o JSON cru ou o nosso código de erro. */
-type RawResult = { ok: true; body: unknown } | { ok: false; code: ErrorCode };
+type RawResult = { ok: true; body: unknown } | { ok: false; code: ErrorCode; retry?: boolean };
+
+const RETRY_DELAY_MS = 500;
+/** Erros do Last.fm que costumam ser passageiros: 8 (operation failed), 11 e 16 (fora do ar). */
+const TRANSIENT_ERRORS = new Set([8, 11, 16]);
 
 /**
  * Faz a chamada e guarda o resultado em cache (por método + parâmetros).
- * Sucesso fica 10 min "fresco" e expira em 30 min. Erro fica só 1 min,
- * para não martelar o Last.fm quando ele está fora do ar.
+ * Sucesso fica 10 min "fresco" e expira em 30 min. Erro fica só alguns segundos:
+ * o bastante para não martelar o Last.fm, curto para o botão "Tentar de novo" funcionar.
  * Erros viram valor de retorno (e não exceção) para atravessar o cache sem perder o código.
  */
 async function fetchLastfmCached(method: Method, params: Record<string, string>): Promise<RawResult> {
   "use cache";
 
-  const result = await fetchLastfm(method, params);
+  let result = await fetchLastfm(method, params);
+  if (!result.ok && result.retry) {
+    // Erros temporários (ex.: 8 "operation failed") costumam passar na segunda tentativa.
+    await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY_MS));
+    result = await fetchLastfm(method, params);
+  }
   if (result.ok) {
     cacheLife({ revalidate: 600, expire: 1800 });
   } else {
-    cacheLife({ revalidate: 30, expire: 60 });
+    cacheLife({ revalidate: 5, expire: 15 });
   }
   return result;
 }
@@ -80,7 +89,11 @@ async function fetchLastfm(method: Method, params: Record<string, string>): Prom
     } else if (errorNumber !== 6) {
       console.error(`[lastfm] ${method}: erro ${errorNumber}`);
     }
-    return { ok: false, code: mapLastfmError(errorNumber) };
+    return {
+      ok: false,
+      code: mapLastfmError(errorNumber),
+      retry: TRANSIENT_ERRORS.has(errorNumber),
+    };
   }
 
   if (!response.ok) {

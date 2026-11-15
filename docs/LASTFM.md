@@ -48,8 +48,9 @@ Qualquer outro método deve ser recusado pela rota.
 | Código | Significado | Nosso código |
 |---|---|---|
 | 6 | parâmetro inválido / usuário não encontrado | `USER_NOT_FOUND` |
+| 8 | "operation failed": falha passageira do Last.fm (visto em 15/11/2026 em `user.getTopAlbums` 12month; a mesma chamada funcionou logo depois) | `LASTFM_DOWN`, com uma nova tentativa automática |
 | 10 | chave inválida | `LASTFM_DOWN` (e registrar no log do servidor, sem a chave) |
-| 11, 16 | serviço fora do ar / erro temporário | `LASTFM_DOWN` |
+| 11, 16 | serviço fora do ar / erro temporário | `LASTFM_DOWN`, com uma nova tentativa automática |
 | 17 | exige login: histórico recente privado **(confirmar)** | `PRIVATE_PROFILE` |
 | 26 | chave suspensa | `LASTFM_DOWN` |
 | 29 | limite de requisições | `RATE_LIMITED` |
