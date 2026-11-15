@@ -1,0 +1,45 @@
+{
+  "user": {
+    "spotify_expiry_estimate": {
+      "unixtime": "1801699200",
+      "#text": 1801699200
+    },
+    "playcount": "69921",
+    "playlists": "0",
+    "album_count": "6423",
+    "bootstrap": "0",
+    "url": "https://www.last.fm/user/exemplo",
+    "age": "0",
+    "name": "exemplo",
+    "artist_count": "2515",
+    "subscriber": "0",
+    "track_count": "15224",
+    "realname": "Pessoa Exemplo",
+    "image": [
+      {
+        "size": "small",
+        "#text": "https://lastfm-img.freetls.fastly.net/i/u/34s/00000000000000000000000000000000.png"
+      },
+      {
+        "size": "medium",
+        "#text": "https://lastfm-img.freetls.fastly.net/i/u/64s/00000000000000000000000000000000.png"
+      },
+      {
+        "size": "large",
+        "#text": "https://lastfm-img.freetls.fastly.net/i/u/174s/00000000000000000000000000000000.png"
+      },
+      {
+        "size": "extralarge",
+        "#text": "https://lastfm-img.freetls.fastly.net/i/u/300x300/00000000000000000000000000000000.png"
+      }
+    ],
+    "registered": {
+      "unixtime": "1551562000",
+      "#text": 1551562000
+    },
+    "country": "None",
+    "gender": "n",
+    "corrections": "1",
+    "type": "user"
+  }
+}

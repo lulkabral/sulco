@@ -38,11 +38,12 @@ Qualquer outro método deve ser recusado pela rota.
 3. **Faixa tocando agora.** `user.getRecentTracks` pode devolver no topo a música em reprodução, com `@attr.nowplaying = "true"` e sem campo `date`. Ignorar na soma.
 4. **Paginação.** A resposta traz `@attr.totalPages` e `@attr.total`. Buscar página a página, com limite máximo.
 5. **Formato cru estranho.** Campos como `artist["#text"]`, `image[].#text`, `@attr`. Números chegam como texto. Normalizar tudo no servidor antes de devolver.
-6. **Um item só pode vir como objeto em vez de lista (confirmar).** Tratar os dois casos ao normalizar.
-7. **Fotos de artista não existem na API.** Desde 2019 o campo de imagem de artista devolve um placeholder (estrela branca em fundo cinza). Capas de álbum funcionam normalmente. O placeholder costuma ter `2a96cbd8b46e442fc41c2b86b821562f` no endereço **(confirmar)**; se aparecer, tratar como "sem imagem".
+6. **Um item só pode vir como objeto em vez de lista.** Nos tops com `limit=1` veio lista (testado em 15/11/2026), mas a normalização trata os dois casos por segurança.
+7. **Fotos de artista não existem na API.** Desde 2019 o campo de imagem de artista devolve um placeholder (estrela branca em fundo cinza). Capas de álbum funcionam normalmente. O placeholder tem `2a96cbd8b46e442fc41c2b86b821562f` no endereço (confirmado em 15/11/2026, também aparece nas imagens de `user.getTopTracks`); tratamos como "sem imagem".
 8. **Álbum sem capa.** O campo de imagem vem como texto vazio.
-9. **Tamanho das capas.** O maior tamanho listado é `extralarge` (300 px). Há relatos de que trocar o trecho de tamanho no endereço (ex.: `300x300`) por um maior funciona **(confirmar)**. Para a grade 5x5, 300 px por capa já dá 1500 px de largura.
-10. **Erros.** Conferir o campo `error` no JSON; não confiar só no status HTTP.
+9. **Tamanho das capas.** O maior tamanho listado é `extralarge` (300 px). Trocar o trecho de tamanho no endereço funciona (confirmado em 15/11/2026): `600x600` devolve 600 px; tirar o trecho devolve o original (640 px no teste); pedir acima do original devolve o original. Para a grade 5x5, 300 px por capa já dá 1500 px de largura.
+10. **Erros.** Conferir o campo `error` no JSON; não confiar só no status HTTP. Usuário inexistente vem com HTTP 404 e `{"error": 6, "message": "User not found"}`.
+11. **Período inválido não dá erro.** `period=2day` devolve os dados de `overall` sem avisar (testado em 15/11/2026). Por isso validamos `period` na nossa rota.
 
 | Código | Significado | Nosso código |
 |---|---|---|
@@ -77,7 +78,9 @@ Qualquer outro método deve ser recusado pela rota.
 
 ## Descobertas (preencher durante o desenvolvimento)
 
-- CORS do servidor de imagens:
-- Placeholder de artista:
-- Erro para perfil privado:
-- Tamanhos maiores de capa:
+- CORS do servidor de imagens: as capas vêm de `lastfm-img.freetls.fastly.net` (não `lastfm.freetls.fastly.net`) e a resposta traz `Access-Control-Allow-Origin: *` (curl em 15/11/2026). Falta confirmar no canvas do navegador (fase 3).
+- Placeholder de artista: confirmado, hash `2a96cbd8b46e442fc41c2b86b821562f`, em todos os tamanhos (`34s`, `64s`, `174s`, `300x300`).
+- Erro para perfil privado: ainda não testado (falta um perfil com histórico privado).
+- Tamanhos maiores de capa: funcionam trocando `300x300` por `600x600`, ou tirando o trecho (original). Ver armadilha 9.
+- `user.getInfo` traz campos que não usamos (`spotify_expiry_estimate`, `country: "None"` quando vazio). A data de cadastro está em `registered.unixtime` (texto) e `registered["#text"]` (número).
+- O `next dev` registra no terminal a URL de cada pedido, com o username. Desligamos isso para `/api/lastfm/*` e `/u/*` em `next.config.ts` (`logging.incomingRequests.ignore`). Em produção o Next não registra pedidos.

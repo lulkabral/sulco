@@ -45,10 +45,10 @@ Antes de testar com chamada real, me pergunte qual username usar. Registre em do
 
 Pronto quando:
 
-- [ ] abrir `/api/lastfm/top?user=MEU_USER&type=albums&period=7day` no navegador mostra JSON limpo
-- [ ] username inexistente devolve `USER_NOT_FOUND`
-- [ ] a chave não aparece em nenhuma resposta nem no código do navegador
-- [ ] testes passam
+- [x] abrir `/api/lastfm/top?user=MEU_USER&type=albums&period=7day` no navegador mostra JSON limpo
+- [x] username inexistente devolve `USER_NOT_FOUND`
+- [x] a chave não aparece em nenhuma resposta nem no código do navegador
+- [x] testes passam
 
 ## Fase 2: Tela inicial e página do usuário
 
