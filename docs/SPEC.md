@@ -93,8 +93,7 @@ A paleta padrão (Âmbar) é a identidade visual do site (ver "Identidade visual
 
 - Tamanhos: 3x3, 4x4, 5x5.
 - Períodos: os mesmos do seletor (padrão: últimos 7 dias, a "semaninha").
-- Opções: mostrar ou não o nome do álbum e artista; mostrar ou não a contagem de plays. A assinatura vai sempre (deixou de ser opção em 16/11/2026).
-- Assinatura: selo no canto superior direito (lá não há legenda) com o logo "sulco" e "dados: Last.fm". A grade continua quadrada.
+- Opções: mostrar ou não o nome do álbum e artista; mostrar ou não a contagem de plays. A grade não leva assinatura nem selo (só as capas); o recap continua com a assinatura e o crédito ao Last.fm.
 - Álbum sem capa: quadrado neutro com o nome do álbum.
 - Exportar em PNG, mesmos botões e mesma prévia segurável do recap.
 

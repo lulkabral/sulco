@@ -1,6 +1,5 @@
 import { truncateText, wrapText } from "@/lib/canvas/text";
 import { formatPlays } from "@/lib/format";
-import { drawWordmark, wordmarkWidth } from "@/lib/canvas/brandmark";
 import { THEME } from "@/lib/theme";
 import { GRID_CANVAS_SIDE, gridLayout, type GridCell, type GridSize } from "./layout";
 
@@ -16,8 +15,6 @@ export type GridOptions = {
   size: GridSize;
   showCaption: boolean;
   showPlays: boolean;
-  /** Selo "sulco · dados: Last.fm" no canto superior direito. */
-  showSignature: boolean;
   fontFamily: string;
 };
 
@@ -42,40 +39,6 @@ export function drawGrid(canvas: HTMLCanvasElement, albums: GridAlbum[], opts: G
     if (!album) continue; // menos álbuns que quadrados: fica o fundo
     drawCell(ctx, cell, album, opts);
   }
-
-  if (opts.showSignature) drawSignature(ctx, opts.fontFamily);
-}
-
-/**
- * Selo no canto superior direito (lá não há legenda, só capa): pílula escura
- * semitransparente com o logo e o crédito ao Last.fm. A grade continua quadrada.
- */
-function drawSignature(ctx: CanvasRenderingContext2D, font: string) {
-  const logoPx = 34;
-  const credit = "dados: Last.fm";
-  const pad = 22;
-  const gap = 16;
-  const logoW = wordmarkWidth(ctx, logoPx, font);
-  ctx.font = `500 22px ${font}`;
-  const creditW = ctx.measureText(credit).width;
-  const w = pad + logoW + gap + creditW + pad;
-  const h = 64;
-  const x = GRID_CANVAS_SIDE - w - 24;
-  const y = 24;
-
-  ctx.save();
-  ctx.fillStyle = "rgba(21,18,15,0.78)";
-  ctx.beginPath();
-  ctx.roundRect(x, y, w, h, h / 2);
-  ctx.fill();
-  ctx.restore();
-
-  const baseline = y + h / 2 + logoPx * 0.36;
-  drawWordmark(ctx, x + pad, baseline, logoPx, font, TEXT);
-  ctx.font = `500 22px ${font}`;
-  ctx.fillStyle = TEXT_SOFT;
-  ctx.textAlign = "left";
-  ctx.fillText(credit, x + pad + logoW + gap, baseline - 2);
 }
 
 function drawCell(

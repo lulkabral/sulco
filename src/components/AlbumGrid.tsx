@@ -68,8 +68,8 @@ export function AlbumGrid({ username, period, periodLabel, albums }: Props) {
       drawGrid(
         canvasRef.current,
         needed.map((a, i) => ({ name: a.name, artist: a.artist, playcount: a.playcount, cover: covers[i] })),
-        // A assinatura "sulco" vai sempre (não é mais opção).
-        { size, showCaption, showPlays, showSignature: true, fontFamily },
+        // Sem assinatura: a grade é só das capas (decisão de 16/11/2026).
+        { size, showCaption, showPlays, fontFamily },
       );
       void takeSnapshot(canvasRef.current);
       setDrawnKey(`${size}-${showCaption}-${showPlays}`);
