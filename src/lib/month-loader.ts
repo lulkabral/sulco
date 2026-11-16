@@ -1,8 +1,19 @@
 // Busca de dados do mês fechado, no navegador, sempre pelas NOSSAS rotas /api/lastfm/*
 // (o navegador nunca chama o Last.fm direto).
 
+import type { MonthTops } from "@/lib/aggregate";
 import { computeTopGenres, GENRE_ARTISTS, mapWithLimit, type Genre } from "@/lib/genres";
-import { ERROR_CODES, type ArtistTagsResponse, type ErrorCode, type Scrobble, type ScrobblePage } from "@/lib/lastfm/types";
+import {
+  ERROR_CODES,
+  type ArtistTagsResponse,
+  type ChartResponse,
+  type ErrorCode,
+  type Scrobble,
+  type ScrobblePage,
+  type TopAlbum,
+  type TopArtist,
+  type TopTrack,
+} from "@/lib/lastfm/types";
 import { MAX_SCROBBLE_PAGES } from "@/lib/lastfm/validate";
 
 /** Máximo de pedidos ao mesmo tempo (regra do projeto: 3 a 4). */
@@ -32,7 +43,8 @@ async function getJson<T>(url: string, signal: AbortSignal): Promise<T> {
   return body as T;
 }
 
-export type MonthProgress = { pagesDone: number; totalPages: number };
+/** Progresso de várias chamadas: "página 3 de 12" ou "capa 3 de 9". */
+export type MonthProgress = { pagesDone: number; totalPages: number; unit?: "página" | "capa" };
 
 export type MonthScrobbles = {
   scrobbles: Scrobble[];
@@ -63,13 +75,13 @@ export async function loadMonthScrobbles(
   const first = await getJson<ScrobblePage>(pageUrl(1), signal);
   const totalPages = Math.min(first.totalPages, MAX_SCROBBLE_PAGES);
   let pagesDone = 1;
-  onProgress({ pagesDone, totalPages: Math.max(totalPages, 1) });
+  onProgress({ pagesDone, totalPages: Math.max(totalPages, 1), unit: "página" });
 
   const rest = Array.from({ length: Math.max(totalPages - 1, 0) }, (_, i) => i + 2);
   const pages = await mapWithLimit(rest, CONCURRENCY, async (page) => {
     const data = await getJson<ScrobblePage>(pageUrl(page), signal);
     pagesDone++;
-    onProgress({ pagesDone, totalPages });
+    onProgress({ pagesDone, totalPages, unit: "página" });
     return data.tracks;
   });
 
@@ -99,4 +111,51 @@ export async function loadGenres(
   });
   if (top.length > 0 && tags.every((t) => t === null)) return null;
   return computeTopGenres(top.map((a, i) => ({ ...a, tags: tags[i] ?? [] })));
+}
+
+/**
+ * Ano inteiro (ou "até agora"): 3 chamadas de gráfico (artistas, álbuns, músicas) e depois
+ * as capas só dos `coverCount` primeiros álbuns (o gráfico não traz imagem), 3 por vez.
+ * O total de scrobbles é a soma dos plays dos artistas (testado: bate com o Last.fm).
+ */
+export async function loadYearTops(
+  username: string,
+  range: { from: number; to: number },
+  coverCount: number,
+  onProgress: (p: MonthProgress) => void,
+  signal: AbortSignal,
+): Promise<MonthTops> {
+  const chartUrl = (type: string) =>
+    `/api/lastfm/chart?${new URLSearchParams({ user: username, type, from: String(range.from), to: String(range.to) })}`;
+
+  const [artists, albums, tracks] = await Promise.all(
+    ["artists", "albums", "tracks"].map((t) => getJson<ChartResponse>(chartUrl(t), signal)),
+  );
+  const albumItems = albums.items as TopAlbum[];
+
+  const wanted = albumItems.slice(0, coverCount);
+  let done = 0;
+  onProgress({ pagesDone: 0, totalPages: wanted.length, unit: "capa" });
+  const covers = await mapWithLimit(wanted, CONCURRENCY, async (a) => {
+    const url = `/api/lastfm/album?${new URLSearchParams({ artist: a.artist, album: a.name })}`;
+    // Uma capa que falhar não derruba o ano: o álbum só fica sem capa.
+    const imageUrl = await getJson<{ imageUrl: string | null }>(url, signal)
+      .then((r) => r.imageUrl)
+      .catch((err) => {
+        if (signal.aborted) throw err;
+        return null;
+      });
+    done++;
+    onProgress({ pagesDone: done, totalPages: wanted.length, unit: "capa" });
+    return imageUrl;
+  });
+
+  const artistItems = artists.items as TopArtist[];
+  return {
+    // Soma de TODOS os artistas, feita no servidor antes de cortar a lista.
+    total: artists.totalPlays,
+    artists: artistItems,
+    albums: albumItems.map((a, i) => ({ ...a, imageUrl: covers[i] ?? null })),
+    tracks: tracks.items as TopTrack[],
+  };
 }

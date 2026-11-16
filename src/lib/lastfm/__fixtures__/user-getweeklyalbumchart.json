@@ -1,0 +1,50 @@
+{
+  "weeklyalbumchart": {
+    "album": [
+      {
+        "artist": {
+          "mbid": "",
+          "#text": "Various Artists"
+        },
+        "mbid": "",
+        "url": "https://www.last.fm/music/Various+Artists/The+50+Best+Yacht+Rock+Songs+Ever",
+        "name": "The 50 Best Yacht Rock Songs Ever",
+        "@attr": {
+          "rank": "1"
+        },
+        "playcount": "25"
+      },
+      {
+        "artist": {
+          "mbid": "316c59f5-5554-4c11-8867-1a9ec920dd75",
+          "#text": "Five"
+        },
+        "mbid": "063d0096-6c4b-4222-bc1d-f1b29a53d0a7",
+        "url": "https://www.last.fm/music/Five/Five",
+        "name": "Five",
+        "@attr": {
+          "rank": "2"
+        },
+        "playcount": "20"
+      },
+      {
+        "artist": {
+          "mbid": "23a03e33-a603-404e-bcbf-2c00159d7067",
+          "#text": "The Offspring"
+        },
+        "mbid": "2e5af9d2-f262-3f73-ab47-4884e945fa8e",
+        "url": "https://www.last.fm/music/The+Offspring/Americana",
+        "name": "Americana",
+        "@attr": {
+          "rank": "3"
+        },
+        "playcount": "14"
+      }
+    ],
+    "@attr": {
+      "from": "1790823600",
+      "user": "RJ",
+      "to": "1793501999"
+    }
+  }
+}

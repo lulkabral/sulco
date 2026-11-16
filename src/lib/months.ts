@@ -93,3 +93,51 @@ export function monthRange(id: string): { from: number; to: number } | null {
   const nextStart = new Date(parsed.year, parsed.month, 1).getTime();
   return { from: start / 1000, to: nextStart / 1000 - 1 };
 }
+
+// ---------- anos inteiros ----------
+
+const YEAR_RE = /^\d{4}$/;
+
+/** "2025" -> 2025. Formato errado ou ano absurdo -> null. */
+export function parseYearId(raw: string | null | undefined): number | null {
+  if (!YEAR_RE.test(raw ?? "")) return null;
+  const year = Number(raw);
+  return year >= 2002 && year <= 2100 ? year : null;
+}
+
+/**
+ * Anos da máquina do tempo: do ano corrente até o ano de cadastro, do mais recente
+ * para o mais antigo. Calendário em UTC (o servidor não sabe o fuso de quem pede).
+ */
+export function yearsSince(registeredAt: number, now: Date): number[] {
+  const current = now.getUTCFullYear();
+  const first = registeredAt > 0 ? new Date(registeredAt * 1000).getUTCFullYear() : current;
+  const years: number[] = [];
+  for (let y = current; y >= Math.min(first, current); y--) years.push(y);
+  return years;
+}
+
+/** `yearsSince` de agora. Só para código de servidor que já chamou `connection()`. */
+export function currentYearsSince(registeredAt: number): number[] {
+  return yearsSince(registeredAt, new Date());
+}
+
+/** Bloco de arredondamento do fim do ano corrente (o mesmo dos períodos: cache funciona). */
+const STEP = 600;
+
+/**
+ * Começo e fim do ano no fuso do aparelho (timestamps UNIX em segundos).
+ * No ano corrente, o fim é "agora" (arredondado em 10 min). Ano futuro: null.
+ */
+export function yearRange(year: number, nowSeconds: number): { from: number; to: number; ongoing: boolean } | null {
+  const from = new Date(year, 0, 1).getTime() / 1000;
+  const end = new Date(year + 1, 0, 1).getTime() / 1000 - 1;
+  if (from > nowSeconds) return null;
+  const now = Math.floor(nowSeconds / STEP) * STEP;
+  return end < now ? { from, to: end, ongoing: false } : { from, to: now, ongoing: true };
+}
+
+/** "2025" ou, no ano corrente, "2026 até agora". */
+export function yearLabel(year: number, ongoing: boolean): string {
+  return ongoing ? `${year} até agora` : String(year);
+}

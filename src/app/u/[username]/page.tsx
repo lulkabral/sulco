@@ -25,7 +25,7 @@ import {
   UI_PERIODS,
   type UiPeriod,
 } from "@/lib/periods";
-import { currentMonthsSince } from "@/lib/months";
+import { currentMonthsSince, currentYearsSince, monthLabel, parseYearId, yearLabel } from "@/lib/months";
 import { parseTab, type Tab } from "@/lib/tabs";
 
 const LIST_LIMIT = 10;
@@ -107,20 +107,27 @@ async function Profile({ params, searchParams }: Pick<PageProps<"/u/[username]">
   // Dependem da data de hoje: `connection()` diz ao Next que isto roda a cada pedido.
   await connection();
   const months = currentMonthsSince(user.registeredAt);
-  // Mês fechado ("2026-10"), só se estiver nessa lista; senão, um período do Last.fm.
+  const years = currentYearsSince(user.registeredAt);
+  // Mês fechado ("2026-10") ou ano ("2025"), só se estiverem nessas listas;
+  // senão, um período do Last.fm.
   const month = rawPeriod && (months as string[]).includes(rawPeriod) ? rawPeriod : null;
-  const current = month ?? period;
+  const yearNumber = parseYearId(rawPeriod);
+  const year = yearNumber !== null && years.includes(yearNumber) ? yearNumber : null;
+  const history = month ?? (year !== null ? String(year) : null);
+  // O ano mais recente da lista é o corrente: ele ainda está "até agora".
+  const historyLabel = month ? monthLabel(month) : year !== null ? yearLabel(year, year === years[0]) : "";
+  const current = history ?? period;
   // Só repassamos o período para a outra aba se a pessoa escolheu um (cada aba tem seu padrão).
-  const chosenPeriod = month ?? (UI_PERIODS.some((p) => p.value === rawPeriod) ? period : undefined);
+  const chosenPeriod = history ?? (UI_PERIODS.some((p) => p.value === rawPeriod) ? period : undefined);
 
   return (
     <>
       <UserHeader user={user} covers={covers} />
       <ProfileTabs username={user.username} current={tab} period={chosenPeriod} />
-      <PeriodSelector username={user.username} current={current} tab={tab} months={months} />
-      {month ? (
-        // Mês fechado: a soma acontece no navegador (SPEC, "Mês fechado").
-        <MonthView key={`${tab}-${month}`} username={user.username} month={month} tab={tab} />
+      <PeriodSelector username={user.username} current={current} tab={tab} months={months} years={years} />
+      {history ? (
+        // Máquina do tempo (mês ou ano): os dados são montados no navegador (SPEC, "Mês fechado").
+        <MonthView key={`${tab}-${history}`} username={user.username} period={history} label={historyLabel} tab={tab} />
       ) : (
         // key: ao trocar de período ou aba, mostra o esqueleto de novo enquanto carrega
         <Suspense key={`${tab}-${period}`} fallback={<ListsSkeleton />}>

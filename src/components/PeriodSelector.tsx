@@ -10,6 +10,8 @@ type Props = {
   tab: Tab;
   /** Meses fechados desde o cadastro (do mais recente para o mais antigo). */
   months: string[];
+  /** Anos desde o cadastro (o 1º é o corrente, "até agora"). */
+  years: number[];
 };
 
 /** Rótulos curtos para caber na fileira. */
@@ -27,13 +29,19 @@ const MONTH_SHORT = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "se
 /**
  * Seletor de período em duas partes:
  * - fileira com "Todo o tempo" e os períodos do Last.fm;
- * - máquina do tempo: os anos desde o cadastro e, embaixo, os meses do ano escolhido.
- * Tudo são links (/u/USERNAME?tab=...&period=...). No celular as fileiras rolam para o lado.
+ * - máquina do tempo: os anos (cada um abre o ano inteiro; o corrente, "até agora")
+ *   e, embaixo, os meses do ano escolhido.
+ * Tudo são links (/u/USERNAME?tab=...&period=...).
  */
-export function PeriodSelector({ username, current, tab, months }: Props) {
-  const years = groupByYear(months);
-  const currentYear = months.includes(current) ? Number(current.slice(0, 4)) : years[0]?.year;
-  const yearMonths = years.find((y) => y.year === currentYear)?.months ?? [];
+export function PeriodSelector({ username, current, tab, months, years }: Props) {
+  const monthsByYear = groupByYear(months);
+  // Ano em foco: o do mês escolhido, o próprio ano escolhido ou, sem nenhum, o mais recente.
+  const focusYear = months.includes(current)
+    ? Number(current.slice(0, 4))
+    : years.includes(Number(current))
+      ? Number(current)
+      : years[0];
+  const yearMonths = monthsByYear.find((y) => y.year === focusYear)?.months ?? [];
 
   return (
     <nav aria-label="Período" className="-mx-4 flex flex-col gap-3 sm:mx-0">
@@ -55,14 +63,15 @@ export function PeriodSelector({ username, current, tab, months }: Props) {
             Máquina do tempo
           </p>
           <Row label="Ano" wrap>
-            {years.map((y) => (
+            {years.map((y, i) => (
               <Pill
-                key={y.year}
-                // Clicar no ano abre o mês mais recente dele.
-                href={userPageHref(username, tab, y.months.at(-1)!)}
-                active={y.year === currentYear && months.includes(current)}
-                outlined={y.year === currentYear}
-                label={String(y.year)}
+                key={y}
+                // Clicar no ano abre o ano inteiro (o corrente: até hoje).
+                href={userPageHref(username, tab, String(y))}
+                active={current === String(y)}
+                outlined={y === focusYear}
+                label={i === 0 ? `${y} até agora` : String(y)}
+                title={i === 0 ? `Seu ${y} até agora` : `Seu ${y} inteiro`}
               />
             ))}
           </Row>

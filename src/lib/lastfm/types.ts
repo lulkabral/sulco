@@ -98,3 +98,14 @@ export type ScrobblePage = {
   total: number;
   tracks: Scrobble[];
 };
+
+/** Tops de um intervalo qualquer (gráficos do Last.fm com `from`/`to`). */
+export type ChartResponse = {
+  type: TopType;
+  from: number;
+  to: number;
+  /** Já em ordem e cortados nos primeiros; álbuns vêm sem capa (o gráfico não traz imagem). */
+  items: TopItem[];
+  /** Soma dos plays da lista INTEIRA (antes do corte). Nos artistas, é o total de scrobbles. */
+  totalPlays: number;
+};

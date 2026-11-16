@@ -7,7 +7,10 @@ import { computeTopGenres, mapWithLimit, type Genre } from "@/lib/genres";
 import { LastfmError, mapLastfmError } from "./errors";
 import {
   getLastfmErrorNumber,
+  normalizeAlbumCover,
   normalizeArtistTags,
+  normalizeChart,
+  sumChartPlays,
   normalizeRecentTotal,
   normalizeScrobblePage,
   normalizeTop,
@@ -15,6 +18,7 @@ import {
 } from "./normalize";
 import type {
   ArtistTagsResponse,
+  ChartResponse,
   ErrorCode,
   Period,
   ScrobblePage,
@@ -35,6 +39,10 @@ const ALLOWED_METHODS = [
   "user.getTopTracks",
   "user.getRecentTracks",
   "artist.getTopTags",
+  "user.getWeeklyArtistChart",
+  "user.getWeeklyAlbumChart",
+  "user.getWeeklyTrackChart",
+  "album.getInfo",
 ] as const;
 type Method = (typeof ALLOWED_METHODS)[number];
 
@@ -49,12 +57,14 @@ const TRANSIENT_ERRORS = new Set([8, 11, 16]);
  * Por quanto tempo guardar cada tipo de resposta (docs/LASTFM.md):
  * - short: dados do usuário, 10 min "fresco", expira em 30 min;
  * - day: scrobbles de intervalo encerrado: 1 dia "fresco", expira em 7;
- * - week: tags de artista, mudam pouco: 7 dias "fresco", expira em 14.
+ * - week: tags de artista, mudam pouco: 7 dias "fresco", expira em 14;
+ * - month: capas de álbum, quase nunca mudam: 30 dias "fresco", expira em 60.
  */
 const CACHE_PROFILES = {
   short: { revalidate: 600, expire: 1800 },
   day: { revalidate: 86_400, expire: 604_800 },
   week: { revalidate: 604_800, expire: 1_209_600 },
+  month: { revalidate: 2_592_000, expire: 5_184_000 },
 } as const;
 type CacheProfile = keyof typeof CACHE_PROFILES;
 
@@ -258,4 +268,42 @@ export async function getScrobblePage(
     closed ? "day" : "short",
   );
   return normalizeScrobblePage(raw);
+}
+
+const CHART_METHODS: Record<TopType, Method> = {
+  artists: "user.getWeeklyArtistChart",
+  albums: "user.getWeeklyAlbumChart",
+  tracks: "user.getWeeklyTrackChart",
+};
+
+/** Itens devolvidos por gráfico (o bastante para lineup, grade 5x5, listas e gêneros). */
+const CHART_LIMIT = 50;
+
+/**
+ * Tops de um intervalo qualquer, numa chamada só. Usa os gráficos "semanais" do Last.fm
+ * com `from`/`to` livres (não documentado, mas testado: a soma bate com o total de
+ * scrobbles; ver docs/LASTFM.md). Intervalo encerrado fica 1 dia em cache.
+ */
+export async function getChart(username: string, type: TopType, from: number, to: number): Promise<ChartResponse> {
+  const closed = isClosedRange(to, Date.now() / 1000);
+  const raw = await callLastfm(
+    CHART_METHODS[type],
+    { user: username, from: String(from), to: String(to) },
+    closed ? "day" : "short",
+  );
+  return { type, from, to, items: normalizeChart(type, raw, CHART_LIMIT), totalPlays: sumChartPlays(type, raw) };
+}
+
+/**
+ * Capa de um álbum (`album.getInfo`), com cache de 30 dias. Álbum que o Last.fm não
+ * conhece (erro 6) devolve null em vez de erro.
+ */
+export async function getAlbumCover(artist: string, album: string): Promise<string | null> {
+  try {
+    const raw = await callLastfm("album.getInfo", { artist, album }, "month");
+    return normalizeAlbumCover(raw);
+  } catch (err) {
+    if (err instanceof LastfmError && err.code === "USER_NOT_FOUND") return null;
+    throw err;
+  }
 }

@@ -26,6 +26,8 @@ GET https://ws.audioscrobbler.com/2.0/?method=user.gettopalbums&user=USERNAME&pe
 | `user.getTopTracks` | top músicas | `user`, `period`, `limit`, `page` |
 | `user.getRecentTracks` | scrobbles de um intervalo (mês fechado) | `user`, `from`, `to`, `limit` (máx. 200), `page` |
 | `artist.getTopTags` | tags do artista (gêneros) | `artist` |
+| `user.getWeeklyArtistChart`, `user.getWeeklyAlbumChart`, `user.getWeeklyTrackChart` | tops de um ano inteiro (com `from`/`to` livres) | `user`, `from`, `to` |
+| `album.getInfo` | só a capa dos álbuns do ano (o gráfico não traz imagem) | `artist`, `album` |
 
 Qualquer outro método deve ser recusado pela rota.
 
@@ -91,6 +93,14 @@ Qualquer outro método deve ser recusado pela rota.
   - A faixa traz só o artista *da faixa*, não o artista *do álbum*. Em coletâneas e trilhas, faixas do mesmo álbum podem virar "álbuns" diferentes na soma.
   - **Conferência:** outubro de 2026 de um perfil real, somado pelo site, bateu exatamente com a biblioteca do Last.fm (`/user/USERNAME/library/artists?from=2026-10-01&to=2026-10-31`): 564 scrobbles, 54 artistas e os mesmos números no top 5.
   - Cache: intervalo encerrado há mais de 1 dia fica 1 dia na CDN (e 1 hora no navegador). Esse dia de folga existe porque scrobbles de um aparelho que estava offline ainda podem chegar depois.
+- **Gráficos com intervalo livre (ano inteiro, testado em 15/11/2026):**
+  - `user.getWeekly{Artist,Album,Track}Chart` foram feitos para as semanas de `user.getWeeklyChartList`, mas **aceitam qualquer `from`/`to`** (isso não está documentado). Uma chamada só, cerca de 1 s, e até 1000 itens.
+  - **Conferência:** 2026 até 15/11 de um perfil real: 15.524 scrobbles pela soma dos plays de todos os artistas, igual ao total de `user.getRecentTracks` no mesmo intervalo. O top 5 de artistas bate com a biblioteca do Last.fm (Madonna 1.243, Janet Jackson 1.026, Gal Costa 1.011...).
+  - Pelas páginas de scrobbles, o mesmo ano seriam 78 páginas de 200 (passa do nosso limite de 50). Por isso o ano usa os gráficos.
+  - O gráfico de álbuns agrupa pelo **artista do álbum** ("Various Artists" em coletâneas), diferente da soma de scrobbles do mês fechado.
+  - Os itens vêm **sem capa** (álbum sem `image`; música com a estrela genérica). A capa vem de `album.getInfo`, só para os álbuns que aparecem (9 na imagem, 25 na grade), 3 por vez, com cache de 30 dias. Na primeira vez, algumas capas demoram vários segundos.
+  - `album.getInfo` de álbum inexistente: HTTP 200 com `{"error": 6, "message": "Album not found"}`. Tratamos como "sem capa".
+  - Risco: como é um uso não documentado, o Last.fm pode mudar. Se mudar, só o ano inteiro para de funcionar.
 - **`artist.getTopTags` (fase 5, testado em 15/11/2026):**
   - Veio no máximo 10 tags por artista, já ordenadas. `count` vai de 0 a 100 (a mais forte vale 100) e chega como número.
   - O nome da tag pode vir com maiúsculas diferentes ("Nu Metal", "Grunge") e até em português ("male vocalistas").

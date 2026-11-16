@@ -11,14 +11,16 @@ import { formatNumber } from "@/lib/format";
 import type { Genre } from "@/lib/genres";
 import type { ErrorCode } from "@/lib/lastfm/types";
 import { MAX_SCROBBLE_PAGES } from "@/lib/lastfm/validate";
-import { ApiCallError, loadGenres, loadMonthScrobbles, type MonthProgress } from "@/lib/month-loader";
-import { monthLabel, monthRange } from "@/lib/months";
+import { ApiCallError, loadGenres, loadMonthScrobbles, loadYearTops, type MonthProgress } from "@/lib/month-loader";
+import { monthRange, parseYearId, yearRange } from "@/lib/months";
 import type { Tab } from "@/lib/tabs";
 
 type Props = {
   username: string;
-  /** Mês no formato "AAAA-MM". */
-  month: string;
+  /** Mês "AAAA-MM" (soma de scrobbles) ou ano "AAAA" (gráficos do Last.fm). */
+  period: string;
+  /** Nome do período para a tela e a imagem: "Outubro de 2026", "2026 até agora". */
+  label: string;
   tab: Tab;
 };
 
@@ -41,34 +43,40 @@ const RECAP_ALBUMS = 9;
 const GRID_LIMIT = 25;
 
 /**
- * Mês fechado: busca as páginas de scrobbles pela nossa rota, soma aqui no navegador
- * (o servidor não guarda nem soma nada) e mostra recap, grade e listas.
+ * Máquina do tempo: um mês fechado ou um ano inteiro.
+ * - Mês: busca as páginas de scrobbles pela nossa rota e soma aqui no navegador.
+ * - Ano: 3 chamadas de gráfico + as capas dos álbuns que aparecem (ver loadYearTops).
+ * O servidor não guarda nem soma nada. Depois, mostra recap, grade e listas.
  */
-export function MonthView({ username, month, tab }: Props) {
+export function MonthView({ username, period, label, tab }: Props) {
   const [state, setState] = useState<State>({ status: "loading", progress: null });
   const [genreList, setGenreList] = useState<Genre[] | null | undefined>(undefined);
   const [attempt, setAttempt] = useState(0);
-  const label = monthLabel(month);
 
   useEffect(() => {
     const controller = new AbortController();
     const { signal } = controller;
-    // Começo e fim do mês no fuso deste aparelho.
-    const range = monthRange(month);
+    const onProgress = (progress: MonthProgress) => setState({ status: "loading", progress });
+    // Começo e fim do mês ou do ano no fuso deste aparelho.
+    const year = parseYearId(period);
+    const range = year ? yearRange(year, Date.now() / 1000) : monthRange(period);
     if (!range) return;
 
     (async () => {
       try {
-        const data = await loadMonthScrobbles(
-          username,
-          range,
-          (progress) => setState({ status: "loading", progress }),
-          signal,
-        );
-        const tops = aggregateScrobbles(data.scrobbles);
+        let tops: MonthTops;
+        let truncated = false;
+        if (year) {
+          // Só as capas que vão aparecer: 25 na grade, 9 na imagem do recap.
+          tops = await loadYearTops(username, range, tab === "grade" ? GRID_LIMIT : RECAP_ALBUMS, onProgress, signal);
+        } else {
+          const data = await loadMonthScrobbles(username, range, onProgress, signal);
+          tops = aggregateScrobbles(data.scrobbles);
+          truncated = data.truncated;
+        }
         const genres = loadGenres(tops.artists, signal);
         genres.then((g) => !signal.aborted && setGenreList(g));
-        setState({ status: "ready", tops, range, truncated: data.truncated, genres });
+        setState({ status: "ready", tops, range: { from: range.from, to: range.to }, truncated, genres });
       } catch (err) {
         if (signal.aborted) return;
         setState({ status: "error", code: err instanceof ApiCallError ? err.code : "LASTFM_DOWN" });
@@ -77,7 +85,7 @@ export function MonthView({ username, month, tab }: Props) {
 
     // Saiu da página ou trocou de mês: cancela os pedidos que ainda estão no ar.
     return () => controller.abort();
-  }, [username, month, attempt]);
+  }, [username, period, tab, attempt]);
 
   function retry() {
     setState({ status: "loading", progress: null });
@@ -124,7 +132,7 @@ export function MonthView({ username, month, tab }: Props) {
       <div className="rounded-2xl bg-card p-5">
         <h2 className="text-lg font-semibold">Nenhuma música em {label.toLowerCase()}</h2>
         <p className="mt-1 text-ink-soft">
-          Não há scrobbles neste mês. Tente outro mês ou um dos períodos acima.
+          Não há scrobbles neste período. Tente outro mês, outro ano ou um dos períodos acima.
         </p>
       </div>
     );
@@ -140,11 +148,11 @@ export function MonthView({ username, month, tab }: Props) {
       )}
 
       {tab === "grade" ? (
-        <AlbumGrid username={username} period={month} periodLabel={label} albums={recapData.grid} />
+        <AlbumGrid username={username} period={period} periodLabel={label} albums={recapData.grid} />
       ) : (
         <RecapImage
           username={username}
-          period={month}
+          period={period}
           periodLabel={label}
           from={range.from}
           to={range.to}
@@ -195,9 +203,12 @@ export function MonthView({ username, month, tab }: Props) {
 }
 
 function MonthProgressBar({ label, progress }: { label: string; progress: MonthProgress | null }) {
-  const text = progress
-    ? `Lendo seus scrobbles de ${label.toLowerCase()}: página ${progress.pagesDone} de ${progress.totalPages}`
-    : `Buscando seus scrobbles de ${label.toLowerCase()}…`;
+  const what = label.toLowerCase();
+  const text = !progress
+    ? `Buscando seus scrobbles de ${what}…`
+    : progress.unit === "capa"
+      ? `Buscando as capas de ${what}: ${progress.pagesDone} de ${progress.totalPages}`
+      : `Lendo seus scrobbles de ${what}: página ${progress.pagesDone} de ${progress.totalPages}`;
   return (
     <div className="flex flex-col gap-2 rounded-2xl bg-card p-5">
       <p role="status" className="text-ink">
@@ -214,7 +225,7 @@ function MonthProgressBar({ label, progress }: { label: string; progress: MonthP
         {progress ? (
           <div
             className="h-full rounded-full bg-amber transition-[width] duration-500 ease-out"
-            style={{ width: `${Math.round((progress.pagesDone / progress.totalPages) * 100)}%` }}
+            style={{ width: `${Math.round((progress.pagesDone / (progress.totalPages || 1)) * 100)}%` }}
           />
         ) : (
           // Ainda sem saber quantas páginas: um trecho âmbar indo e voltando.

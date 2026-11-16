@@ -1,0 +1,38 @@
+{
+  "weeklyartistchart": {
+    "artist": [
+      {
+        "mbid": "316c59f5-5554-4c11-8867-1a9ec920dd75",
+        "url": "https://www.last.fm/music/Five",
+        "name": "Five",
+        "@attr": {
+          "rank": "1"
+        },
+        "playcount": "31"
+      },
+      {
+        "mbid": "f59c5520-5f46-4d2c-b2c4-822eabf53419",
+        "url": "https://www.last.fm/music/Linkin+Park",
+        "name": "Linkin Park",
+        "@attr": {
+          "rank": "2"
+        },
+        "playcount": "20"
+      },
+      {
+        "mbid": "23a03e33-a603-404e-bcbf-2c00159d7067",
+        "url": "https://www.last.fm/music/The+Offspring",
+        "name": "The Offspring",
+        "@attr": {
+          "rank": "3"
+        },
+        "playcount": "17"
+      }
+    ],
+    "@attr": {
+      "from": "1790823600",
+      "user": "RJ",
+      "to": "1793501999"
+    }
+  }
+}

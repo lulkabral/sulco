@@ -63,6 +63,8 @@ export function validateArtistName(raw: string | null): Validated<string> {
 export const MAX_SCROBBLE_PAGES = 50;
 /** Maior intervalo aceito pela rota de scrobbles: um mês, com folga para fuso. */
 export const MAX_RANGE_SECONDS = 32 * 86_400;
+/** Maior intervalo aceito pela rota de gráficos: um ano, com folga para fuso e ano bissexto. */
+export const MAX_YEAR_RANGE_SECONDS = 367 * 86_400;
 /** 1/1/2002, antes do Last.fm existir. */
 const MIN_TIMESTAMP = 1_009_843_200;
 
@@ -70,18 +72,19 @@ function parseInteger(raw: string | null): number | null {
   return raw !== null && /^\d{1,12}$/.test(raw) ? Number(raw) : null;
 }
 
-/** `from` e `to` (timestamps UNIX em segundos) de um intervalo de até 32 dias. */
+/** `from` e `to` (timestamps UNIX em segundos) de um intervalo de até `maxSeconds` (padrão: 32 dias). */
 export function validateRange(
   rawFrom: string | null,
   rawTo: string | null,
+  maxSeconds = MAX_RANGE_SECONDS,
 ): Validated<{ from: number; to: number }> {
   const from = parseInteger(rawFrom);
   const to = parseInteger(rawTo);
   if (from === null || to === null || from < MIN_TIMESTAMP || to <= from) {
     return { ok: false, message: "from e to devem ser timestamps, com from < to." };
   }
-  if (to - from > MAX_RANGE_SECONDS) {
-    return { ok: false, message: "O intervalo pode ter no máximo 32 dias." };
+  if (to - from > maxSeconds) {
+    return { ok: false, message: `O intervalo pode ter no máximo ${Math.round(maxSeconds / 86_400)} dias.` };
   }
   return { ok: true, value: { from, to } };
 }
@@ -93,4 +96,10 @@ export function validatePage(raw: string | null): Validated<number> {
     return { ok: false, message: `page deve ser um número de 1 a ${MAX_SCROBBLE_PAGES}.` };
   }
   return { ok: true, value: page };
+}
+
+/** Nome de álbum: mesmas regras do nome de artista. */
+export function validateAlbumName(raw: string | null): Validated<string> {
+  const result = validateArtistName(raw);
+  return result.ok ? result : { ok: false, message: "Nome de álbum inválido." };
 }

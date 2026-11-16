@@ -191,3 +191,36 @@ export function normalizeScrobblePage(raw: unknown): ScrobblePage {
     tracks,
   };
 }
+
+// Onde fica a lista em cada gráfico: { weeklyartistchart: { artist: [...] } } etc.
+const CHART_KEYS: Record<TopType, { root: string; item: string }> = {
+  artists: { root: "weeklyartistchart", item: "artist" },
+  albums: { root: "weeklyalbumchart", item: "album" },
+  tracks: { root: "weeklytrackchart", item: "track" },
+};
+
+/**
+ * Gráfico de um intervalo (`user.getWeekly*Chart` com `from`/`to`). Os itens têm o mesmo
+ * formato dos tops, então reaproveita a mesma normalização. Corta em `limit` itens
+ * (o Last.fm devolve até 1000).
+ */
+export function normalizeChart(type: TopType, raw: unknown, limit: number): TopItem[] {
+  const keys = CHART_KEYS[type];
+  const list = toArray(obj(obj(raw)[keys.root])[keys.item]).filter(isObj).slice(0, limit);
+  const normalizeItem =
+    type === "artists" ? normalizeArtist : type === "albums" ? normalizeAlbum : normalizeTrack;
+  return list.map((item, i) => normalizeItem(item, i));
+}
+
+/** Capa de `album.getInfo` (maior tamanho), ou null. */
+export function normalizeAlbumCover(raw: unknown): string | null {
+  return pickImage(obj(obj(raw).album).image);
+}
+
+/** Soma dos plays de todos os itens do gráfico (sem cortar). */
+export function sumChartPlays(type: TopType, raw: unknown): number {
+  const keys = CHART_KEYS[type];
+  return toArray(obj(obj(raw)[keys.root])[keys.item])
+    .filter(isObj)
+    .reduce((sum: number, item) => sum + num(item.playcount), 0);
+}

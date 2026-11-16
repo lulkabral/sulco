@@ -165,6 +165,7 @@ Pedido do dono do projeto: imagem mais artística e com escolhas, foco em lembra
 - [x] números desligados por padrão (total fora do cartão do álbum)
 - [x] "Todo o tempo" e máquina do tempo com qualquer mês desde o cadastro
 - [x] formas vivas na página inicial, paradas com "reduzir movimento"
+- [x] ano inteiro e "ano até agora" na máquina do tempo (conferido com a biblioteca do Last.fm)
 
 ## Fase 8: Publicação
 

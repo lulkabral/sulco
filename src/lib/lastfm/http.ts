@@ -11,6 +11,8 @@ export const CACHE_SECONDS = {
   week: 604_800,
   /** Scrobbles de intervalo já encerrado: 1 dia. */
   day: 86_400,
+  /** Capas de álbum: 30 dias. */
+  month: 2_592_000,
 } as const;
 
 /**

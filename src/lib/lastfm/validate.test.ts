@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { HTTP_STATUS, mapLastfmError } from "./errors";
 import {
+  MAX_YEAR_RANGE_SECONDS,
+  validateAlbumName,
   validateArtistName,
   validateLimit,
   validatePage,
@@ -128,5 +130,28 @@ describe("validatePage", () => {
 
   it.each(["0", "51", "abc", "1.5", "-1"])("recusa %s", (raw) => {
     expect(validatePage(raw).ok).toBe(false);
+  });
+});
+
+describe("validateRange com máximo de 1 ano", () => {
+  const jan1 = 1_767_236_400; // 1/1/2026 00:00 em São Paulo
+
+  it("aceita um ano inteiro", () => {
+    expect(validateRange(String(jan1), String(jan1 + 365 * 86_400 - 1), MAX_YEAR_RANGE_SECONDS).ok).toBe(true);
+  });
+
+  it("recusa mais de 367 dias", () => {
+    expect(validateRange(String(jan1), String(jan1 + 368 * 86_400), MAX_YEAR_RANGE_SECONDS).ok).toBe(false);
+  });
+
+  it("sem o máximo, continua limitado a 32 dias", () => {
+    expect(validateRange(String(jan1), String(jan1 + 40 * 86_400)).ok).toBe(false);
+  });
+});
+
+describe("validateAlbumName", () => {
+  it("mesmas regras do nome de artista", () => {
+    expect(validateAlbumName(" Dookie ")).toEqual({ ok: true, value: "Dookie" });
+    expect(validateAlbumName("").ok).toBe(false);
   });
 });

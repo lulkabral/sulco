@@ -1,13 +1,14 @@
 // Textos da imagem do recap que mudam conforme o período escolhido.
 
 import { formatDateRange, formatSince } from "@/lib/format";
-import { parseMonthId } from "@/lib/months";
+import { parseMonthId, parseYearId } from "@/lib/months";
 
 const MONTH_SHORT = ["JAN", "FEV", "MAR", "ABR", "MAI", "JUN", "JUL", "AGO", "SET", "OUT", "NOV", "DEZ"];
 
 /** "O álbum do mês", "O álbum da sua vida"... `period` é um período do Last.fm ou um mês "AAAA-MM". */
 export function albumHeading(period: string): string {
   if (parseMonthId(period)) return "O álbum do mês";
+  if (parseYearId(period)) return "O álbum do ano";
   switch (period) {
     case "overall":
       return "O álbum da sua vida";
@@ -26,6 +27,8 @@ export function albumHeading(period: string): string {
 export function shortTag(period: string): string {
   const month = parseMonthId(period);
   if (month) return `${MONTH_SHORT[month.month - 1]} ${String(month.year).slice(2)}`;
+  const year = parseYearId(period);
+  if (year) return String(year);
   const tags: Record<string, string> = {
     overall: "TUDO",
     "7day": "7 DIAS",

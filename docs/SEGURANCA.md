@@ -11,7 +11,7 @@ Busca do valor real da chave (sem imprimi-lo) em `.next/static`, no `.next` inte
 A única variável de ambiente lida pelo código é `LASTFM_API_KEY`, no servidor. `NEXT_PUBLIC_` só aparece em comentários e docs que proíbem o uso.
 
 **3. Alguma rota aceita método ou domínio fora da lista?** Não.
-- As 4 rotas (`user`, `top`, `tags`, `scrobbles`) exportam só `GET`; POST, PUT, DELETE e PATCH devolvem 405.
+- As 6 rotas (`user`, `top`, `tags`, `scrobbles`, `chart`, `album`) exportam só `GET`; POST, PUT, DELETE e PATCH devolvem 405. (`chart` e `album` entraram depois da fase 7, para o ano inteiro; conferidas do mesmo jeito.)
 - O método do Last.fm é fixo em cada rota e conferido contra a lista de `docs/LASTFM.md`. Um `?method=` extra na URL é ignorado.
 - O código só faz `fetch` para o endereço fixo da API do Last.fm (servidor) e para as nossas próprias rotas (navegador).
 - Imagens: o otimizador do Next aceita só `https://lastfm-img.freetls.fastly.net/i/u/**`. Testado: outro domínio, outra pasta, `http://` e `lastfm-img.freetls.fastly.net.evil.com` devolvem 400. Não existe rota de proxy de imagens (as capas são carregadas direto, com CORS; ver `LASTFM.md`).

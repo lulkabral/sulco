@@ -8,6 +8,7 @@ describe("albumHeading", () => {
     expect(albumHeading("7day")).toBe("O álbum da semana");
     expect(albumHeading("12month")).toBe("O álbum do ano");
     expect(albumHeading("3month")).toBe("O álbum do período");
+    expect(albumHeading("2025")).toBe("O álbum do ano");
   });
 });
 
@@ -17,6 +18,7 @@ describe("shortTag", () => {
     expect(shortTag("2019-03")).toBe("MAR 19");
     expect(shortTag("overall")).toBe("TUDO");
     expect(shortTag("7day")).toBe("7 DIAS");
+    expect(shortTag("2025")).toBe("2025");
   });
 });
 

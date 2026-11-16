@@ -49,6 +49,7 @@ Texto curto e direto. Ver a seção "Privacidade" abaixo.
 | Últimos 30 dias | `period=1month` |
 | Últimos 3, 6, 12 meses | `period=3month` etc. |
 | Mês fechado (ex.: outubro de 2026), qualquer um desde o cadastro | somar os scrobbles do intervalo (fase 6) |
+| Ano inteiro (ex.: 2025) ou "2026 até agora", qualquer um desde o cadastro | gráficos do Last.fm com `from`/`to` + `album.getInfo` para as capas |
 
 Atenção: `1month` são os últimos 30 dias corridos, não o mês do calendário. Por isso o mês fechado é uma fase separada.
 
@@ -109,7 +110,7 @@ Descartar antes de escolher as 5 mais fortes evita que lixo forte ("the voice": 
 
 ## Mês fechado (fase 6)
 
-- Máquina do tempo: qualquer mês desde o cadastro da pessoa no Last.fm (seletor de ano e mês).
+- Máquina do tempo: qualquer mês desde o cadastro da pessoa no Last.fm (seletor de ano e mês). O botão do ano abre o ano inteiro (o corrente: "até agora"); no endereço, `?period=AAAA`.
 - O navegador calcula início e fim do mês no fuso da pessoa e envia como timestamps.
 - O navegador pede as páginas de scrobbles pela nossa rota (a 1ª sozinha, depois até 3 ao mesmo tempo, porque cada página leva de 1 a 4 s) e soma por artista, álbum e música. A soma acontece no navegador; o servidor não guarda nada.
 - Só meses já encerrados (o mês corrente fica de fora) e a partir do mês de cadastro; qualquer outro valor volta ao padrão. No endereço: `?period=AAAA-MM`.

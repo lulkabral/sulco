@@ -1,0 +1,33 @@
+{
+  "album": {
+    "name": "Insomniac (25th Anniversary Deluxe Edition)",
+    "artist": "Green Day",
+    "url": "https://www.last.fm/music/Green+Day/Insomniac+(25th+Anniversary+Deluxe+Edition)",
+    "image": [
+      {
+        "size": "small",
+        "#text": "https://lastfm-img.freetls.fastly.net/i/u/34s/1619bb90b1d049014664ca135b40fd8d.png"
+      },
+      {
+        "size": "medium",
+        "#text": "https://lastfm-img.freetls.fastly.net/i/u/64s/1619bb90b1d049014664ca135b40fd8d.png"
+      },
+      {
+        "size": "large",
+        "#text": "https://lastfm-img.freetls.fastly.net/i/u/174s/1619bb90b1d049014664ca135b40fd8d.png"
+      },
+      {
+        "size": "extralarge",
+        "#text": "https://lastfm-img.freetls.fastly.net/i/u/300x300/1619bb90b1d049014664ca135b40fd8d.png"
+      },
+      {
+        "size": "mega",
+        "#text": "https://lastfm-img.freetls.fastly.net/i/u/300x300/1619bb90b1d049014664ca135b40fd8d.png"
+      },
+      {
+        "size": "",
+        "#text": "https://lastfm-img.freetls.fastly.net/i/u/300x300/1619bb90b1d049014664ca135b40fd8d.png"
+      }
+    ]
+  }
+}

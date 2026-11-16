@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
+  normalizeAlbumCover,
   normalizeArtistTags,
+  normalizeChart,
+  sumChartPlays,
   normalizeScrobblePage,
   normalizeRecentTotal,
   getLastfmErrorNumber,
@@ -22,6 +25,10 @@ import notFoundRaw from "./__fixtures__/error-user-not-found.json";
 import recentTotalRaw from "./__fixtures__/user-getrecenttracks-total.json";
 import artistTagsRaw from "./__fixtures__/artist-gettoptags.json";
 import scrobblePageRaw from "./__fixtures__/user-getrecenttracks-page.json";
+import weeklyArtistsRaw from "./__fixtures__/user-getweeklyartistchart.json";
+import weeklyAlbumsRaw from "./__fixtures__/user-getweeklyalbumchart.json";
+import weeklyTracksRaw from "./__fixtures__/user-getweeklytrackchart.json";
+import albumInfoRaw from "./__fixtures__/album-getinfo.json";
 
 describe("normalizeUserInfo", () => {
   const user = normalizeUserInfo(userInfoRaw);
@@ -225,5 +232,47 @@ describe("normalizeScrobblePage", () => {
 
   it("resposta estranha vira página vazia", () => {
     expect(normalizeScrobblePage({})).toEqual({ page: 1, totalPages: 0, total: 0, tracks: [] });
+  });
+});
+
+describe("normalizeChart", () => {
+  it("artistas do gráfico: mesmo formato dos tops", () => {
+    const items = normalizeChart("artists", weeklyArtistsRaw, 50);
+    expect(items[0]).toEqual({ rank: 1, name: "Five", playcount: 31, url: "https://www.last.fm/music/Five" });
+  });
+
+  it("álbuns vêm com o artista do álbum e sem capa", () => {
+    const [first] = normalizeChart("albums", weeklyAlbumsRaw, 50) as TopAlbum[];
+    expect(first).toMatchObject({ rank: 1, artist: "Various Artists", playcount: 25, imageUrl: null });
+  });
+
+  it("músicas: a imagem é a estrela genérica, então fica sem imagem", () => {
+    const [first] = normalizeChart("tracks", weeklyTracksRaw, 50) as TopTrack[];
+    expect(first).toMatchObject({ rank: 1, name: "Got the Feelin' - Radio Edit", artist: "Five", playcount: 7 });
+  });
+
+  it("respeita o limite e aceita gráfico vazio", () => {
+    expect(normalizeChart("artists", weeklyArtistsRaw, 2)).toHaveLength(2);
+    expect(normalizeChart("albums", { weeklyalbumchart: { album: [] } }, 50)).toEqual([]);
+  });
+});
+
+describe("normalizeAlbumCover", () => {
+  it("pega a maior capa", () => {
+    expect(normalizeAlbumCover(albumInfoRaw)).toContain("/300x300/");
+  });
+
+  it("sem capa ou resposta estranha: null", () => {
+    expect(normalizeAlbumCover({ album: { image: [{ "#text": "" }] } })).toBeNull();
+    expect(normalizeAlbumCover({})).toBeNull();
+  });
+});
+
+describe("sumChartPlays", () => {
+  it("soma a lista inteira, sem o corte", () => {
+    // O exemplo salvo tem os 3 primeiros artistas de outubro de rj.
+    const all = normalizeChart("artists", weeklyArtistsRaw, 50).reduce((s, a) => s + a.playcount, 0);
+    expect(sumChartPlays("artists", weeklyArtistsRaw)).toBe(all);
+    expect(sumChartPlays("artists", {})).toBe(0);
   });
 });

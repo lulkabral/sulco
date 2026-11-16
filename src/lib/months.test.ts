@@ -6,6 +6,10 @@ import {
   monthRange,
   monthsSince,
   parseMonthId,
+  parseYearId,
+  yearLabel,
+  yearRange,
+  yearsSince,
 } from "./months";
 
 describe("parseMonthId", () => {
@@ -105,5 +109,56 @@ describe("groupByYear", () => {
       { year: 2026, months: ["2026-01", "2026-02"] },
       { year: 2025, months: ["2025-11", "2025-12"] },
     ]);
+  });
+});
+
+describe("anos", () => {
+  it("parseYearId aceita só AAAA possível", () => {
+    expect(parseYearId("2025")).toBe(2025);
+    expect(parseYearId("1999")).toBeNull();
+    expect(parseYearId("2025-10")).toBeNull();
+    expect(parseYearId(undefined)).toBeNull();
+  });
+
+  it("yearsSince: do ano corrente até o do cadastro", () => {
+    const now = new Date(Date.UTC(2026, 10, 15));
+    expect(yearsSince(Date.UTC(2019, 2, 1) / 1000, now)).toEqual([2026, 2025, 2024, 2023, 2022, 2021, 2020, 2019]);
+    expect(yearsSince(0, now)).toEqual([2026]);
+  });
+
+  describe("yearRange", () => {
+    const originalTz = process.env.TZ;
+    afterEach(() => {
+      process.env.TZ = originalTz;
+    });
+
+    it("ano encerrado: 1/jan a 31/dez no fuso do aparelho", () => {
+      process.env.TZ = "America/Sao_Paulo";
+      const now = Date.UTC(2026, 10, 15) / 1000;
+      expect(yearRange(2025, now)).toEqual({
+        from: Date.UTC(2025, 0, 1, 3) / 1000,
+        to: Date.UTC(2026, 0, 1, 3) / 1000 - 1,
+        ongoing: false,
+      });
+    });
+
+    it("ano corrente: termina agora (em blocos de 10 min)", () => {
+      process.env.TZ = "America/Sao_Paulo";
+      const now = Date.UTC(2026, 10, 15, 12, 34, 56) / 1000;
+      expect(yearRange(2026, now)).toEqual({
+        from: Date.UTC(2026, 0, 1, 3) / 1000,
+        to: Date.UTC(2026, 10, 15, 12, 30) / 1000,
+        ongoing: true,
+      });
+    });
+
+    it("ano futuro: null", () => {
+      expect(yearRange(2030, Date.UTC(2026, 10, 15) / 1000)).toBeNull();
+    });
+  });
+
+  it("yearLabel", () => {
+    expect(yearLabel(2025, false)).toBe("2025");
+    expect(yearLabel(2026, true)).toBe("2026 até agora");
   });
 });

@@ -1,0 +1,92 @@
+{
+  "weeklytrackchart": {
+    "track": [
+      {
+        "artist": {
+          "mbid": "316c59f5-5554-4c11-8867-1a9ec920dd75",
+          "#text": "Five"
+        },
+        "image": [
+          {
+            "size": "small",
+            "#text": "https://lastfm-img.freetls.fastly.net/i/u/34s/2a96cbd8b46e442fc41c2b86b821562f.png"
+          },
+          {
+            "size": "medium",
+            "#text": "https://lastfm-img.freetls.fastly.net/i/u/64s/2a96cbd8b46e442fc41c2b86b821562f.png"
+          },
+          {
+            "size": "large",
+            "#text": "https://lastfm-img.freetls.fastly.net/i/u/174s/2a96cbd8b46e442fc41c2b86b821562f.png"
+          }
+        ],
+        "mbid": "",
+        "url": "https://www.last.fm/music/Five/_/Got+the+Feelin%27+-+Radio+Edit",
+        "name": "Got the Feelin' - Radio Edit",
+        "@attr": {
+          "rank": "1"
+        },
+        "playcount": "7"
+      },
+      {
+        "artist": {
+          "mbid": "316c59f5-5554-4c11-8867-1a9ec920dd75",
+          "#text": "Five"
+        },
+        "image": [
+          {
+            "size": "small",
+            "#text": "https://lastfm-img.freetls.fastly.net/i/u/34s/2a96cbd8b46e442fc41c2b86b821562f.png"
+          },
+          {
+            "size": "medium",
+            "#text": "https://lastfm-img.freetls.fastly.net/i/u/64s/2a96cbd8b46e442fc41c2b86b821562f.png"
+          },
+          {
+            "size": "large",
+            "#text": "https://lastfm-img.freetls.fastly.net/i/u/174s/2a96cbd8b46e442fc41c2b86b821562f.png"
+          }
+        ],
+        "mbid": "4d5aa04e-39da-4507-b736-8689f1f051ab",
+        "url": "https://www.last.fm/music/Five/_/Slam+Dunk+(Da+Funk)",
+        "name": "Slam Dunk (Da Funk)",
+        "@attr": {
+          "rank": "2"
+        },
+        "playcount": "5"
+      },
+      {
+        "artist": {
+          "mbid": "38bfaa7f-ee98-48cb-acd0-946d7aeecd76",
+          "#text": "Nena"
+        },
+        "image": [
+          {
+            "size": "small",
+            "#text": "https://lastfm-img.freetls.fastly.net/i/u/34s/2a96cbd8b46e442fc41c2b86b821562f.png"
+          },
+          {
+            "size": "medium",
+            "#text": "https://lastfm-img.freetls.fastly.net/i/u/64s/2a96cbd8b46e442fc41c2b86b821562f.png"
+          },
+          {
+            "size": "large",
+            "#text": "https://lastfm-img.freetls.fastly.net/i/u/174s/2a96cbd8b46e442fc41c2b86b821562f.png"
+          }
+        ],
+        "mbid": "a3da09ca-a811-4917-ba87-954bb794852b",
+        "url": "https://www.last.fm/music/Nena/_/99+Red+Balloons",
+        "name": "99 Red Balloons",
+        "@attr": {
+          "rank": "3"
+        },
+        "playcount": "5"
+      }
+    ],
+    "@attr": {
+      "from": "1790823600",
+      "user": "RJ",
+      "to": "1793501999"
+    }
+  }
+}
