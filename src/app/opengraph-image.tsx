@@ -73,7 +73,6 @@ export default async function Image() {
         <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", width: 640 }}>
           {/* Logo: o disco é o "S" de "sulco". */}
           <div style={{ display: "flex", alignItems: "flex-end" }}>
-            {/* eslint-disable-next-line @next/next/no-img-element -- ImageResponse só aceita <img> */}
             <img src={symbolSrc} width={64} height={64} alt="" style={{ marginRight: 2, marginBottom: 2 }} />
             <span style={{ fontSize: 78, fontWeight: 800, letterSpacing: -4, lineHeight: 0.8 }}>ulco</span>
           </div>
