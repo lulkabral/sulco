@@ -1,0 +1,16 @@
+{
+  "titulo": "em evidência",
+  "subtitulo": "novembro de 2026",
+  "itens": [
+    { "artista": "ROSALÍA", "album": "LUX" },
+    { "artista": "Madonna", "album": "CONFESSIONS II" },
+    { "artista": "Bad Bunny" },
+    { "artista": "Charli xcx" },
+    { "artista": "Björk" },
+    { "artista": "Tinashe" },
+    { "artista": "Milo j" },
+    { "artista": "Clairo" },
+    { "artista": "Gal Costa" },
+    { "artista": "The Strokes" }
+  ]
+}

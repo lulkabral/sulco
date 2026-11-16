@@ -32,6 +32,7 @@ Depois abra http://localhost:3000.
 | `npm run test:watch` | testes em modo contínuo |
 | `npm run build` | build de produção |
 | `npm run genres -- USERNAME [periodo]` | relatório de gêneros, para ajustar a lista de descarte |
+| `npm run banner` | banner do X da conta oficial (ferramenta local; ver `brand/GUIA.md`) |
 
 ## Como está organizado
 

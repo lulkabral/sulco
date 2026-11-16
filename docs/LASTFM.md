@@ -57,6 +57,8 @@ Qualquer outro método deve ser recusado pela rota.
 | 26 | chave suspensa | `LASTFM_DOWN` |
 | 29 | limite de requisições | `RATE_LIMITED` |
 
+Fora do site, a ferramenta local `npm run banner` (só para a conta oficial) também usa `album.getInfo` e `artist.getTopAlbums`, direto da máquina do dono do projeto. Isso não passa pelas rotas e não é exposto ao navegador.
+
 ## Uso responsável
 
 - O Last.fm não publica um limite numérico, mas os termos avisam que a conta pode ser suspensa se o app fizer várias chamadas por segundo continuamente. Meta do projeto: no máximo 3 a 4 chamadas simultâneas por pedido e cache em tudo.

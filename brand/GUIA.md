@@ -56,7 +56,13 @@ Textos de apoio em Geist 500.
 
 Os arquivos foram gerados por script. Para trocar o nome, basta gerar tudo de novo: o símbolo não muda.
 
-## Banner mensal (a fazer)
+## Banner da conta (ferramenta local)
 
-A ideia: todo mês, trocar a capa do perfil por um banner com os álbuns mais ouvidos do mês. O mosaico abstrato atual serve de banner padrão.
-Precisa de um formato "Banner do X" (1500x500) no site, usando as capas reais do Last.fm. Deixar a área inferior esquerda livre (o avatar tampa).
+Só para a conta oficial do sulco (não é recurso do site). Gera a capa do perfil com os artistas em evidência no mês ou no momento.
+
+1. Copie `brand/banner.exemplo.json` para `brand/banner.json` (ou crie um arquivo por banner).
+2. Edite `titulo`, `subtitulo` e até 10 `itens` (`artista` e, se quiser, `album`; sem álbum, usa o mais popular do artista).
+3. Rode `npm run banner` (ou `npm run banner -- brand/outro.json`).
+4. Saem `brand/banner-AAAA-MM-1500x500.png` e `-3000x1000.png` (o nome pode ser trocado com `"arquivo"` no JSON).
+
+Usa a chave do `.env.local` e o ImageMagick (`convert`). A disposição (`src/lib/banner/layout.ts`) deixa livres o canto inferior esquerdo (avatar) e as faixas de cima e de baixo (o X corta no celular); há teste para isso. Capa que o Last.fm não tiver vira um quadrado colorido.
