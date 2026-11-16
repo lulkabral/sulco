@@ -22,6 +22,8 @@ const DESCRIPTION =
 // Nome da marca: sempre em minúsculas (brand/GUIA.md).
 const NAME = "sulco";
 const TAGLINE = "seu mês em música";
+/** Repositório público do projeto (link no rodapé, pedido pela SPEC). */
+const REPO_URL = "https://github.com/lulkabral/sulco";
 
 export const metadata: Metadata = {
   applicationName: NAME,
@@ -74,6 +76,15 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
                 rel="noopener noreferrer"
               >
                 Last.fm
+              </a>{" "}
+              ·{" "}
+              <a
+                href={REPO_URL}
+                className="underline underline-offset-2 hover:text-ink"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Código aberto
               </a>
             </p>
           </div>
