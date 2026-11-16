@@ -1,12 +1,14 @@
 import type { ReactNode } from "react";
 import type { Genre } from "@/lib/genres";
+import { ListIcon } from "./ListIcons";
 import { GenresSkeleton } from "./ProfileSkeleton";
 
 /** Moldura da lista "Gêneros" (cartão com título). Serve no servidor e no navegador. */
 export function GenreListView({ children }: { children: ReactNode }) {
   return (
     <section aria-labelledby="top-generos" className="min-w-0 rounded-2xl bg-card p-4 motion-safe:animate-rise">
-      <h2 id="top-generos" className="mb-3 text-sm font-bold uppercase tracking-widest text-ink-soft">
+      <h2 id="top-generos" className="mb-3 flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-ink-soft">
+        <ListIcon name="genres" />
         Gêneros
       </h2>
       {children}

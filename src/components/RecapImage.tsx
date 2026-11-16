@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { ExportButtons } from "@/components/ExportButtons";
 import { loadImage, pageFontFamily, waitForFonts } from "@/lib/canvas/image";
+import { useCanvasSnapshot } from "@/lib/canvas/use-snapshot";
 import { formatNumber } from "@/lib/format";
 import type { Genre } from "@/lib/genres";
 import { coverUrl } from "@/lib/grid/layout";
@@ -52,6 +53,7 @@ type Assets = {
 export function RecapImage(props: Props) {
   const { username, period, periodLabel, from, to, total, genres, artists, tracks, albums } = props;
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [snapshot, takeSnapshot] = useCanvasSnapshot();
   const [assets, setAssets] = useState<Assets | null>(null);
 
   // Escolhas guardadas no navegador. No servidor (e no 1º desenho) valem as padrão.
@@ -111,7 +113,8 @@ export function RecapImage(props: Props) {
       },
       { layout: prefs.layout, palette, showNumbers: prefs.showNumbers, font: assets.font },
     );
-  }, [assets, prefs, palette, username, period, periodLabel, from, to, total, artists, tracks, albums]);
+    void takeSnapshot(canvasRef.current);
+  }, [assets, prefs, palette, username, period, periodLabel, from, to, total, artists, tracks, albums, takeSnapshot]);
 
   const drawn = assets !== null;
   const coverAccent = assets?.coverPalette?.accent;
@@ -130,12 +133,20 @@ export function RecapImage(props: Props) {
           ref={canvasRef}
           width={RECAP_WIDTH}
           height={RECAP_HEIGHT}
-          role="img"
-          aria-label={`Recap de ${username}: ${periodLabel.toLowerCase()}, formato ${
-            RECAP_LAYOUTS.find((l) => l.id === prefs.layout)?.name
-          }. Os tops em texto estão abaixo.`}
+          aria-hidden
           className="block aspect-[9/16] w-full rounded-2xl bg-card shadow-2xl shadow-black/50 ring-1 ring-line"
         />
+        {snapshot && (
+          // Cópia em PNG por cima do canvas: no celular, segurar o dedo abre "Salvar imagem".
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={snapshot}
+            alt={`Recap de ${username}: ${periodLabel.toLowerCase()}, formato ${
+              RECAP_LAYOUTS.find((l) => l.id === prefs.layout)?.name
+            }. Os tops em texto estão abaixo.`}
+            className="absolute left-0 top-0 aspect-[9/16] w-full rounded-2xl"
+          />
+        )}
         {!drawn && (
           <p
             role="status"
@@ -144,6 +155,7 @@ export function RecapImage(props: Props) {
             Montando o recap…
           </p>
         )}
+        {drawn && <SaveHint />}
       </div>
 
       <div className="flex flex-col gap-5 rounded-2xl bg-card p-5 md:min-w-80">
@@ -254,5 +266,14 @@ function Swatch({
       }
       style={{ background }}
     />
+  );
+}
+
+/** Dica de salvar segurando a imagem (só em telas de toque, onde isso funciona). */
+export function SaveHint() {
+  return (
+    <p className="mt-2 hidden text-center text-xs text-ink-faint [@media(pointer:coarse)]:block">
+      Dica: segure a imagem para salvar ou compartilhar.
+    </p>
   );
 }

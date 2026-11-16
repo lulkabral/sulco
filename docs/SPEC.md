@@ -19,7 +19,7 @@ Quem usa Spotify, Deezer, YouTube Music etc. só precisa ter o scrobbling ligado
 
 - Cabeçalho com avatar, username (link para o perfil no Last.fm), total de scrobbles e uma faixa com as capas mais ouvidas do último ano (1 chamada `user.getTopAlbums` com `12month`, com cache).
 - Seletor de período: uma fileira só, com os períodos do Last.fm e os 12 meses fechados (no celular, rola para o lado).
-- Duas abas: **Recap** e **Grade**.
+- Duas abas: **Recap** e **Grade**, num seletor com ícones e um destaque âmbar que desliza para a aba escolhida assim que a pessoa toca (sem esperar o servidor). Trocar de aba não recarrega os dados do período.
 - Listas em texto dos tops (artistas, músicas, álbuns), que servem de conferência e de versão acessível da imagem.
 
 ## Identidade visual: "Sala escura"
@@ -82,8 +82,10 @@ Regras:
 
 - Desenhar com Canvas 2D. Esperar as fontes carregarem (`document.fonts.ready`) antes de desenhar.
 - Nomes longos são cortados com reticências; nunca estouram a área.
-- Exportar em PNG. No celular, oferecer compartilhar pelo menu nativo (Web Share API com arquivo); se não houver suporte, baixar.
-- Artistas não têm foto disponível na API (ver `LASTFM.md`). Usar capas de álbum ou composição só com texto.
+- Exportar em PNG com dois botões lado a lado: **Baixar imagem** e **Compartilhar**. Compartilhar usa o menu nativo do celular (Web Share API com arquivo); no computador, sem esse menu, vira **Copiar imagem** (área de transferência); sem nenhum dos dois, baixa.
+- A prévia na tela é uma `<img>` (cópia PNG do canvas), para que segurar o dedo nela abra o "Salvar imagem" do celular. Em telas de toque aparece a dica "segure a imagem para salvar ou compartilhar".
+- Artistas não têm foto disponível na API (ver `LASTFM.md`). Usar capas de álbum ou composição só com texto. Na lista "Artistas" da página, cada artista aparece numa bolinha com a capa do seu álbum mais ouvido no período; sem álbum com capa, a inicial do nome.
+- As quatro listas da página (Artistas, Músicas, Álbuns, Gêneros) têm um ícone no título: microfone, nota, disco e etiqueta.
 
 A paleta padrão (Âmbar) é a identidade visual do site (ver "Identidade visual"). (Na fase 4 a imagem era "Encarte", em papel creme; virou a paleta "Papel".)
 
@@ -91,10 +93,10 @@ A paleta padrão (Âmbar) é a identidade visual do site (ver "Identidade visual
 
 - Tamanhos: 3x3, 4x4, 5x5.
 - Períodos: os mesmos do seletor (padrão: últimos 7 dias, a "semaninha").
-- Opções: mostrar ou não o nome do álbum e artista; mostrar ou não a contagem de plays; mostrar ou não a assinatura (ligada por padrão).
+- Opções: mostrar ou não o nome do álbum e artista; mostrar ou não a contagem de plays. A assinatura vai sempre (deixou de ser opção em 16/11/2026).
 - Assinatura: selo no canto superior direito (lá não há legenda) com o logo "sulco" e "dados: Last.fm". A grade continua quadrada.
 - Álbum sem capa: quadrado neutro com o nome do álbum.
-- Exportar em PNG, mesmo fluxo de baixar ou compartilhar.
+- Exportar em PNG, mesmos botões e mesma prévia segurável do recap.
 
 ## Gêneros
 

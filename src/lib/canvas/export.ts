@@ -19,6 +19,20 @@ export function canShareFiles(): boolean {
   }
 }
 
+/** O navegador sabe copiar imagem para a área de transferência? (computador, em geral) */
+export function canCopyImage(): boolean {
+  return (
+    typeof navigator !== "undefined" &&
+    typeof ClipboardItem !== "undefined" &&
+    typeof navigator.clipboard?.write === "function"
+  );
+}
+
+/** Copia a imagem para a área de transferência (para colar no X, WhatsApp Web etc.). */
+export async function copyImage(blob: Blob): Promise<void> {
+  await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
+}
+
 /** Baixa o arquivo pelo navegador. */
 export function downloadBlob(blob: Blob, filename: string): void {
   const url = URL.createObjectURL(blob);

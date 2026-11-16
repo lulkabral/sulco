@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import { ExportButtons } from "@/components/ExportButtons";
 import { loadImage, pageFontFamily, waitForFonts } from "@/lib/canvas/image";
+import { useCanvasSnapshot } from "@/lib/canvas/use-snapshot";
+import { SaveHint } from "./RecapImage";
 import { drawGrid } from "@/lib/grid/draw";
 import {
   coverPxFor,
@@ -23,16 +25,16 @@ type Props = {
 /** Aba Grade: colagem das capas em canvas, com opções e botão de baixar/compartilhar. */
 export function AlbumGrid({ username, period, periodLabel, albums }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [snapshot, takeSnapshot] = useCanvasSnapshot();
   // Capas já carregadas, por endereço: trocar opção não baixa tudo de novo.
   const coverCache = useRef(new Map<string, Promise<HTMLImageElement | null>>());
 
   const [size, setSize] = useState<GridSize>(3);
   const [showCaption, setShowCaption] = useState(true);
   const [showPlays, setShowPlays] = useState(false);
-  const [showSignature, setShowSignature] = useState(true);
   const [drawnKey, setDrawnKey] = useState<string | null>(null);
 
-  const key = `${size}-${showCaption}-${showPlays}-${showSignature}`;
+  const key = `${size}-${showCaption}-${showPlays}`;
   const loading = drawnKey !== key;
 
   useEffect(() => {
@@ -66,15 +68,17 @@ export function AlbumGrid({ username, period, periodLabel, albums }: Props) {
       drawGrid(
         canvasRef.current,
         needed.map((a, i) => ({ name: a.name, artist: a.artist, playcount: a.playcount, cover: covers[i] })),
-        { size, showCaption, showPlays, showSignature, fontFamily },
+        // A assinatura "sulco" vai sempre (não é mais opção).
+        { size, showCaption, showPlays, showSignature: true, fontFamily },
       );
-      setDrawnKey(`${size}-${showCaption}-${showPlays}-${showSignature}`);
+      void takeSnapshot(canvasRef.current);
+      setDrawnKey(`${size}-${showCaption}-${showPlays}`);
     })();
 
     return () => {
       cancelled = true;
     };
-  }, [albums, size, showCaption, showPlays, showSignature]);
+  }, [albums, size, showCaption, showPlays, takeSnapshot]);
 
   if (albums.length === 0) {
     return <p className="text-ink-soft">Nenhum álbum neste período.</p>;
@@ -94,18 +98,27 @@ export function AlbumGrid({ username, period, periodLabel, albums }: Props) {
           ref={canvasRef}
           width={GRID_CANVAS_SIDE}
           height={GRID_CANVAS_SIDE}
-          role="img"
-          aria-label={`Grade ${size}x${size} com as capas dos álbuns mais ouvidos: ${periodLabel.toLowerCase()}. A lista em texto está abaixo.`}
+          aria-hidden
           className="block aspect-square w-full rounded-2xl bg-card shadow-2xl shadow-black/50 ring-1 ring-line"
         />
+        {snapshot && (
+          // Cópia em PNG por cima do canvas: no celular, segurar o dedo abre "Salvar imagem".
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={snapshot}
+            alt={`Grade ${size}x${size} com as capas dos álbuns mais ouvidos: ${periodLabel.toLowerCase()}. A lista em texto está abaixo.`}
+            className="absolute left-0 top-0 aspect-square w-full rounded-2xl"
+          />
+        )}
         {loading && (
           <p
             role="status"
-            className="absolute inset-0 flex items-center justify-center rounded-2xl bg-room/70 text-sm font-semibold text-ink"
+            className="absolute left-0 top-0 flex aspect-square w-full items-center justify-center rounded-2xl bg-room/70 text-sm font-semibold text-ink"
           >
             Montando a grade…
           </p>
         )}
+        {snapshot && <SaveHint />}
       </div>
 
       <div className="flex flex-col gap-5 rounded-2xl bg-card p-5 md:min-w-72">
@@ -155,15 +168,6 @@ export function AlbumGrid({ username, period, periodLabel, albums }: Props) {
               className="size-4 accent-amber"
             />
             Número de reproduções
-          </label>
-          <label className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={showSignature}
-              onChange={(e) => setShowSignature(e.target.checked)}
-              className="size-4 accent-amber"
-            />
-            Assinatura sulco
           </label>
         </fieldset>
 

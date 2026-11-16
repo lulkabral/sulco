@@ -1,5 +1,6 @@
 "use client";
 
+import { artistImages } from "@/lib/artist-image";
 import { useEffect, useMemo, useState } from "react";
 import { AlbumGrid } from "@/components/AlbumGrid";
 import { ErrorState } from "@/components/ErrorState";
@@ -52,6 +53,9 @@ export function MonthView({ username, period, label, tab }: Props) {
   const [state, setState] = useState<State>({ status: "loading", progress: null });
   const [genreList, setGenreList] = useState<Genre[] | null | undefined>(undefined);
   const [attempt, setAttempt] = useState(0);
+  // A aba só muda o que é carregado no ano (quantas capas). No mês, trocar de aba
+  // não recarrega nada: os mesmos dados servem para o recap e para a grade.
+  const coversNeeded = parseYearId(period) ? (tab === "grade" ? GRID_LIMIT : RECAP_ALBUMS) : 0;
 
   useEffect(() => {
     const controller = new AbortController();
@@ -68,7 +72,7 @@ export function MonthView({ username, period, label, tab }: Props) {
         let truncated = false;
         if (year) {
           // Só as capas que vão aparecer: 25 na grade, 9 na imagem do recap.
-          tops = await loadYearTops(username, range, tab === "grade" ? GRID_LIMIT : RECAP_ALBUMS, onProgress, signal);
+          tops = await loadYearTops(username, range, coversNeeded, onProgress, signal);
         } else {
           const data = await loadMonthScrobbles(username, range, onProgress, signal);
           tops = aggregateScrobbles(data.scrobbles);
@@ -85,7 +89,7 @@ export function MonthView({ username, period, label, tab }: Props) {
 
     // Saiu da página ou trocou de mês: cancela os pedidos que ainda estão no ar.
     return () => controller.abort();
-  }, [username, period, tab, attempt]);
+  }, [username, period, coversNeeded, attempt]);
 
   function retry() {
     setState({ status: "loading", progress: null });
@@ -127,6 +131,7 @@ export function MonthView({ username, period, label, tab }: Props) {
   }
 
   const { tops, range, truncated, genres } = state;
+  const artistPics = artistImages(tops.artists.slice(0, LIST_LIMIT), tops.albums);
   if (tops.total === 0 || !recapData) {
     return (
       <div className="rounded-2xl bg-card p-5">
@@ -167,15 +172,18 @@ export function MonthView({ username, period, label, tab }: Props) {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <TopList
           title="Artistas"
-          items={tops.artists.slice(0, LIST_LIMIT).map((a) => ({
+          icon="artists"
+          items={tops.artists.slice(0, LIST_LIMIT).map((a, i) => ({
             rank: a.rank,
             name: a.name,
             playcount: a.playcount,
             url: a.url,
+            image: artistPics[i],
           }))}
         />
         <TopList
           title="Músicas"
+          icon="tracks"
           items={tops.tracks.slice(0, LIST_LIMIT).map((t) => ({
             rank: t.rank,
             name: t.name,
@@ -186,6 +194,7 @@ export function MonthView({ username, period, label, tab }: Props) {
         />
         <TopList
           title="Álbuns"
+          icon="albums"
           items={tops.albums.slice(0, LIST_LIMIT).map((a) => ({
             rank: a.rank,
             name: a.name,

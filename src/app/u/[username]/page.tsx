@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { artistImages } from "@/lib/artist-image";
 import { connection } from "next/server";
 import { Suspense } from "react";
 import { AlbumGrid } from "@/components/AlbumGrid";
@@ -127,10 +128,10 @@ async function Profile({ params, searchParams }: Pick<PageProps<"/u/[username]">
       <PeriodSelector username={user.username} current={current} tab={tab} months={months} years={years} />
       {history ? (
         // Mês ou ano escolhido no calendário: os dados são montados no navegador (SPEC, "Mês fechado").
-        <MonthView key={`${tab}-${history}`} username={user.username} period={history} label={historyLabel} tab={tab} />
+        <MonthView key={history} username={user.username} period={history} label={historyLabel} tab={tab} />
       ) : (
-        // key: ao trocar de período ou aba, mostra o esqueleto de novo enquanto carrega
-        <Suspense key={`${tab}-${period}`} fallback={<ListsSkeleton />}>
+        // key: ao trocar de período mostra o esqueleto; ao trocar de aba, a tela atual fica até a nova chegar
+        <Suspense key={period} fallback={<ListsSkeleton />}>
           <TopLists
             username={user.username}
             period={period}
@@ -188,6 +189,7 @@ async function TopLists({ username, period, tab, registeredAt, lifetimeTotal }: 
 
   const albumItems = albums.items as TopAlbum[];
   const artistItems = artists.items as TopArtist[];
+  const artistPics = artistImages(artistItems.slice(0, LIST_LIMIT), albumItems);
 
   // Começa o cálculo de gêneros (até 20 buscas de tags, 3 por vez) sem esperar:
   // as listas aparecem já, e a lista de gêneros e a imagem do recap recebem a "promessa".
@@ -235,15 +237,18 @@ async function TopLists({ username, period, tab, registeredAt, lifetimeTotal }: 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <TopList
           title="Artistas"
-          items={artistItems.slice(0, LIST_LIMIT).map((a) => ({
+          icon="artists"
+          items={artistItems.slice(0, LIST_LIMIT).map((a, i) => ({
             rank: a.rank,
             name: a.name,
             playcount: a.playcount,
             url: a.url,
+            image: artistPics[i],
           }))}
         />
         <TopList
           title="Músicas"
+          icon="tracks"
           items={(tracks.items as TopTrack[]).map((t) => ({
             rank: t.rank,
             name: t.name,
@@ -254,6 +259,7 @@ async function TopLists({ username, period, tab, registeredAt, lifetimeTotal }: 
         />
         <TopList
           title="Álbuns"
+          icon="albums"
           items={albumItems.slice(0, LIST_LIMIT).map((a) => ({
             rank: a.rank,
             name: a.name,
