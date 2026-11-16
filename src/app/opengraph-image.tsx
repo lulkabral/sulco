@@ -7,7 +7,7 @@ import { THEME, TILE_COLORS } from "@/lib/theme";
 // Identidade "Sala escura": fundo escuro, faixas de peças coloridas (como no topo
 // da página inicial), Geist pesada e destaque âmbar. Não depende de usuário.
 
-export const alt = "Recap Mensal: seus artistas, músicas e álbuns mais ouvidos, a partir do Last.fm";
+export const alt = "sulco: seu mês em música, a partir do Last.fm";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -90,7 +90,7 @@ export default async function Image() {
           </div>
           <div style={{ display: "flex", justifyContent: "space-between", marginTop: 22, fontSize: 30 }}>
             <span style={{ color: THEME.inkSoft, fontWeight: 500 }}>Recap e grade de capas a partir do Last.fm</span>
-            <span style={{ fontWeight: 800 }}>Recap Mensal</span>
+            <span style={{ fontWeight: 800 }}>sulco</span>
           </div>
         </div>
       </div>

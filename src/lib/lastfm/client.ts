@@ -28,7 +28,7 @@ import type {
 } from "./types";
 
 const API_URL = "https://ws.audioscrobbler.com/2.0/";
-const USER_AGENT = "RecapMensal/0.1 (projeto não comercial)";
+const USER_AGENT = "sulco/0.1 (projeto não comercial)";
 const TIMEOUT_MS = 8000;
 
 /** Métodos de leitura permitidos (docs/LASTFM.md). Qualquer outro é recusado. */

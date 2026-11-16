@@ -23,7 +23,7 @@ if (!key) throw new Error("LASTFM_API_KEY não encontrada em .env.local");
 
 async function call(params: Record<string, string>) {
   const url = "https://ws.audioscrobbler.com/2.0/?" + new URLSearchParams({ ...params, api_key: key!, format: "json" });
-  const res = await fetch(url, { headers: { "User-Agent": "RecapMensal/0.1 (projeto não comercial)" } });
+  const res = await fetch(url, { headers: { "User-Agent": "sulco/0.1 (projeto não comercial)" } });
   return res.json();
 }
 

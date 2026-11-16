@@ -19,7 +19,7 @@ Leia docs/SPEC.md e docs/LASTFM.md. Depois execute a Fase 0 de docs/ROTEIRO.md.
 
 Crie a base do projeto Next.js (App Router, TypeScript, Tailwind, ESLint) na raiz deste repositório, na versão estável atual. A pasta já tem arquivos (README.md, docs/, .env.example, .gitignore): gere o projeto numa pasta temporária e mova para a raiz sem apagar nem sobrescrever esses arquivos. No .gitignore, junte as regras.
 
-Configure o Vitest com um teste de exemplo. Deixe a página inicial só com o nome provisório do site. No fim, rode lint, test e build e me explique em poucas linhas a estrutura de pastas criada.
+Configure o Vitest com um teste de exemplo. Deixe a página inicial só com o nome do site. No fim, rode lint, test e build e me explique em poucas linhas a estrutura de pastas criada.
 ```
 
 Pronto quando:

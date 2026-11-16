@@ -1,6 +1,6 @@
-# Recap Mensal
+# sulco
 
-Nome provisório. Site que gera um resumo do que você ouviu, a partir do seu username do Last.fm.
+**seu mês em música.** Site que gera um resumo do que você ouviu, a partir do seu username do Last.fm. O nome é sempre em minúsculas; a identidade visual está em [brand/GUIA.md](brand/GUIA.md).
 
 ## O que faz
 

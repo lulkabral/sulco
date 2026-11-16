@@ -19,12 +19,17 @@ const DESCRIPTION =
 
 // Na Vercel, o Next completa os endereços absolutos (ex.: da imagem de compartilhamento)
 // com o domínio do projeto sozinho; por isso não fixamos `metadataBase` aqui.
+// Nome da marca: sempre em minúsculas (brand/GUIA.md).
+const NAME = "sulco";
+const TAGLINE = "seu mês em música";
+
 export const metadata: Metadata = {
-  title: { default: "Recap Mensal", template: "%s · Recap Mensal" },
+  applicationName: NAME,
+  title: { default: `${NAME} · ${TAGLINE}`, template: `%s · ${NAME}` },
   description: DESCRIPTION,
   openGraph: {
-    siteName: "Recap Mensal",
-    title: "Recap Mensal",
+    siteName: NAME,
+    title: `${NAME} · ${TAGLINE}`,
     description: DESCRIPTION,
     locale: "pt_BR",
     type: "website",
@@ -52,10 +57,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <footer className="border-t border-line px-4 py-6 text-sm text-ink-soft">
           <div className="mx-auto flex max-w-5xl flex-col justify-between gap-2 sm:flex-row">
             <p>
-              <Link href="/" className="font-bold text-ink hover:text-amber">
-                Recap Mensal
+              <Link href="/" className="font-extrabold tracking-tight text-ink hover:text-amber">
+                {NAME}
               </Link>{" "}
-              · sem cadastro, gerado no seu aparelho ·{" "}
+              · {TAGLINE} · sem cadastro, gerado no seu aparelho ·{" "}
               <Link href="/privacidade" className="underline underline-offset-2 hover:text-ink">
                 Privacidade
               </Link>

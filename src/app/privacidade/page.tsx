@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Privacidade",
-  description: "O que o Recap Mensal faz (e não faz) com os seus dados.",
+  description: "O que o sulco faz (e não faz) com os seus dados.",
 };
 
 /** Página de privacidade (SPEC, seção "Privacidade"): curta, direta, sem juridiquês. */
