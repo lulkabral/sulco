@@ -17,8 +17,11 @@ const geistMono = Geist_Mono({
 const DESCRIPTION =
   "Veja seus artistas, músicas, álbuns e gêneros mais ouvidos de qualquer mês e baixe uma imagem pronta para compartilhar. Basta o username do Last.fm.";
 
-// Na Vercel, o Next completa os endereços absolutos (ex.: da imagem de compartilhamento)
-// com o domínio do projeto sozinho; por isso não fixamos `metadataBase` aqui.
+// Endereço oficial do site: completa os endereços absolutos (ex.: da imagem de
+// compartilhamento). Sem isso, o Next usava um domínio interno da Vercel que dava 404.
+// Se o domínio mudar, troque aqui.
+const SITE_URL = "https://sulcofm.vercel.app";
+
 // Nome da marca: sempre em minúsculas (brand/GUIA.md).
 const NAME = "sulco";
 const TAGLINE = "seu mês em música";
@@ -26,6 +29,7 @@ const TAGLINE = "seu mês em música";
 const REPO_URL = "https://github.com/lulkabral/sulco";
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   applicationName: NAME,
   title: { default: `${NAME} · ${TAGLINE}`, template: `%s · ${NAME}` },
   description: DESCRIPTION,
