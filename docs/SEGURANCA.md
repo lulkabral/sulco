@@ -15,7 +15,7 @@ A única variável de ambiente lida pelo código é `LASTFM_API_KEY`, no servido
 - O método do Last.fm é fixo em cada rota e conferido contra a lista de `docs/LASTFM.md`. Um `?method=` extra na URL é ignorado.
 - O código só faz `fetch` para o endereço fixo da API do Last.fm (servidor) e para as nossas próprias rotas (navegador).
 - Imagens: o otimizador do Next aceita só `https://lastfm-img.freetls.fastly.net/i/u/**`. Testado: outro domínio, outra pasta, `http://` e `lastfm-img.freetls.fastly.net.evil.com` devolvem 400. Não existe rota de proxy de imagens (as capas são carregadas direto, com CORS; ver `LASTFM.md`).
-- Validação de entrada em tudo: username (regra do Last.fm), período, tipo, limite, nome de artista, intervalo de até 32 dias, página até 50.
+- Validação de entrada em tudo: username (regra do Last.fm), período, tipo, limite, nome de artista e de álbum, intervalo de até 32 dias (`scrobbles`) ou 367 dias (`chart`), página até 50.
 
 **4. Algum log grava username?** Não, depois de uma correção.
 - Os `console.error` registram só o método do Last.fm e o código do erro.

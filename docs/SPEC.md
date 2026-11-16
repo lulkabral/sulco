@@ -136,6 +136,7 @@ O que o site faz e deve continuar fazendo:
 - Não tem cadastro, senha, banco de dados nem cookies de rastreio.
 - Não guarda o que cada pessoa pesquisou. O cache guarda respostas da API por tempo limitado, sem ligação com quem pediu.
 - Gera as imagens no aparelho da pessoa.
+- Lembra as escolhas da imagem (formato, cor, números) só no navegador da pessoa (`localStorage`), sem cookie e sem enviar ao servidor.
 
 A página `/privacidade` diz exatamente isso, em linguagem simples.
 

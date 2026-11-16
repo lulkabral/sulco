@@ -47,8 +47,15 @@ export default function PrivacyPage() {
       <Section title="O que fica guardado, e por quanto tempo">
         <p>
           Para não sobrecarregar o Last.fm, as respostas dele ficam guardadas temporariamente
-          (cache): de 10 minutos a 1 dia, conforme o tipo de dado, e até 7 dias no caso das tags
-          de artistas. Esse cache guarda a resposta do Last.fm, sem ligação com quem pediu.
+          (cache), conforme o tipo de dado: de 10 minutos a 1 dia para os seus tops e scrobbles,
+          7 dias para as tags dos artistas e 30 dias para as capas dos álbuns. Esse cache guarda a
+          resposta do Last.fm, sem ligação com quem pediu.
+        </p>
+        <p>
+          No seu próprio navegador, o site lembra as escolhas da imagem (formato, cor e se mostra
+          os números), para você não precisar escolher de novo. Isso fica só no seu aparelho: não
+          é cookie e nunca é enviado para o site. Para apagar, basta limpar os dados do site no
+          navegador.
         </p>
         <p>
           A empresa que hospeda o site (Vercel) mantém, por pouco tempo, registros técnicos de

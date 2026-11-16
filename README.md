@@ -4,10 +4,10 @@
 
 ## O que faz
 
-- **Recap em imagem** (story 1080×1920): artistas, músicas, álbuns e gêneros mais ouvidos, total de scrobbles e capa do álbum nº 1.
-- **Grade de capas** (3x3, 4x4 ou 5x5), com nome do álbum e número de reproduções opcionais.
-- **Períodos:** últimos 7 dias, 30 dias, 3, 6 e 12 meses, ou um **mês fechado** do calendário (os últimos 12).
-- Baixar em PNG ou, no celular, compartilhar pelo menu nativo.
+- **Recap em imagem** (story 1080×1920): o álbum do período, artistas, músicas, álbuns e gêneros mais ouvidos. Quatro formatos (Toca-discos, Mosaico, Lineup e Clássico), seis opções de cor (incluindo a "Cor da capa") e números opcionais.
+- **Grade de capas** (3x3, 4x4 ou 5x5), com nome do álbum, número de reproduções e assinatura opcionais.
+- **Períodos:** "Todo o tempo", últimos 7 dias, 30 dias, 3, 6 e 12 meses, e a **máquina do tempo**: qualquer ano inteiro ("2026 até agora") ou qualquer mês fechado desde o cadastro no Last.fm.
+- Baixar em PNG ou, no celular, compartilhar pelo menu nativo. As imagens levam a assinatura "sulco" e o crédito ao Last.fm.
 - Sem cadastro e sem login: basta o username. Funciona com qualquer serviço que faça scrobble no Last.fm (Spotify, Deezer, YouTube Music etc.).
 
 ## Como rodar
