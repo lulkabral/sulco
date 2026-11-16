@@ -62,7 +62,7 @@ Conteúdo da imagem:
 - título com o período (ex.: "Outubro de 2026") e o username;
 - o álbum do período em destaque ("O álbum do mês", "O álbum da sua vida"...), com capa;
 - artistas ("Na sua cabeça"), músicas ("No repeat"), álbuns e gêneros;
-- crédito discreto "dados: Last.fm" e o endereço do site;
+- rodapé com o crédito "dados: Last.fm" à esquerda e a assinatura à direita: endereço do site + logo "sulco" (disco-S desenhado no canvas, `src/lib/canvas/brandmark.ts`);
 - com "Mostrar números" ligado: total de scrobbles (na linha das datas, nunca no cartão do álbum) e reproduções de cada item.
 
 A pessoa escolhe, em cima da prévia (a escolha fica guardada só no navegador dela, em `localStorage`):
@@ -91,7 +91,8 @@ A paleta padrão (Âmbar) é a identidade visual do site (ver "Identidade visual
 
 - Tamanhos: 3x3, 4x4, 5x5.
 - Períodos: os mesmos do seletor (padrão: últimos 7 dias, a "semaninha").
-- Opções: mostrar ou não o nome do álbum e artista; mostrar ou não a contagem de plays.
+- Opções: mostrar ou não o nome do álbum e artista; mostrar ou não a contagem de plays; mostrar ou não a assinatura (ligada por padrão).
+- Assinatura: selo no canto superior direito (lá não há legenda) com o logo "sulco" e "dados: Last.fm". A grade continua quadrada.
 - Álbum sem capa: quadrado neutro com o nome do álbum.
 - Exportar em PNG, mesmo fluxo de baixar ou compartilhar.
 

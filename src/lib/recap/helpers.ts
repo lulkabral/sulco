@@ -1,6 +1,7 @@
 // Ajudantes de desenho comuns aos formatos do recap.
 
 import { truncateText, wrapText } from "@/lib/canvas/text";
+import { drawWordmark, wordmarkWidth } from "@/lib/canvas/brandmark";
 import { TILE_COLORS } from "@/lib/theme";
 import type { Palette } from "./palettes";
 
@@ -149,8 +150,21 @@ export function hexAlpha(hex: string, alpha: number): string {
   return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${alpha})`;
 }
 
-/** Rodapé comum: crédito ao Last.fm (exigência dos termos) e endereço do site. */
+/** Tamanho da fonte do logo no rodapé. */
+const SIGNATURE_PX = 42;
+
+/**
+ * Rodapé comum: crédito ao Last.fm à esquerda (exigência dos termos) e, à direita,
+ * a assinatura: endereço do site + logo "sulco". Toda imagem compartilhada divulga o site.
+ */
 export function footer(ctx: Ctx, p: Palette, f: string, siteHost: string, y = 1850) {
   text(ctx, "dados: Last.fm", M, y, { font: `500 26px ${f}`, color: p.inkFaint });
-  text(ctx, siteHost, M + INNER, y, { font: `700 26px ${f}`, color: p.inkSoft, align: "right", maxWidth: INNER / 2 });
+  const logoW = wordmarkWidth(ctx, SIGNATURE_PX, f);
+  drawWordmark(ctx, M + INNER - logoW, y + 2, SIGNATURE_PX, f, p.ink);
+  text(ctx, siteHost, M + INNER - logoW - 18, y, {
+    font: `600 24px ${f}`,
+    color: p.inkSoft,
+    align: "right",
+    maxWidth: INNER / 2 - logoW,
+  });
 }

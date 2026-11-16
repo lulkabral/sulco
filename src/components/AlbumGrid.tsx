@@ -29,9 +29,10 @@ export function AlbumGrid({ username, period, periodLabel, albums }: Props) {
   const [size, setSize] = useState<GridSize>(3);
   const [showCaption, setShowCaption] = useState(true);
   const [showPlays, setShowPlays] = useState(false);
+  const [showSignature, setShowSignature] = useState(true);
   const [drawnKey, setDrawnKey] = useState<string | null>(null);
 
-  const key = `${size}-${showCaption}-${showPlays}`;
+  const key = `${size}-${showCaption}-${showPlays}-${showSignature}`;
   const loading = drawnKey !== key;
 
   useEffect(() => {
@@ -65,15 +66,15 @@ export function AlbumGrid({ username, period, periodLabel, albums }: Props) {
       drawGrid(
         canvasRef.current,
         needed.map((a, i) => ({ name: a.name, artist: a.artist, playcount: a.playcount, cover: covers[i] })),
-        { size, showCaption, showPlays, fontFamily },
+        { size, showCaption, showPlays, showSignature, fontFamily },
       );
-      setDrawnKey(`${size}-${showCaption}-${showPlays}`);
+      setDrawnKey(`${size}-${showCaption}-${showPlays}-${showSignature}`);
     })();
 
     return () => {
       cancelled = true;
     };
-  }, [albums, size, showCaption, showPlays]);
+  }, [albums, size, showCaption, showPlays, showSignature]);
 
   if (albums.length === 0) {
     return <p className="text-ink-soft">Nenhum álbum neste período.</p>;
@@ -154,6 +155,15 @@ export function AlbumGrid({ username, period, periodLabel, albums }: Props) {
               className="size-4 accent-amber"
             />
             Número de reproduções
+          </label>
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={showSignature}
+              onChange={(e) => setShowSignature(e.target.checked)}
+              className="size-4 accent-amber"
+            />
+            Assinatura sulco
           </label>
         </fieldset>
 
