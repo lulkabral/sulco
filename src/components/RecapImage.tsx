@@ -72,8 +72,9 @@ export function RecapImage(props: Props) {
       await waitForFonts(font);
       const [genreList, ...covers] = await Promise.all([
         genres,
-        // A nº 1 em 600 px (aparece grande); as outras em 300 px.
-        ...albums.slice(0, 9).map((a, i) => (a.imageUrl ? loadImage(i === 0 ? coverUrl(a.imageUrl, 600) : a.imageUrl) : null)),
+        // Todas em 600 px: alguns formatos desenham capas além da nº 1 em mais de 500 px
+        // (Mosaico, Toca-discos), e a imagem baixada precisa ficar nítida.
+        ...albums.slice(0, 9).map((a) => (a.imageUrl ? loadImage(coverUrl(a.imageUrl, 600)) : null)),
       ]);
       if (cancelled) return;
       setAssets({
