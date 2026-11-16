@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { coverPxFor, coverUrl, gridLayout } from "./layout";
+import { coverPxFor, coverUrl, gridLayout, thumbUrl } from "./layout";
 
 describe("gridLayout", () => {
   it("3x3 tem 9 quadrados de 500 px", () => {
@@ -35,6 +35,19 @@ describe("coverUrl", () => {
 
   it("deixa igual o endereço sem trecho de tamanho", () => {
     expect(coverUrl(`${base}/abc.jpg`, 600)).toBe(`${base}/abc.jpg`);
+  });
+});
+
+describe("thumbUrl", () => {
+  const base = "https://lastfm-img.freetls.fastly.net/i/u";
+
+  it("pede a miniatura 174s", () => {
+    expect(thumbUrl(`${base}/300x300/abc.jpg`)).toBe(`${base}/174s/abc.jpg`);
+    expect(thumbUrl(`${base}/64s/abc.png`)).toBe(`${base}/174s/abc.png`);
+  });
+
+  it("deixa igual o endereço sem trecho de tamanho", () => {
+    expect(thumbUrl(`${base}/abc.jpg`)).toBe(`${base}/abc.jpg`);
   });
 });
 

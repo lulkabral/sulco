@@ -10,8 +10,12 @@ const nextConfig: NextConfig = {
     // /u(\/|\?|$): pega /u/NOME e também /u?username=NOME (formulário sem JavaScript).
     incomingRequests: { ignore: [/^\/api\/lastfm\//, /^\/u(\/|\?|$)/] },
   },
-  // next/image só aceita imagens do servidor de imagens do Last.fm (nada de proxy aberto).
   images: {
+    // Imagens vão direto do servidor do Last.fm (já em miniatura, ver `thumbUrl`), sem
+    // passar pelo otimizador da Vercel: o plano grátis tem cota mensal pequena de
+    // otimizações, e cada capa de cada usuário novo gastava uma.
+    unoptimized: true,
+    // Se um dia voltar a otimizar: só o servidor de imagens do Last.fm (nada de proxy aberto).
     remotePatterns: [
       { protocol: "https", hostname: "lastfm-img.freetls.fastly.net", pathname: "/i/u/**" },
     ],

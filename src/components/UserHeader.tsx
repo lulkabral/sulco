@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { formatNumber, yearOf } from "@/lib/format";
+import { thumbUrl } from "@/lib/grid/layout";
 import type { UserInfo } from "@/lib/lastfm/types";
 import { LogoLink } from "./Logo";
 import { Marquee } from "./Marquee";
@@ -39,7 +40,7 @@ export function UserHeader({ user, covers }: Props) {
       <div className="relative -mt-10 flex items-end gap-4 px-4 sm:px-0">
         {user.avatarUrl ? (
           <Image
-            src={user.avatarUrl}
+            src={thumbUrl(user.avatarUrl)}
             alt=""
             width={80}
             height={80}

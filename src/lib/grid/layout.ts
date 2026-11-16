@@ -34,6 +34,14 @@ export function coverUrl(url: string, px: number): string {
   return url.replace(/\/i\/u\/(?:\d+x\d+|\d+s)\//, `/i/u/${px}x${px}/`);
 }
 
+/**
+ * Versão miniatura (174 px) da capa ou do avatar, para mostrar na tela (faixa do topo, avatar).
+ * Atenção: o Last.fm só tem `174s`; `174x174` devolve o ORIGINAL (vários MB). Armadilha 9.
+ */
+export function thumbUrl(url: string): string {
+  return url.replace(/\/i\/u\/(?:\d+x\d+|\d+s)\//, "/i/u/174s/");
+}
+
 /** Tamanho da capa a pedir para um quadrado de `side` px (300 ou 600, os que o Last.fm tem). */
 export function coverPxFor(side: number): 300 | 600 {
   return side > 300 ? 600 : 300;

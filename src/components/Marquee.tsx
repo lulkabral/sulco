@@ -1,5 +1,6 @@
 import Image from "next/image";
 import type { CSSProperties } from "react";
+import { thumbUrl } from "@/lib/grid/layout";
 import { TILE_COLORS } from "@/lib/theme";
 
 type Props = {
@@ -27,11 +28,11 @@ export function Marquee({ covers, size, seconds, reverse = false, offset = 0 }: 
       ? covers.map((url, i) => (
           <Image
             key={`${url}-${i}`}
-            src={url}
+            // Miniatura direto do Last.fm (ver `images.unoptimized` em next.config.ts).
+            src={thumbUrl(url)}
             alt=""
             width={size}
             height={size}
-            sizes={`${size}px`}
             // Sem "lazy": as cópias que começam fora da tela entram deslizando já carregadas.
             loading="eager"
             className="shrink-0 rounded-lg object-cover"

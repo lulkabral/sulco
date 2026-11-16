@@ -14,7 +14,7 @@ A única variável de ambiente lida pelo código é `LASTFM_API_KEY`, no servido
 - As 6 rotas (`user`, `top`, `tags`, `scrobbles`, `chart`, `album`) exportam só `GET`; POST, PUT, DELETE e PATCH devolvem 405. (`chart` e `album` entraram depois da fase 7, para o ano inteiro; conferidas do mesmo jeito.)
 - O método do Last.fm é fixo em cada rota e conferido contra a lista de `docs/LASTFM.md`. Um `?method=` extra na URL é ignorado.
 - O código só faz `fetch` para o endereço fixo da API do Last.fm (servidor) e para as nossas próprias rotas (navegador).
-- Imagens: o otimizador do Next aceita só `https://lastfm-img.freetls.fastly.net/i/u/**`. Testado: outro domínio, outra pasta, `http://` e `lastfm-img.freetls.fastly.net.evil.com` devolvem 400. Não existe rota de proxy de imagens (as capas são carregadas direto, com CORS; ver `LASTFM.md`).
+- Imagens: desde 16/11/2026 a tela carrega as capas direto do Last.fm (`images.unoptimized`), então o otimizador da Vercel não é usado. Antes disso, ele aceitava só `https://lastfm-img.freetls.fastly.net/i/u/**`. Testado: outro domínio, outra pasta, `http://` e `lastfm-img.freetls.fastly.net.evil.com` devolvem 400. Não existe rota de proxy de imagens (as capas são carregadas direto, com CORS; ver `LASTFM.md`).
 - Validação de entrada em tudo: username (regra do Last.fm), período, tipo, limite, nome de artista e de álbum, intervalo de até 32 dias (`scrobbles`) ou 367 dias (`chart`), página até 50.
 
 **4. Algum log grava username?** Não, depois de uma correção.
@@ -28,6 +28,13 @@ A única variável de ambiente lida pelo código é `LASTFM_API_KEY`, no servido
 - Antes de publicar: `.env.local` nunca foi commitado; o valor da chave não aparece no histórico do git nem nos arquivos do repositório.
 - Depois de publicar: busca da chave nas páginas e nos 10 arquivos JavaScript servidos ao navegador: 0 ocorrências. POST nas rotas: 405.
 - Corrigido na publicação: a imagem de compartilhamento apontava para um domínio interno da Vercel (404). Agora `metadataBase` fixa o endereço oficial em `src/app/layout.tsx`.
+
+## Capacidade no plano grátis (16/11/2026)
+
+Painel da Vercel nas primeiras 12 horas: 8,3 mil pedidos na CDN, 2,3 mil execuções de funções, 87 MB transferidos. Comparando com as cotas mensais do plano Hobby (1 milhão de pedidos, 1 milhão de execuções, 100 GB), há folga de sobra.
+- **O que estava perto do limite:** a otimização de imagens (cota de alguns milhares por mês). Cada perfil novo gastava umas 13 (12 capas + avatar). Corrigido: as imagens vêm direto do Last.fm, em miniatura de 174 px.
+- **As rotas `/api/lastfm/*`** respondem com `s-maxage`, então pedidos repetidos saem da CDN sem executar função nem chamar o Last.fm. Mês fechado fica 1 dia na CDN.
+- **Se algo estourar no plano Hobby, a Vercel pausa o recurso até o mês virar** (não cobra). Acompanhar em Observability e em Usage no painel.
 
 ## Riscos que continuam
 
