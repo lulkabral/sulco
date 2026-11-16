@@ -1,8 +1,9 @@
 import { PERIODS, TOP_TYPES, type Period, type TopType } from "./types";
 
-// Regra de cadastro do Last.fm: 2 a 15 caracteres, começa com letra,
-// depois letras, números, "_" ou "-".
-const USERNAME_RE = /^[A-Za-z][A-Za-z0-9_-]{1,14}$/;
+// Usernames do Last.fm: 2 a 15 caracteres, letras, números, "_" ou "-".
+// Hoje o cadastro exige começar com letra, mas contas antigas (2005-2006) começam com
+// número ou "_" (ex.: "1990", "_x"; testado em 16/11/2026). Por isso aceitamos qualquer ordem.
+const USERNAME_RE = /^[A-Za-z0-9_-]{2,15}$/;
 
 export const DEFAULT_PERIOD: Period = "7day";
 export const DEFAULT_LIMIT = 10;

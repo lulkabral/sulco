@@ -12,7 +12,7 @@ type Props = {
 const CONTENT: Record<ErrorCode, { title: string; text: string }> = {
   BAD_REQUEST: {
     title: "Esse username não parece válido",
-    text: "Usernames do Last.fm têm de 2 a 15 caracteres: letras, números, _ ou -, começando por letra.",
+    text: "Usernames do Last.fm têm de 2 a 15 caracteres: letras, números, _ ou -.",
   },
   USER_NOT_FOUND: {
     title: "Não achamos esse usuário no Last.fm",

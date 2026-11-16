@@ -1,38 +1,44 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import type { CoverLookup } from "@/lib/artist-image";
 import { thumbUrl } from "@/lib/grid/layout";
 
 type Props = {
   /** Nome do item (a inicial aparece quando não há imagem). */
   name: string;
-  /** Imagem já conhecida; null = sem imagem (ou ainda a buscar, se houver `track`). */
+  /** Imagem já conhecida; null = sem imagem (ou ainda a buscar, se houver `lookup`). */
   image: string | null;
   /** "round" para artistas, "square" para músicas e álbuns. */
   shape: "round" | "square";
-  /** Música sem capa conhecida: busca a capa do álbum dela pela nossa rota. */
-  track?: { artist: string; name: string };
+  /** Sem imagem conhecida: álbum ou música cuja capa buscar pela nossa rota. */
+  lookup?: CoverLookup;
+  /** "md" nas listas (40 px), "sm" nas bolinhas dos gêneros (28 px). */
+  size?: "md" | "sm";
 };
 
 /**
  * Miniatura das listas do top. Imagens vêm direto do Last.fm (versão 174 px).
- * Para músicas, a capa é buscada aqui no navegador, depois que a lista aparece,
- * para não atrasar a página.
+ * Capa que não veio com a lista (música, ou álbum do ano além das primeiras) é buscada
+ * aqui no navegador, depois que a lista aparece, para não atrasar a página.
  */
-export function CoverThumb({ name, image, shape, track }: Props) {
+export function CoverThumb({ name, image, shape, lookup, size = "md" }: Props) {
   const [fetched, setFetched] = useState<string | null>(null);
   const url = image ?? fetched;
 
   useEffect(() => {
-    if (image || !track) return;
+    if (image || !lookup) return;
     let alive = true;
-    trackCover(track.artist, track.name).then((u) => alive && setFetched(u));
+    findCover(lookup).then((u) => alive && setFetched(u));
     return () => {
       alive = false;
     };
-  }, [image, track?.artist, track?.name]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [image, lookup?.type, lookup?.artist, lookup?.name]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const box = `size-10 shrink-0 ring-1 ring-line ${shape === "round" ? "rounded-full" : "rounded-md"}`;
+  const px = size === "sm" ? 28 : 40;
+  const box =
+    (size === "sm" ? "size-7 text-xs ring-2 ring-card " : "size-10 ring-1 ring-line ") +
+    `shrink-0 ${shape === "round" ? "rounded-full" : "rounded-md"}`;
   if (!url) {
     return (
       <span aria-hidden className={`${box} flex items-center justify-center bg-card-2 font-extrabold uppercase text-amber`}>
@@ -42,24 +48,24 @@ export function CoverThumb({ name, image, shape, track }: Props) {
   }
   return (
     // eslint-disable-next-line @next/next/no-img-element
-    <img src={thumbUrl(url)} alt="" width={40} height={40} loading="lazy" className={`${box} object-cover`} />
+    <img src={thumbUrl(url)} alt="" width={px} height={px} loading="lazy" className={`${box} object-cover`} />
   );
 }
 
-// Capas de música já pedidas nesta visita (a mesma música pode aparecer em outra lista).
+// Capas já pedidas nesta visita (o mesmo álbum pode aparecer em mais de uma lista).
 const cache = new Map<string, Promise<string | null>>();
 // No máximo 3 pedidos ao mesmo tempo (regra do projeto).
 const MAX_PARALLEL = 3;
 let running = 0;
 const waiting: (() => void)[] = [];
 
-function trackCover(artist: string, name: string): Promise<string | null> {
-  const key = `${artist}\u0000${name}`;
+function findCover({ type, artist, name }: CoverLookup): Promise<string | null> {
+  const key = `${type}\u0000${artist}\u0000${name}`;
   let p = cache.get(key);
   if (!p) {
     p = limited(async () => {
       try {
-        const res = await fetch(`/api/lastfm/track?${new URLSearchParams({ artist, track: name })}`);
+        const res = await fetch(`/api/lastfm/${type}?${new URLSearchParams({ artist, [type]: name })}`);
         if (!res.ok) return null;
         const data = (await res.json()) as { imageUrl?: string | null };
         return data.imageUrl ?? null;

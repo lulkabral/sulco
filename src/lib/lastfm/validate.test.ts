@@ -13,7 +13,7 @@ import {
 } from "./validate";
 
 describe("validateUsername", () => {
-  it.each(["exemplo", "Ab", "user_name-1", "a12345678901234"])("aceita %s", (name) => {
+  it.each(["exemplo", "Ab", "user_name-1", "a12345678901234", "1990", "_x", "123abc"])("aceita %s", (name) => {
     expect(validateUsername(name)).toEqual({ ok: true, value: name });
   });
 
@@ -21,7 +21,7 @@ describe("validateUsername", () => {
     expect(validateUsername("  exemplo ")).toEqual({ ok: true, value: "exemplo" });
   });
 
-  it.each([null, "", "a", "1abc", "a123456789012345", "com espaço", "x/../y", "ação", "a&b=c"])(
+  it.each([null, "", "a", "1", "a123456789012345", "com espaço", "x/../y", "ação", "a&b=c"])(
     "recusa %s",
     (name) => {
       expect(validateUsername(name).ok).toBe(false);

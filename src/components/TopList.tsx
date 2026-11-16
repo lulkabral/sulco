@@ -1,4 +1,5 @@
 import { formatPlays } from "@/lib/format";
+import type { CoverLookup } from "@/lib/artist-image";
 import { CoverThumb } from "./CoverThumb";
 import { ListIcon, type ListIconName } from "./ListIcons";
 
@@ -11,8 +12,8 @@ export type TopListItem = {
   url: string;
   /** Imagem ao lado do nome. `null` mostra a inicial; ausente, não mostra nada. */
   image?: string | null;
-  /** Música: se não houver imagem, busca a capa do álbum dela. */
-  track?: { artist: string; name: string };
+  /** Sem imagem: álbum ou música cuja capa buscar. */
+  lookup?: CoverLookup;
 };
 
 type Props = {
@@ -48,7 +49,7 @@ export function TopList({ title, icon, items, shape = "square" }: Props) {
                 {item.rank}
               </span>
               {item.image !== undefined && (
-                <CoverThumb name={item.name} image={item.image} shape={shape} track={item.track} />
+                <CoverThumb name={item.name} image={item.image} shape={shape} lookup={item.lookup} />
               )}
               <div className="min-w-0 flex-1">
                 <a

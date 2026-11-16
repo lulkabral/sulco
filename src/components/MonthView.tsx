@@ -1,6 +1,6 @@
 "use client";
 
-import { artistImages } from "@/lib/artist-image";
+import { artistPictures } from "@/lib/artist-image";
 import { useEffect, useMemo, useState } from "react";
 import { AlbumGrid } from "@/components/AlbumGrid";
 import { ErrorState } from "@/components/ErrorState";
@@ -131,7 +131,7 @@ export function MonthView({ username, period, label, tab }: Props) {
   }
 
   const { tops, range, truncated, genres } = state;
-  const artistPics = artistImages(tops.artists, tops.albums);
+  const artistPics = artistPictures(tops.artists, tops.albums, tops.tracks);
   const artistPicsByName = Object.fromEntries(tops.artists.map((a, i) => [a.name, artistPics[i]]));
   if (tops.total === 0 || !recapData) {
     return (
@@ -180,7 +180,8 @@ export function MonthView({ username, period, label, tab }: Props) {
             name: a.name,
             playcount: a.playcount,
             url: a.url,
-            image: artistPics[i],
+            image: artistPics[i].image,
+            lookup: artistPics[i].lookup,
           }))}
         />
         <TopList
@@ -193,7 +194,7 @@ export function MonthView({ username, period, label, tab }: Props) {
             playcount: t.playcount,
             url: t.url,
             image: t.imageUrl ?? null,
-            track: { artist: t.artist, name: t.name },
+            lookup: { type: "track", artist: t.artist, name: t.name },
           }))}
         />
         <TopList
@@ -206,6 +207,7 @@ export function MonthView({ username, period, label, tab }: Props) {
             playcount: a.playcount,
             url: a.url,
             image: a.imageUrl,
+            lookup: { type: "album", artist: a.artist, name: a.name },
           }))}
         />
         <GenreListView>

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { artistImages } from "@/lib/artist-image";
+import { artistPictures } from "@/lib/artist-image";
 import { connection } from "next/server";
 import { Suspense } from "react";
 import { AlbumGrid } from "@/components/AlbumGrid";
@@ -189,7 +189,7 @@ async function TopLists({ username, period, tab, registeredAt, lifetimeTotal }: 
 
   const albumItems = albums.items as TopAlbum[];
   const artistItems = artists.items as TopArtist[];
-  const artistPics = artistImages(artistItems, albumItems);
+  const artistPics = artistPictures(artistItems, albumItems, (tracks.items as TopTrack[]));
   // Para as bolinhas dos gêneros: os artistas que entram no cálculo (até 20).
   const artistPicsByName = Object.fromEntries(artistItems.map((a, i) => [a.name, artistPics[i]]));
 
@@ -246,7 +246,8 @@ async function TopLists({ username, period, tab, registeredAt, lifetimeTotal }: 
             name: a.name,
             playcount: a.playcount,
             url: a.url,
-            image: artistPics[i],
+            image: artistPics[i].image,
+            lookup: artistPics[i].lookup,
           }))}
         />
         <TopList
@@ -259,7 +260,7 @@ async function TopLists({ username, period, tab, registeredAt, lifetimeTotal }: 
             playcount: t.playcount,
             url: t.url,
             image: t.imageUrl ?? null,
-            track: { artist: t.artist, name: t.name },
+            lookup: { type: "track", artist: t.artist, name: t.name },
           }))}
         />
         <TopList
@@ -272,6 +273,7 @@ async function TopLists({ username, period, tab, registeredAt, lifetimeTotal }: 
             playcount: a.playcount,
             url: a.url,
             image: a.imageUrl,
+            lookup: { type: "album", artist: a.artist, name: a.name },
           }))}
         />
         <GenreList genres={genres} images={artistPicsByName} />

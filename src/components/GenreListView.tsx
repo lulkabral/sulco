@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import type { Genre } from "@/lib/genres";
-import { thumbUrl } from "@/lib/grid/layout";
+import type { ArtistPicture } from "@/lib/artist-image";
+import { CoverThumb } from "./CoverThumb";
 import { ListIcon } from "./ListIcons";
 import { GenresSkeleton } from "./ProfileSkeleton";
 
@@ -21,14 +22,14 @@ export function GenreListView({ children }: { children: ReactNode }) {
  * Itens da lista. `undefined` = ainda calculando; `null` = não deu para calcular.
  * Cada gênero é uma faixa que se enche de âmbar conforme o peso (o 1º enche tudo), com
  * os artistas que mais puxaram aquele gênero em bolinhas sobrepostas.
- * `images`: nome do artista -> imagem (capa do álbum mais ouvido), como na lista "Artistas".
+ * `images`: nome do artista -> imagem ou o que buscar, como na lista "Artistas".
  */
 export function GenreItems({
   genres,
   images = {},
 }: {
   genres: Genre[] | null | undefined;
-  images?: Record<string, string | null>;
+  images?: Record<string, ArtistPicture>;
 }) {
   if (genres === undefined) return <GenresSkeleton />;
   if (genres === null) {
@@ -73,7 +74,14 @@ export function GenreItems({
               {artists.length > 0 && (
                 <div aria-hidden className="flex shrink-0 -space-x-2.5">
                   {artists.map((name) => (
-                    <Bubble key={name} name={name} image={images[name] ?? null} />
+                    <CoverThumb
+                      key={name}
+                      name={name}
+                      image={images[name]?.image ?? null}
+                      lookup={images[name]?.lookup}
+                      shape="round"
+                      size="sm"
+                    />
                   ))}
                 </div>
               )}
@@ -91,18 +99,3 @@ function joinNames(names: string[]): string {
   return `${names.slice(0, -1).join(", ")} e ${names.at(-1)}`;
 }
 
-/** Bolinha do artista (capa do álbum mais ouvido) ou a inicial. */
-function Bubble({ name, image }: { name: string; image: string | null }) {
-  const box = "size-7 rounded-full ring-2 ring-card";
-  if (!image) {
-    return (
-      <span className={`${box} flex items-center justify-center bg-card-2 text-xs font-extrabold uppercase text-amber`}>
-        {name.charAt(0)}
-      </span>
-    );
-  }
-  return (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img src={thumbUrl(image)} alt="" width={28} height={28} loading="lazy" className={`${box} object-cover`} />
-  );
-}

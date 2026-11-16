@@ -114,5 +114,6 @@ Fora do site, a ferramenta local `npm run banner` (só para a conta oficial) tam
 - Placeholder de artista: confirmado, hash `2a96cbd8b46e442fc41c2b86b821562f`, em todos os tamanhos (`34s`, `64s`, `174s`, `300x300`).
 - Erro para perfil privado: ainda não testado (falta um perfil com histórico privado).
 - Tamanhos maiores de capa: funcionam trocando `300x300` por `600x600`, ou tirando o trecho (original). Ver armadilha 9.
+- **Usernames antigos** (testado em 16/11/2026): o cadastro atual exige começar com letra, mas contas de 2005-2006 começam com número ou `_` (`1990` e `_x` existem). A validação aceita 2 a 15 caracteres de letras, números, `_` e `-` em qualquer ordem.
 - `user.getInfo` traz campos que não usamos (`spotify_expiry_estimate`, `country: "None"` quando vazio). A data de cadastro está em `registered.unixtime` (texto) e `registered["#text"]` (número).
 - O `next dev` registra no terminal a URL de cada pedido, com o username. Desligamos isso para `/api/lastfm/*` e `/u/*` em `next.config.ts` (`logging.incomingRequests.ignore`). Em produção o Next não registra pedidos.
