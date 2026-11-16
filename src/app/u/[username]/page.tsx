@@ -189,7 +189,9 @@ async function TopLists({ username, period, tab, registeredAt, lifetimeTotal }: 
 
   const albumItems = albums.items as TopAlbum[];
   const artistItems = artists.items as TopArtist[];
-  const artistPics = artistImages(artistItems.slice(0, LIST_LIMIT), albumItems);
+  const artistPics = artistImages(artistItems, albumItems);
+  // Para as bolinhas dos gêneros: os artistas que entram no cálculo (até 20).
+  const artistPicsByName = Object.fromEntries(artistItems.map((a, i) => [a.name, artistPics[i]]));
 
   // Começa o cálculo de gêneros (até 20 buscas de tags, 3 por vez) sem esperar:
   // as listas aparecem já, e a lista de gêneros e a imagem do recap recebem a "promessa".
@@ -238,6 +240,7 @@ async function TopLists({ username, period, tab, registeredAt, lifetimeTotal }: 
         <TopList
           title="Artistas"
           icon="artists"
+          shape="round"
           items={artistItems.slice(0, LIST_LIMIT).map((a, i) => ({
             rank: a.rank,
             name: a.name,
@@ -255,6 +258,8 @@ async function TopLists({ username, period, tab, registeredAt, lifetimeTotal }: 
             detail: t.artist,
             playcount: t.playcount,
             url: t.url,
+            image: t.imageUrl ?? null,
+            track: { artist: t.artist, name: t.name },
           }))}
         />
         <TopList
@@ -266,9 +271,10 @@ async function TopLists({ username, period, tab, registeredAt, lifetimeTotal }: 
             detail: a.artist,
             playcount: a.playcount,
             url: a.url,
+            image: a.imageUrl,
           }))}
         />
-        <GenreList genres={genres} />
+        <GenreList genres={genres} images={artistPicsByName} />
       </div>
     </>
   );

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   normalizeAlbumCover,
+  normalizeTrackCover,
   normalizeArtistTags,
   normalizeChart,
   sumChartPlays,
@@ -265,6 +266,29 @@ describe("normalizeAlbumCover", () => {
   it("sem capa ou resposta estranha: null", () => {
     expect(normalizeAlbumCover({ album: { image: [{ "#text": "" }] } })).toBeNull();
     expect(normalizeAlbumCover({})).toBeNull();
+  });
+});
+
+describe("normalizeTrackCover", () => {
+  it("pega a capa do álbum da música", () => {
+    const raw = {
+      track: {
+        name: "Pop",
+        album: {
+          title: "Kiss All the Time. Disco, Occasionally.",
+          image: [
+            { "#text": "https://lastfm-img.freetls.fastly.net/i/u/64s/c2bd.png", size: "medium" },
+            { "#text": "https://lastfm-img.freetls.fastly.net/i/u/300x300/c2bd.png", size: "extralarge" },
+          ],
+        },
+      },
+    };
+    expect(normalizeTrackCover(raw)).toBe("https://lastfm-img.freetls.fastly.net/i/u/300x300/c2bd.png");
+  });
+
+  it("música sem álbum ou erro: null", () => {
+    expect(normalizeTrackCover({ track: { name: "x" } })).toBeNull();
+    expect(normalizeTrackCover({ error: 6, message: "Track not found" })).toBeNull();
   });
 });
 

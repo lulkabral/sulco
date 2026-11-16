@@ -86,6 +86,8 @@ Regras:
 - A prévia na tela é uma `<img>` (cópia PNG do canvas), para que segurar o dedo nela abra o "Salvar imagem" do celular. Em telas de toque aparece a dica "segure a imagem para salvar ou compartilhar".
 - Artistas não têm foto disponível na API (ver `LASTFM.md`). Usar capas de álbum ou composição só com texto. Na lista "Artistas" da página, cada artista aparece numa bolinha com a capa do seu álbum mais ouvido no período; sem álbum com capa, a inicial do nome.
 - As quatro listas da página (Artistas, Músicas, Álbuns, Gêneros) têm um ícone no título: microfone, nota, disco e etiqueta.
+- Músicas e Álbuns mostram a capa em miniatura quadrada. A capa da música vem dos scrobbles (mês fechado) ou de `track.getInfo` (demais períodos, buscada no navegador depois que a lista aparece).
+- Gêneros: cada gênero é uma faixa que se enche de âmbar conforme o peso, com os até 3 artistas que mais puxaram aquele gênero (nomes e bolinhas sobrepostas). Sem números.
 
 A paleta padrão (Âmbar) é a identidade visual do site (ver "Identidade visual"). (Na fase 4 a imagem era "Encarte", em papel creme; virou a paleta "Papel".)
 

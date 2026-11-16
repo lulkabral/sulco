@@ -116,7 +116,16 @@ describe("computeTopGenres", () => {
   it("soma o mesmo gênero entre artistas e entre grafias", () => {
     const a = { name: "A", playcount: 10, tags: [{ name: "Hip-Hop", count: 100 }] };
     const b = { name: "B", playcount: 5, tags: [{ name: "hiphop", count: 100 }, { name: "hip hop", count: 50 }] };
-    expect(computeTopGenres([a, b])).toEqual([{ name: "hip-hop", weight: 15 }]);
+    expect(computeTopGenres([a, b])).toEqual([{ name: "hip-hop", weight: 15, artists: ["A", "B"] }]);
+  });
+
+  it("guarda até 3 artistas por gênero, de quem mais puxou para quem menos", () => {
+    const artists = ["A", "B", "C", "D"].map((name, i) => ({
+      name,
+      playcount: (i + 1) * 10,
+      tags: [{ name: "pop", count: 100 }],
+    }));
+    expect(computeTopGenres(artists)[0].artists).toEqual(["D", "C", "B"]);
   });
 
   it("devolve no máximo 5, do mais pesado para o mais leve", () => {

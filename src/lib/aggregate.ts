@@ -66,11 +66,15 @@ export function aggregateScrobbles(scrobbles: readonly Scrobble[]): MonthTops {
 
     bump(artists, keyOf(s.artist), i, () => ({ name: s.artist, url: lastfmMusicUrl(s.artist) }));
 
-    bump(tracks, keyOf(s.artist, s.name), i, () => ({
+    const trackKey = keyOf(s.artist, s.name);
+    bump(tracks, trackKey, i, () => ({
       name: s.name,
       artist: s.artist,
       url: s.url || lastfmMusicUrl(s.artist, "_", s.name),
+      imageUrl: s.imageUrl,
     }));
+    const track = tracks.get(trackKey)!;
+    if (!track.imageUrl && s.imageUrl) track.imageUrl = s.imageUrl;
 
     if (s.album !== "") {
       const key = keyOf(s.artist, s.album);

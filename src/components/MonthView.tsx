@@ -131,7 +131,8 @@ export function MonthView({ username, period, label, tab }: Props) {
   }
 
   const { tops, range, truncated, genres } = state;
-  const artistPics = artistImages(tops.artists.slice(0, LIST_LIMIT), tops.albums);
+  const artistPics = artistImages(tops.artists, tops.albums);
+  const artistPicsByName = Object.fromEntries(tops.artists.map((a, i) => [a.name, artistPics[i]]));
   if (tops.total === 0 || !recapData) {
     return (
       <div className="rounded-2xl bg-card p-5">
@@ -173,6 +174,7 @@ export function MonthView({ username, period, label, tab }: Props) {
         <TopList
           title="Artistas"
           icon="artists"
+          shape="round"
           items={tops.artists.slice(0, LIST_LIMIT).map((a, i) => ({
             rank: a.rank,
             name: a.name,
@@ -190,6 +192,8 @@ export function MonthView({ username, period, label, tab }: Props) {
             detail: t.artist,
             playcount: t.playcount,
             url: t.url,
+            image: t.imageUrl ?? null,
+            track: { artist: t.artist, name: t.name },
           }))}
         />
         <TopList
@@ -201,10 +205,11 @@ export function MonthView({ username, period, label, tab }: Props) {
             detail: a.artist,
             playcount: a.playcount,
             url: a.url,
+            image: a.imageUrl,
           }))}
         />
         <GenreListView>
-          <GenreItems genres={genreList} />
+          <GenreItems genres={genreList} images={artistPicsByName} />
         </GenreListView>
       </div>
     </>

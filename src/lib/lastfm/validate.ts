@@ -99,6 +99,11 @@ export function validatePage(raw: string | null): Validated<number> {
 }
 
 /** Nome de álbum: mesmas regras do nome de artista. */
+export function validateTrackName(raw: string | null): Validated<string> {
+  const result = validateArtistName(raw);
+  return result.ok ? result : { ok: false, message: "Nome de música inválido." };
+}
+
 export function validateAlbumName(raw: string | null): Validated<string> {
   const result = validateArtistName(raw);
   return result.ok ? result : { ok: false, message: "Nome de álbum inválido." };

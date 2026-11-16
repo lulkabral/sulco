@@ -41,6 +41,8 @@ export type TopTrack = {
   artist: string;
   playcount: number;
   url: string;
+  /** Capa do álbum da música, quando se sabe (no mês fechado vem dos scrobbles). */
+  imageUrl?: string | null;
 };
 
 export type TopItem = TopArtist | TopAlbum | TopTrack;

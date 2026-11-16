@@ -217,6 +217,11 @@ export function normalizeAlbumCover(raw: unknown): string | null {
   return pickImage(obj(obj(raw).album).image);
 }
 
+/** Capa do álbum de `track.getInfo` (maior tamanho), ou null se a música não tiver álbum. */
+export function normalizeTrackCover(raw: unknown): string | null {
+  return pickImage(obj(obj(obj(raw).track).album).image);
+}
+
 /** Soma dos plays de todos os itens do gráfico (sem cortar). */
 export function sumChartPlays(type: TopType, raw: unknown): number {
   const keys = CHART_KEYS[type];

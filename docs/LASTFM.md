@@ -28,6 +28,7 @@ GET https://ws.audioscrobbler.com/2.0/?method=user.gettopalbums&user=USERNAME&pe
 | `artist.getTopTags` | tags do artista (gêneros) | `artist` |
 | `user.getWeeklyArtistChart`, `user.getWeeklyAlbumChart`, `user.getWeeklyTrackChart` | tops de um ano inteiro (com `from`/`to` livres) | `user`, `from`, `to` |
 | `album.getInfo` | só a capa dos álbuns do ano (o gráfico não traz imagem) | `artist`, `album` |
+| `track.getInfo` | só a capa do álbum de cada música da lista "Músicas" (o top de músicas só traz a estrela) | `artist`, `track`, `autocorrect=1` |
 
 Qualquer outro método deve ser recusado pela rota.
 
@@ -102,6 +103,7 @@ Fora do site, a ferramenta local `npm run banner` (só para a conta oficial) tam
   - O gráfico de álbuns agrupa pelo **artista do álbum** ("Various Artists" em coletâneas), diferente da soma de scrobbles do mês fechado.
   - Os itens vêm **sem capa** (álbum sem `image`; música com a estrela genérica). A capa vem de `album.getInfo`, só para os álbuns que aparecem (9 na imagem, 25 na grade), 3 por vez, com cache de 30 dias. Na primeira vez, algumas capas demoram vários segundos.
   - `album.getInfo` de álbum inexistente: HTTP 200 com `{"error": 6, "message": "Album not found"}`. Tratamos como "sem capa".
+- `track.getInfo` (testado em 16/11/2026): `track.album.image` traz a capa do álbum da música (4 de 5 músicas testadas). Música sem álbum conhecido responde HTTP 200 com erro 6; tratamos como "sem capa". Chamado pelo navegador via `/api/lastfm/track`, só para as 10 músicas da lista e só quando a capa não veio de outro lugar (no mês fechado ela vem dos scrobbles), 3 por vez, cache de 30 dias.
   - Risco: como é um uso não documentado, o Last.fm pode mudar. Se mudar, só o ano inteiro para de funcionar.
 - **`artist.getTopTags` (fase 5, testado em 15/11/2026):**
   - Veio no máximo 10 tags por artista, já ordenadas. `count` vai de 0 a 100 (a mais forte vale 100) e chega como número.

@@ -201,7 +201,12 @@ export type Genre = {
   name: string;
   /** Soma de plays x força da tag / 100. Serve para ordenar, não é contagem de plays. */
   weight: number;
+  /** Artistas que mais puxaram este gênero (até 3), do maior para o menor. */
+  artists: string[];
 };
+
+/** Quantos artistas guardar por gênero (as bolinhas na lista "Gêneros"). */
+export const ARTISTS_PER_GENRE = 3;
 
 /**
  * Top de gêneros: para cada artista, descarta o que não é gênero, pega as
@@ -210,6 +215,7 @@ export type Genre = {
 export function computeTopGenres(artists: GenreInput[], limit = GENRE_LIMIT): Genre[] {
   const totals = new Map<string, number>();
   const labels = new Map<string, string>(); // chave -> primeira grafia vista
+  const contributors = new Map<string, { name: string; amount: number }[]>(); // gênero -> artistas
 
   for (const artist of artists) {
     const artistKey = genreKey(artist.name);
@@ -224,14 +230,27 @@ export function computeTopGenres(artists: GenreInput[], limit = GENRE_LIMIT): Ge
 
     const top = [...strongest].sort((a, b) => b[1] - a[1]).slice(0, TAGS_PER_ARTIST);
     for (const [key, count] of top) {
-      totals.set(key, (totals.get(key) ?? 0) + artist.playcount * (count / 100));
+      const amount = artist.playcount * (count / 100);
+      totals.set(key, (totals.get(key) ?? 0) + amount);
+      if (amount > 0) {
+        const list = contributors.get(key) ?? [];
+        list.push({ name: artist.name, amount });
+        contributors.set(key, list);
+      }
     }
   }
 
   return [...totals]
     .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
     .slice(0, limit)
-    .map(([key, weight]) => ({ name: genreLabel(key, labels.get(key)), weight }));
+    .map(([key, weight]) => ({
+      name: genreLabel(key, labels.get(key)),
+      weight,
+      artists: (contributors.get(key) ?? [])
+        .sort((a, b) => b.amount - a.amount)
+        .slice(0, ARTISTS_PER_GENRE)
+        .map((a) => a.name),
+    }));
 }
 
 /**

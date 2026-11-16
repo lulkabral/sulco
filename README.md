@@ -39,7 +39,7 @@ Depois abra http://localhost:3000.
 ```
 src/
   app/                   páginas e rotas (Next.js App Router)
-    api/lastfm/          rotas que conversam com o Last.fm (só leitura): user, top, tags, scrobbles
+    api/lastfm/          rotas que conversam com o Last.fm (só leitura): user, top, tags, scrobbles, chart, album, track
     u/[username]/        página do usuário
     privacidade/         página de privacidade
   components/            partes da tela (listas, grade, recap, seletores)
