@@ -45,3 +45,11 @@ export function formatDateRange(fromSeconds: number, toSeconds: number, timeZone
   if (a.month !== b.month) return `${a.day} ${a.monthName} – ${end}`;
   return `${a.day} – ${end}`;
 }
+
+/** "desde março de 2019" (no fuso do aparelho, ou no `timeZone` dado). */
+export function formatSince(unixSeconds: number, timeZone?: string): string {
+  const text = new Intl.DateTimeFormat("pt-BR", { month: "long", year: "numeric", timeZone }).format(
+    new Date(unixSeconds * 1000),
+  );
+  return `desde ${text}`;
+}

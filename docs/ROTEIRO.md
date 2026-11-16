@@ -156,6 +156,16 @@ Pedido do dono do projeto: site mais atrativo e moderno, com movimento. Direçã
 - [x] recap, grade e imagem de compartilhamento na mesma identidade
 - [x] contraste e "reduzir movimento" conferidos
 
+## Imagem personalizável e máquina do tempo (antes da fase 8)
+
+Pedido do dono do projeto: imagem mais artística e com escolhas, foco em lembrar (nomes e capas) e não em medir.
+
+- [x] 4 formatos da imagem: Toca-discos, Mosaico, Lineup e Clássico
+- [x] paletas de cor, incluindo "Cor da capa", com contraste testado
+- [x] números desligados por padrão (total fora do cartão do álbum)
+- [x] "Todo o tempo" e máquina do tempo com qualquer mês desde o cadastro
+- [x] formas vivas na página inicial, paradas com "reduzir movimento"
+
 ## Fase 8: Publicação
 
 ```

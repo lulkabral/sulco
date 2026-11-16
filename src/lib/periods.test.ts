@@ -11,7 +11,7 @@ describe("parseUiPeriod", () => {
     expect(DEFAULT_UI_PERIOD).toBe("1month");
     expect(parseUiPeriod(undefined)).toBe("1month");
     expect(parseUiPeriod("2day")).toBe("1month");
-    expect(parseUiPeriod("overall")).toBe("1month");
+    expect(parseUiPeriod("all")).toBe("1month");
   });
 
   it("aceita outro padrão (o da aba Grade)", () => {
@@ -46,5 +46,19 @@ describe("periodRange", () => {
 
   it("chamadas no mesmo bloco dão o mesmo intervalo (cache)", () => {
     expect(periodRange("7day", 1_794_600_001)).toEqual(periodRange("7day", 1_794_600_599));
+  });
+});
+
+describe("Todo o tempo", () => {
+  it("é aceito no endereço e tem rótulo", () => {
+    expect(parseUiPeriod("overall")).toBe("overall");
+    expect(periodLabel("overall")).toBe("Todo o tempo");
+  });
+
+  it("começa no cadastro e termina agora", () => {
+    expect(periodRange("overall", 1_794_600_123, 1_560_000_000)).toEqual({
+      from: 1_560_000_000,
+      to: 1_794_600_000,
+    });
   });
 });

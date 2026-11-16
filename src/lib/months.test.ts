@@ -1,5 +1,12 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { lastClosedMonths, monthLabel, monthPillLabel, monthRange, parseMonthId } from "./months";
+import {
+  groupByYear,
+  lastClosedMonths,
+  monthLabel,
+  monthRange,
+  monthsSince,
+  parseMonthId,
+} from "./months";
 
 describe("parseMonthId", () => {
   it("aceita AAAA-MM", () => {
@@ -68,10 +75,35 @@ describe("monthRange", () => {
   });
 });
 
-describe("monthPillLabel", () => {
-  it("só o nome no ano de referência; com o ano nos outros", () => {
-    expect(monthPillLabel("2026-10", 2026)).toBe("Outubro");
-    expect(monthPillLabel("2025-12", 2026)).toBe("Dezembro 2025");
-    expect(monthPillLabel("abc", 2026)).toBe("");
+describe("monthsSince", () => {
+  const now = new Date(Date.UTC(2026, 10, 15)); // 15/11/2026
+
+  it("todos os meses fechados desde o cadastro", () => {
+    const registered = Date.UTC(2026, 6, 20) / 1000; // 20/07/2026
+    expect(monthsSince(registered, now)).toEqual(["2026-10", "2026-09", "2026-08", "2026-07"]);
+  });
+
+  it("cadastro em 2019 vai até lá atrás", () => {
+    const months = monthsSince(Date.UTC(2019, 2, 1) / 1000, now);
+    expect(months[0]).toBe("2026-10");
+    expect(months.at(-1)).toBe("2019-03");
+    expect(months).toHaveLength(92);
+  });
+
+  it("cadastro neste mês: nenhum mês fechado ainda", () => {
+    expect(monthsSince(Date.UTC(2026, 10, 2) / 1000, now)).toEqual([]);
+  });
+
+  it("sem data de cadastro: últimos 12 meses", () => {
+    expect(monthsSince(0, now)).toHaveLength(12);
+  });
+});
+
+describe("groupByYear", () => {
+  it("anos do mais recente para o mais antigo, meses em ordem do calendário", () => {
+    expect(groupByYear(["2026-02", "2026-01", "2025-12", "2025-11"])).toEqual([
+      { year: 2026, months: ["2026-01", "2026-02"] },
+      { year: 2025, months: ["2025-11", "2025-12"] },
+    ]);
   });
 });

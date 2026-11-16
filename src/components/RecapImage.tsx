@@ -1,15 +1,26 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { ExportButtons } from "@/components/ExportButtons";
 import { loadImage, pageFontFamily, waitForFonts } from "@/lib/canvas/image";
-import { formatDateRange, formatNumber } from "@/lib/format";
+import { formatNumber } from "@/lib/format";
 import type { Genre } from "@/lib/genres";
 import { coverUrl } from "@/lib/grid/layout";
-import { drawRecap, RECAP_HEIGHT, RECAP_WIDTH, type RecapListItem } from "@/lib/recap/draw";
+import { albumHeading, dateText, shortTag } from "@/lib/recap/copy";
+import { paletteFromCover } from "@/lib/recap/cover-color";
+import {
+  drawRecap,
+  RECAP_HEIGHT,
+  RECAP_LAYOUTS,
+  RECAP_WIDTH,
+  type RecapListItem,
+} from "@/lib/recap/draw";
+import { COVER_PALETTE_ID, PALETTES, paletteById, type Palette } from "@/lib/recap/palettes";
+import { parsePrefs, readPrefsRaw, savePrefs, subscribePrefs, type RecapPrefs } from "@/lib/recap/prefs";
 
 type Props = {
   username: string;
+  /** Período do Last.fm ("7day", "overall"...) ou mês "AAAA-MM". */
   period: string;
   periodLabel: string;
   /** Intervalo do período (timestamps UNIX em segundos), para mostrar as datas. */
@@ -18,58 +29,91 @@ type Props = {
   total: number;
   /** Gêneros calculados no servidor; chegam depois do resto (null = não deu para calcular). */
   genres: Promise<Genre[] | null>;
+  /** Até 15 artistas (o Lineup usa todos). */
   artists: RecapListItem[];
   tracks: RecapListItem[];
+  /** Até 9 álbuns (o Mosaico usa todas as capas). */
   albums: (RecapListItem & { imageUrl: string | null })[];
 };
 
-/** Aba Recap: imagem story (1080 x 1920) desenhada no canvas, com baixar/compartilhar. */
+/** O que precisa estar carregado antes de desenhar. */
+type Assets = {
+  font: string;
+  covers: (HTMLImageElement | null)[];
+  genres: string[] | null;
+  /** Paleta tirada da capa nº 1 (null se não der). */
+  coverPalette: Palette | null;
+};
+
+/**
+ * Aba Recap: imagem story (1080 x 1920) desenhada no canvas, com escolha de formato,
+ * cor e números, e baixar/compartilhar. As escolhas ficam guardadas só neste navegador.
+ */
 export function RecapImage(props: Props) {
   const { username, period, periodLabel, from, to, total, genres, artists, tracks, albums } = props;
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [drawn, setDrawn] = useState(false);
+  const [assets, setAssets] = useState<Assets | null>(null);
 
+  // Escolhas guardadas no navegador. No servidor (e no 1º desenho) valem as padrão.
+  const prefsRaw = useSyncExternalStore(subscribePrefs, readPrefsRaw, () => null);
+  const prefs = useMemo(() => parsePrefs(prefsRaw), [prefsRaw]);
+  // Parte sempre do que está salvo agora (e não da cópia desta renderização):
+  // assim dois cliques rápidos não desfazem um ao outro.
+  const choose = (patch: Partial<RecapPrefs>) => savePrefs({ ...parsePrefs(readPrefsRaw()), ...patch });
+
+  const palette =
+    prefs.paletteId === COVER_PALETTE_ID ? (assets?.coverPalette ?? PALETTES[0]) : paletteById(prefs.paletteId);
+
+  // 1) Carrega fontes, capas e gêneros uma vez (trocar formato ou cor não baixa de novo).
   useEffect(() => {
     let cancelled = false;
-
     (async () => {
-      const sans = pageFontFamily();
-      await waitForFonts(sans);
-
-      const first = albums[0] ?? null;
-      // Capa grande do nº 1, capas da fileira do topo (2 a 5) e gêneros chegam em paralelo.
-      const [cover, genreList, ...rest] = await Promise.all([
-        first?.imageUrl ? loadImage(coverUrl(first.imageUrl, 600)) : null,
+      const font = pageFontFamily();
+      await waitForFonts(font);
+      const [genreList, ...covers] = await Promise.all([
         genres,
-        ...albums.slice(1, 5).map((a) => (a.imageUrl ? loadImage(a.imageUrl) : null)),
+        // A nº 1 em 600 px (aparece grande); as outras em 300 px.
+        ...albums.slice(0, 9).map((a, i) => (a.imageUrl ? loadImage(i === 0 ? coverUrl(a.imageUrl, 600) : a.imageUrl) : null)),
       ]);
-      if (cancelled || !canvasRef.current) return;
-
-      drawRecap(
-        canvasRef.current,
-        {
-          username,
-          title: periodLabel,
-          // Datas no fuso do aparelho de quem gera a imagem.
-          dateRange: formatDateRange(from, to),
-          total,
-          artists,
-          tracks,
-          albums,
-          featured: first ? { ...first, cover } : null,
-          stripCovers: [cover, ...rest],
-          genres: genreList ? genreList.map((g) => g.name) : null,
-          siteHost: window.location.host,
-        },
-        { sans },
-      );
-      setDrawn(true);
+      if (cancelled) return;
+      setAssets({
+        font,
+        covers: covers as (HTMLImageElement | null)[],
+        genres: genreList ? (genreList as Genre[]).map((g) => g.name) : null,
+        coverPalette: covers[0] ? paletteFromCover(covers[0] as HTMLImageElement) : null,
+      });
     })();
-
     return () => {
       cancelled = true;
     };
-  }, [username, periodLabel, from, to, total, genres, artists, tracks, albums]);
+  }, [albums, genres]);
+
+  // 2) Desenha sempre que os dados ou as escolhas mudam (é instantâneo).
+  useEffect(() => {
+    if (!assets || !canvasRef.current) return;
+    drawRecap(
+      canvasRef.current,
+      {
+        username,
+        title: periodLabel,
+        // Datas no fuso do aparelho de quem gera a imagem.
+        dateText: dateText(period, from, to),
+        shortTag: shortTag(period),
+        total,
+        albumHeading: albumHeading(period),
+        artists,
+        tracks,
+        albums,
+        covers: assets.covers,
+        genres: assets.genres,
+        siteHost: window.location.host,
+      },
+      { layout: prefs.layout, palette, showNumbers: prefs.showNumbers, font: assets.font },
+    );
+  }, [assets, prefs, palette, username, period, periodLabel, from, to, total, artists, tracks, albums]);
+
+  const drawn = assets !== null;
+  const coverAccent = assets?.coverPalette?.accent;
 
   return (
     <section
@@ -86,7 +130,9 @@ export function RecapImage(props: Props) {
           width={RECAP_WIDTH}
           height={RECAP_HEIGHT}
           role="img"
-          aria-label={`Recap de ${username}: ${periodLabel.toLowerCase()}. Os tops em texto estão abaixo.`}
+          aria-label={`Recap de ${username}: ${periodLabel.toLowerCase()}, formato ${
+            RECAP_LAYOUTS.find((l) => l.id === prefs.layout)?.name
+          }. Os tops em texto estão abaixo.`}
           className="block aspect-[9/16] w-full rounded-2xl bg-card shadow-2xl shadow-black/50 ring-1 ring-line"
         />
         {!drawn && (
@@ -99,22 +145,113 @@ export function RecapImage(props: Props) {
         )}
       </div>
 
-      <div className="flex flex-col gap-4 rounded-2xl bg-card p-5 md:min-w-72">
+      <div className="flex flex-col gap-5 rounded-2xl bg-card p-5 md:min-w-80">
         <div>
           <p className="text-sm font-bold uppercase tracking-widest text-ink-soft">{periodLabel}</p>
-          <p className="mt-1 text-5xl font-extrabold tracking-tight text-amber tabular-nums">
-            {formatNumber(total)}
+          <p className="mt-1 text-ink-soft">
+            <span className="font-bold text-ink">{formatNumber(total)}</span> scrobbles
           </p>
-          <p className="text-ink-soft">scrobbles</p>
         </div>
-        <p className="text-sm text-ink-soft">Imagem no formato story (1080 × 1920), pronta para compartilhar.</p>
+
+        <fieldset>
+          <legend className="mb-2 text-sm font-bold uppercase tracking-widest text-ink-soft">Formato</legend>
+          <div className="grid grid-cols-2 gap-2">
+            {RECAP_LAYOUTS.map((l) => (
+              <button
+                key={l.id}
+                type="button"
+                aria-pressed={prefs.layout === l.id}
+                onClick={() => choose({ layout: l.id })}
+                className={
+                  "rounded-xl border px-3 py-2 text-sm font-semibold transition active:scale-95 " +
+                  (prefs.layout === l.id
+                    ? "border-amber bg-amber text-amber-ink"
+                    : "border-line text-ink-soft hover:text-ink")
+                }
+              >
+                {l.name}
+              </button>
+            ))}
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend className="mb-2 text-sm font-bold uppercase tracking-widest text-ink-soft">Cor</legend>
+          <div className="flex flex-wrap gap-2">
+            {PALETTES.map((p) => (
+              <Swatch
+                key={p.id}
+                label={p.name}
+                active={prefs.paletteId === p.id}
+                onClick={() => choose({ paletteId: p.id })}
+                background={`linear-gradient(135deg, ${p.room} 50%, ${p.accent} 50%)`}
+              />
+            ))}
+            <Swatch
+              label="Cor da capa"
+              active={prefs.paletteId === COVER_PALETTE_ID}
+              onClick={() => choose({ paletteId: COVER_PALETTE_ID })}
+              background={
+                coverAccent
+                  ? `linear-gradient(135deg, ${assets?.coverPalette?.room} 50%, ${coverAccent} 50%)`
+                  : "conic-gradient(#e8a13a, #ff7aa2, #c59bff, #6fc3ff, #e8a13a)"
+              }
+            />
+          </div>
+        </fieldset>
+
+        <label className="flex cursor-pointer items-center justify-between gap-3">
+          <span>
+            <span className="block font-semibold">Mostrar números</span>
+            <span className="block text-sm text-ink-soft">Total de scrobbles e reproduções</span>
+          </span>
+          <input
+            type="checkbox"
+            role="switch"
+            checked={prefs.showNumbers}
+            onChange={(e) => choose({ showNumbers: e.target.checked })}
+            className="peer sr-only"
+          />
+          <span
+            aria-hidden
+            className="relative h-7 w-12 shrink-0 rounded-full bg-line transition peer-checked:bg-amber peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-amber after:absolute after:left-1 after:top-1 after:size-5 after:rounded-full after:bg-ink after:transition peer-checked:after:translate-x-5 peer-checked:after:bg-amber-ink"
+          />
+        </label>
+
         <ExportButtons
           canvasRef={canvasRef}
-          filename={`recap-${username}-${period}.png`}
+          filename={`recap-${username}-${period}-${prefs.layout}.png`}
           shareTitle={`Meu recap: ${periodLabel.toLowerCase()}`}
           disabled={!drawn}
         />
       </div>
     </section>
+  );
+}
+
+function Swatch({
+  label,
+  active,
+  onClick,
+  background,
+}: {
+  label: string;
+  active: boolean;
+  onClick: () => void;
+  background: string;
+}) {
+  return (
+    <button
+      type="button"
+      aria-pressed={active}
+      aria-label={label}
+      title={label}
+      onClick={onClick}
+      className={
+        "size-10 rounded-full ring-offset-2 ring-offset-card transition active:scale-90 " +
+        (active ? "ring-2 ring-amber" : "ring-1 ring-line hover:ring-ink-faint")
+      }
+      style={{ background }}
+    />
   );
 }

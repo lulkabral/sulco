@@ -2,6 +2,7 @@ import type { Period } from "@/lib/lastfm/types";
 
 /** Períodos que aparecem no seletor da tela, na ordem em que aparecem. */
 export const UI_PERIODS = [
+  { value: "overall", label: "Todo o tempo" },
   { value: "7day", label: "Últimos 7 dias" },
   { value: "1month", label: "Últimos 30 dias" },
   { value: "3month", label: "Últimos 3 meses" },
@@ -34,7 +35,7 @@ export function periodLabel(period: UiPeriod): string {
  * Quantos dias o Last.fm conta em cada período (testado em 15/11/2026: com esses valores,
  * o total de `user.getRecentTracks` bate com a soma dos plays de `user.getTopArtists`).
  */
-export const PERIOD_DAYS: Record<UiPeriod, number> = {
+export const PERIOD_DAYS: Record<Exclude<UiPeriod, "overall">, number> = {
   "7day": 7,
   "1month": 30,
   "3month": 90,
@@ -49,13 +50,19 @@ export const RANGE_STEP_SECONDS = 600;
  * Intervalo (timestamps UNIX em segundos) que corresponde ao período, terminando "agora".
  * O fim é arredondado para baixo em blocos de 10 min: chamadas no mesmo bloco
  * usam os mesmos parâmetros e aproveitam o cache.
+ * "Todo o tempo" começa no cadastro da pessoa (`registeredAt`).
  */
-export function periodRange(period: UiPeriod, nowSeconds: number): { from: number; to: number } {
+export function periodRange(
+  period: UiPeriod,
+  nowSeconds: number,
+  registeredAt = 0,
+): { from: number; to: number } {
   const to = Math.floor(nowSeconds / RANGE_STEP_SECONDS) * RANGE_STEP_SECONDS;
+  if (period === "overall") return { from: registeredAt, to };
   return { from: to - PERIOD_DAYS[period] * 86_400, to };
 }
 
 /** `periodRange` terminando agora. Só para código de servidor que já chamou `connection()`. */
-export function currentPeriodRange(period: UiPeriod): { from: number; to: number } {
-  return periodRange(period, Date.now() / 1000);
+export function currentPeriodRange(period: UiPeriod, registeredAt = 0): { from: number; to: number } {
+  return periodRange(period, Date.now() / 1000, registeredAt);
 }

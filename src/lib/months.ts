@@ -41,9 +41,34 @@ export function lastClosedMonths(now: Date, count = MONTH_OPTIONS): MonthId[] {
   return months;
 }
 
-/** `lastClosedMonths` de agora. Só para código de servidor que já chamou `connection()`. */
-export function currentClosedMonths(): MonthId[] {
-  return lastClosedMonths(new Date());
+/**
+ * Máquina do tempo: todos os meses já encerrados desde o mês de cadastro
+ * (`registeredAt`, timestamp UNIX em segundos), do mais recente para o mais antigo.
+ * Cadastro desconhecido (0) vira os últimos 12 meses. Calendário em UTC.
+ */
+export function monthsSince(registeredAt: number, now: Date): MonthId[] {
+  if (!registeredAt || registeredAt <= 0) return lastClosedMonths(now);
+  const start = new Date(registeredAt * 1000);
+  const count =
+    (now.getUTCFullYear() - start.getUTCFullYear()) * 12 + (now.getUTCMonth() - start.getUTCMonth());
+  return count > 0 ? lastClosedMonths(now, count) : [];
+}
+
+/** `monthsSince` de agora. Só para código de servidor que já chamou `connection()`. */
+export function currentMonthsSince(registeredAt: number): MonthId[] {
+  return monthsSince(registeredAt, new Date());
+}
+
+/** Agrupa os meses por ano: [{ year: 2026, months: ["2026-01", ..., "2026-10"] }, ...]. */
+export function groupByYear(months: readonly string[]): { year: number; months: string[] }[] {
+  const groups = new Map<number, string[]>();
+  for (const m of months) {
+    const year = Number(m.slice(0, 4));
+    groups.set(year, [...(groups.get(year) ?? []), m]);
+  }
+  return [...groups]
+    .sort((a, b) => b[0] - a[0])
+    .map(([year, list]) => ({ year, months: [...list].sort() }));
 }
 
 /** "2026-10" -> "Outubro de 2026". */
@@ -67,15 +92,4 @@ export function monthRange(id: string): { from: number; to: number } | null {
   const start = new Date(parsed.year, parsed.month - 1, 1).getTime();
   const nextStart = new Date(parsed.year, parsed.month, 1).getTime();
   return { from: start / 1000, to: nextStart / 1000 - 1 };
-}
-
-/**
- * Rótulo curto para a fileira de períodos: "Outubro"; com o ano só quando for
- * diferente de `referenceYear` (ex.: "Dezembro 2025").
- */
-export function monthPillLabel(id: string, referenceYear: number): string {
-  const parsed = parseMonthId(id);
-  if (!parsed) return "";
-  const name = monthLabel(id).split(" de ")[0];
-  return parsed.year === referenceYear ? name : `${name} ${parsed.year}`;
 }

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatDateRange, formatNumber, formatPlays, yearOf } from "./format";
+import { formatDateRange, formatNumber, formatPlays, formatSince, yearOf } from "./format";
 
 describe("formatNumber", () => {
   it("usa ponto como separador de milhar", () => {
@@ -49,5 +49,11 @@ describe("formatDateRange", () => {
   it("usa o fuso: 01:00 UTC ainda é o dia anterior em São Paulo", () => {
     const utc = Date.UTC(2026, 10, 15, 1) / 1000;
     expect(formatDateRange(utc - 7 * day, utc, tz)).toBe("7 – 14 nov 2026");
+  });
+});
+
+describe("formatSince", () => {
+  it("mês por extenso e ano", () => {
+    expect(formatSince(Date.UTC(2019, 2, 10, 15) / 1000, "America/Sao_Paulo")).toBe("desde março de 2019");
   });
 });

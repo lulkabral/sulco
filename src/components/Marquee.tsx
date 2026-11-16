@@ -59,28 +59,57 @@ export function Marquee({ covers, size, seconds, reverse = false, offset = 0 }: 
   );
 }
 
-/** Peça abstrata: quadrado, disco (vinil) ou quadrado com "selo" no meio. */
+/**
+ * Peça abstrata viva (só na página inicial, que ainda não tem capas):
+ * vinil girando, quadrado "respirando" ou forma orgânica que se deforma.
+ * O atraso negativo faz cada peça começar num ponto diferente da animação.
+ */
 function Tile({ index, size }: { index: number; size: number }) {
   const color = TILE_COLORS[index % TILE_COLORS.length];
+  const delay = { animationDelay: `-${((index * 0.73) % 6).toFixed(2)}s` };
   const shape = index % 3;
-  if (shape === 1) {
+
+  if (shape === 0) {
     return (
       <div
-        className="flex shrink-0 items-center justify-center rounded-full"
-        style={{ width: size, height: size, background: "#0d0b09" }}
+        className="flex shrink-0 items-center justify-center rounded-full motion-safe:animate-spin-slow"
+        style={{
+          width: size,
+          height: size,
+          ...delay,
+          // Sulcos do disco.
+          background: "repeating-radial-gradient(circle, #0b0a09 0 2px, #1b1714 2px 4px)",
+          // Borda clara bem sutil, para o disco não sumir no fundo escuro.
+          boxShadow: "inset 0 0 0 2px rgba(255,255,255,0.12)",
+        }}
       >
-        <div className="rounded-full" style={{ width: size * 0.38, height: size * 0.38, background: color }} />
+        {/* Selo com um "brilho" de lado: é o que deixa ver o giro. */}
+        <div
+          className="rounded-full"
+          style={{
+            width: size * 0.38,
+            height: size * 0.38,
+            background: color,
+            borderLeft: `${Math.round(size * 0.07)}px solid rgba(255,255,255,0.3)`,
+          }}
+        />
+      </div>
+    );
+  }
+  if (shape === 1) {
+    return (
+      <div className="flex shrink-0 items-center justify-center" style={{ width: size, height: size }}>
+        <div
+          className="rounded-xl motion-safe:animate-breathe"
+          style={{ width: size * 0.9, height: size * 0.9, background: color, ...delay }}
+        />
       </div>
     );
   }
   return (
     <div
-      className="flex shrink-0 items-center justify-center rounded-lg"
-      style={{ width: size, height: size, background: color }}
-    >
-      {shape === 2 && (
-        <div className="rounded-full bg-black/25" style={{ width: size * 0.5, height: size * 0.5 }} />
-      )}
-    </div>
+      className="shrink-0 rounded-[42%_58%_63%_37%/41%_44%_56%_59%] motion-safe:animate-blob"
+      style={{ width: size, height: size, background: color, ...delay }}
+    />
   );
 }

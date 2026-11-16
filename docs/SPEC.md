@@ -30,6 +30,7 @@ Escolhida no redesign entre as fases 7 e 8, no lugar da direção "Encarte" da f
 - **Tipografia:** só Geist, com títulos bem pesados (800).
 - **Movimento:**
   - faixas de capas passando: peças abstratas na página inicial e as capas do usuário (últimos 12 meses) no topo da página dele;
+  - na página inicial, as peças estão vivas: vinis girando, quadrados "respirando" e formas orgânicas que se deformam;
   - entrada suave de cartões e barrinhas.
   - Tudo para com "reduzir movimento" no sistema; as faixas também param com o mouse em cima.
 - As cores ficam em `src/app/globals.css` (site) e `src/lib/theme.ts` (canvas). Mudou uma, mude a outra.
@@ -43,23 +44,33 @@ Texto curto e direto. Ver a seção "Privacidade" abaixo.
 
 | Opção na tela | Como obter |
 |---|---|
+| Todo o tempo | `period=overall`; o total de scrobbles vem do perfil (`user.getInfo`), sem chamada extra |
 | Últimos 7 dias | `period=7day` |
 | Últimos 30 dias | `period=1month` |
 | Últimos 3, 6, 12 meses | `period=3month` etc. |
-| Mês fechado (ex.: outubro de 2026) | somar os scrobbles do intervalo (fase 6) |
+| Mês fechado (ex.: outubro de 2026), qualquer um desde o cadastro | somar os scrobbles do intervalo (fase 6) |
 
 Atenção: `1month` são os últimos 30 dias corridos, não o mês do calendário. Por isso o mês fechado é uma fase separada.
 
 ## Recurso 1: Recap em imagem
 
+Princípio: **lembrar, não medir.** A imagem mostra nomes e capas; números só se a pessoa pedir.
+
 Conteúdo da imagem:
 
 - título com o período (ex.: "Outubro de 2026") e o username;
-- total de scrobbles no período;
-- top 5 artistas, top 5 músicas, top 5 álbuns;
-- top 5 gêneros;
-- capa do álbum nº 1 em destaque (ou colagem das 4 primeiras);
-- crédito discreto "dados: Last.fm" e o endereço do site.
+- o álbum do período em destaque ("O álbum do mês", "O álbum da sua vida"...), com capa;
+- artistas ("Na sua cabeça"), músicas ("No repeat"), álbuns e gêneros;
+- crédito discreto "dados: Last.fm" e o endereço do site;
+- com "Mostrar números" ligado: total de scrobbles (na linha das datas, nunca no cartão do álbum) e reproduções de cada item.
+
+A pessoa escolhe, em cima da prévia (a escolha fica guardada só no navegador dela, em `localStorage`):
+
+- **Formato:** Toca-discos (padrão: vinil com a capa nº 1 como selo e capas empilhadas), Mosaico (colagem de 9 capas), Lineup (pôster de festival com até 15 artistas) ou Clássico (fileira de capas e cartões).
+- **Cor:** paletas prontas (Âmbar, Meia-noite, Vinho, Papel, Lilás) ou "Cor da capa", tirada da capa nº 1. Cada paleta define fundo, cartões, texto e destaque juntos, com contraste testado.
+- **Mostrar números:** desligado por padrão.
+
+Código: `src/lib/recap/` (um arquivo por formato em `layouts/`).
 
 Formatos:
 
@@ -73,7 +84,7 @@ Regras:
 - Exportar em PNG. No celular, oferecer compartilhar pelo menu nativo (Web Share API com arquivo); se não houver suporte, baixar.
 - Artistas não têm foto disponível na API (ver `LASTFM.md`). Usar capas de álbum ou composição só com texto.
 
-A imagem segue a identidade visual do site (ver "Identidade visual"): fundo escuro, fileira com as 5 capas mais ouvidas no topo, cartões escuros e destaque âmbar. (Na fase 4 a imagem era "Encarte", em papel creme; mudou no redesign.)
+A paleta padrão (Âmbar) é a identidade visual do site (ver "Identidade visual"). (Na fase 4 a imagem era "Encarte", em papel creme; virou a paleta "Papel".)
 
 ## Recurso 2: Grade de álbuns
 
@@ -98,10 +109,10 @@ Descartar antes de escolher as 5 mais fortes evita que lixo forte ("the voice": 
 
 ## Mês fechado (fase 6)
 
-- Seletor com os últimos 12 meses.
+- Máquina do tempo: qualquer mês desde o cadastro da pessoa no Last.fm (seletor de ano e mês).
 - O navegador calcula início e fim do mês no fuso da pessoa e envia como timestamps.
 - O navegador pede as páginas de scrobbles pela nossa rota (a 1ª sozinha, depois até 3 ao mesmo tempo, porque cada página leva de 1 a 4 s) e soma por artista, álbum e música. A soma acontece no navegador; o servidor não guarda nada.
-- Os 12 meses oferecidos são os já encerrados (o mês corrente fica de fora). No endereço: `?period=AAAA-MM`.
+- Só meses já encerrados (o mês corrente fica de fora) e a partir do mês de cadastro; qualquer outro valor volta ao padrão. No endereço: `?period=AAAA-MM`.
 - Mostrar progresso ("página 3 de 12").
 - Limite de páginas por consulta (ex.: 50 páginas = 10 mil scrobbles), com aviso se for atingido.
 - Mês já encerrado não muda: pode ter cache longo.

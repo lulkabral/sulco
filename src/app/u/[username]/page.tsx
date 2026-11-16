@@ -25,14 +25,16 @@ import {
   UI_PERIODS,
   type UiPeriod,
 } from "@/lib/periods";
-import { currentClosedMonths } from "@/lib/months";
+import { currentMonthsSince } from "@/lib/months";
 import { parseTab, type Tab } from "@/lib/tabs";
 
 const LIST_LIMIT = 10;
 /** Álbuns buscados: o bastante para a grade 5x5. As listas mostram só LIST_LIMIT. */
 const ALBUM_LIMIT = 25;
-/** Itens de cada top na imagem do recap. */
-const RECAP_LIMIT = 5;
+/** Itens na imagem do recap: até 15 artistas (Lineup), 5 músicas e 9 álbuns (Mosaico). */
+const RECAP_ARTISTS = 15;
+const RECAP_TRACKS = 5;
+const RECAP_ALBUMS = 9;
 /** Capas na faixa do topo da página. */
 const HEADER_COVERS = 20;
 
@@ -76,16 +78,8 @@ async function Profile({ params, searchParams }: Pick<PageProps<"/u/[username]">
   const { username: rawUsername } = await params;
   const query = await searchParams;
   const tab = parseTab(query.tab);
-  // Os 12 meses fechados dependem da data de hoje: `connection()` diz ao Next que isto roda a cada pedido.
-  await connection();
-  const months = currentClosedMonths();
   const rawPeriod = Array.isArray(query.period) ? query.period[0] : query.period;
-  // Mês fechado ("2026-10"), só se for um dos 12 oferecidos; senão, um período do Last.fm.
-  const month = rawPeriod && (months as string[]).includes(rawPeriod) ? rawPeriod : null;
   const period = parseUiPeriod(query.period, tab === "grade" ? DEFAULT_GRID_PERIOD : DEFAULT_UI_PERIOD);
-  const current = month ?? period;
-  // Só repassamos o período para a outra aba se a pessoa escolheu um (cada aba tem seu padrão).
-  const chosenPeriod = month ?? (UI_PERIODS.some((p) => p.value === rawPeriod) ? period : undefined);
 
   const username = validateUsername(safeDecode(rawUsername));
   if (!username.ok) {
@@ -109,6 +103,16 @@ async function Profile({ params, searchParams }: Pick<PageProps<"/u/[username]">
     return <ErrorState code={errorCodeOf(err)} username={username.value} />;
   }
 
+  // Máquina do tempo: os meses fechados vão do cadastro até o mês passado.
+  // Dependem da data de hoje: `connection()` diz ao Next que isto roda a cada pedido.
+  await connection();
+  const months = currentMonthsSince(user.registeredAt);
+  // Mês fechado ("2026-10"), só se estiver nessa lista; senão, um período do Last.fm.
+  const month = rawPeriod && (months as string[]).includes(rawPeriod) ? rawPeriod : null;
+  const current = month ?? period;
+  // Só repassamos o período para a outra aba se a pessoa escolheu um (cada aba tem seu padrão).
+  const chosenPeriod = month ?? (UI_PERIODS.some((p) => p.value === rawPeriod) ? period : undefined);
+
   return (
     <>
       <UserHeader user={user} covers={covers} />
@@ -120,17 +124,35 @@ async function Profile({ params, searchParams }: Pick<PageProps<"/u/[username]">
       ) : (
         // key: ao trocar de período ou aba, mostra o esqueleto de novo enquanto carrega
         <Suspense key={`${tab}-${period}`} fallback={<ListsSkeleton />}>
-          <TopLists username={user.username} period={period} tab={tab} />
+          <TopLists
+            username={user.username}
+            period={period}
+            tab={tab}
+            registeredAt={user.registeredAt}
+            lifetimeTotal={user.playcount}
+          />
         </Suspense>
       )}
     </>
   );
 }
 
-async function TopLists({ username, period, tab }: { username: string; period: UiPeriod; tab: Tab }) {
+type TopListsProps = {
+  username: string;
+  period: UiPeriod;
+  tab: Tab;
+  /** Data de cadastro (início de "Todo o tempo"). */
+  registeredAt: number;
+  /** Total de scrobbles da vida inteira (já vem no perfil). */
+  lifetimeTotal: number;
+};
+
+async function TopLists({ username, period, tab, registeredAt, lifetimeTotal }: TopListsProps) {
   // O intervalo depende da hora atual: `connection()` diz ao Next que isto roda a cada pedido.
   await connection();
-  const range = currentPeriodRange(period);
+  const range = currentPeriodRange(period, registeredAt);
+  // Em "Todo o tempo" o total já veio no perfil: não precisa da chamada extra.
+  const needsTotal = tab === "recap" && period !== "overall";
 
   let artists, tracks, albums, total;
   try {
@@ -140,7 +162,7 @@ async function TopLists({ username, period, tab }: { username: string; period: U
       getTop(username, "artists", period, GENRE_ARTISTS),
       getTop(username, "tracks", period, LIST_LIMIT),
       getTop(username, "albums", period, ALBUM_LIMIT),
-      tab === "recap" ? getScrobbleTotal(username, range.from, range.to) : null,
+      needsTotal ? getScrobbleTotal(username, range.from, range.to) : null,
     ]);
   } catch (err) {
     return <ErrorState code={errorCodeOf(err)} username={username} />;
@@ -187,15 +209,15 @@ async function TopLists({ username, period, tab }: { username: string; period: U
           periodLabel={periodLabel(period)}
           from={range.from}
           to={range.to}
-          total={total ?? 0}
+          total={period === "overall" ? lifetimeTotal : (total ?? 0)}
           genres={genres}
           artists={artistItems
-            .slice(0, RECAP_LIMIT)
+            .slice(0, RECAP_ARTISTS)
             .map((a) => ({ name: a.name, playcount: a.playcount }))}
           tracks={(tracks.items as TopTrack[])
-            .slice(0, RECAP_LIMIT)
+            .slice(0, RECAP_TRACKS)
             .map((t) => ({ name: t.name, artist: t.artist, playcount: t.playcount }))}
-          albums={albumItems.slice(0, RECAP_LIMIT).map((a) => ({
+          albums={albumItems.slice(0, RECAP_ALBUMS).map((a) => ({
             name: a.name,
             artist: a.artist,
             playcount: a.playcount,
