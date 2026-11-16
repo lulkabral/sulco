@@ -40,6 +40,8 @@ const LIST_LIMIT = 10;
 /** Itens na imagem do recap: até 15 artistas (Lineup), 5 músicas e 9 álbuns (Mosaico). */
 const RECAP_ARTISTS = 15;
 const RECAP_TRACKS = 5;
+/** Músicas usadas para estimar os minutos (as mesmas da lista "Músicas"). */
+const MINUTE_SAMPLE = 10;
 const RECAP_ALBUMS = 9;
 const GRID_LIMIT = 25;
 
@@ -114,6 +116,9 @@ export function MonthView({ username, period, label, tab }: Props) {
         playcount: a.playcount,
         imageUrl: a.imageUrl,
       })),
+      minuteSample: tops.tracks
+        .slice(0, MINUTE_SAMPLE)
+        .map((t) => ({ name: t.name, artist: t.artist, playcount: t.playcount })),
       grid: tops.albums.slice(0, GRID_LIMIT).map((a) => ({
         name: a.name,
         artist: a.artist,
@@ -167,6 +172,7 @@ export function MonthView({ username, period, label, tab }: Props) {
           artists={recapData.artists}
           tracks={recapData.tracks}
           albums={recapData.albums}
+          minuteSample={recapData.minuteSample}
         />
       )}
 

@@ -35,6 +35,8 @@ const ALBUM_LIMIT = 25;
 /** Itens na imagem do recap: até 15 artistas (Lineup), 5 músicas e 9 álbuns (Mosaico). */
 const RECAP_ARTISTS = 15;
 const RECAP_TRACKS = 5;
+/** Músicas usadas para estimar os minutos (as mesmas da lista "Músicas"). */
+const MINUTE_SAMPLE = 10;
 const RECAP_ALBUMS = 9;
 /** Capas na faixa do topo da página. */
 const HEADER_COVERS = 20;
@@ -227,6 +229,9 @@ async function TopLists({ username, period, tab, registeredAt, lifetimeTotal }: 
             .map((a) => ({ name: a.name, playcount: a.playcount }))}
           tracks={(tracks.items as TopTrack[])
             .slice(0, RECAP_TRACKS)
+            .map((t) => ({ name: t.name, artist: t.artist, playcount: t.playcount }))}
+          minuteSample={(tracks.items as TopTrack[])
+            .slice(0, MINUTE_SAMPLE)
             .map((t) => ({ name: t.name, artist: t.artist, playcount: t.playcount }))}
           albums={albumItems.slice(0, RECAP_ALBUMS).map((a) => ({
             name: a.name,

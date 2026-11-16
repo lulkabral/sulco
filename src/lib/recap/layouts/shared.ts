@@ -2,13 +2,28 @@
 
 import { formatNumber, formatPlays } from "@/lib/format";
 import type { RecapData, RecapListItem, RecapOptions } from "../draw";
-import { eyebrow, measureWith, text, type Ctx } from "../helpers";
+import { eyebrow, INNER, measureWith, text, type Ctx } from "../helpers";
+
+/** "564 scrobbles · 1.950 minutos" (os minutos só quando já foram estimados). */
+export function totalsText(d: RecapData): string {
+  const scrobbles = `${formatNumber(d.total)} scrobbles`;
+  return d.minutes ? `${scrobbles}  ·  ${formatNumber(d.minutes)} minutos` : scrobbles;
+}
 
 /**
- * Linha das datas. Com "mostrar números", ganha o total de scrobbles do período
- * no fim, em destaque, separado de qualquer álbum (para não parecer plays de um álbum).
+ * Linha das datas. Com "mostrar scrobbles", ganha no fim, em destaque, o total de
+ * scrobbles e os minutos do período (separado de qualquer álbum, para não parecer plays
+ * de um álbum). Se não couber em `maxWidth`, a letra diminui até caber.
  */
-export function dateLine(ctx: Ctx, d: RecapData, o: RecapOptions, x: number, y: number, align: CanvasTextAlign = "left") {
+export function dateLine(
+  ctx: Ctx,
+  d: RecapData,
+  o: RecapOptions,
+  x: number,
+  y: number,
+  align: CanvasTextAlign = "left",
+  maxWidth = INNER,
+) {
   const f = o.font;
   const p = o.palette;
   if (!o.showNumbers) {
@@ -16,14 +31,21 @@ export function dateLine(ctx: Ctx, d: RecapData, o: RecapOptions, x: number, y: 
     return;
   }
   const date = `${d.dateText}  ·  `;
-  const total = `${formatNumber(d.total)} scrobbles`;
-  ctx.font = `500 32px ${f}`;
-  const dateW = ctx.measureText(date).width;
-  ctx.font = `800 32px ${f}`;
-  const totalW = ctx.measureText(total).width;
+  const total = totalsText(d);
+  let size = 32;
+  let dateW = 0;
+  let totalW = 0;
+  for (; size >= 22; size -= 2) {
+    ctx.font = `500 ${size}px ${f}`;
+    dateW = ctx.measureText(date).width;
+    ctx.font = `800 ${size}px ${f}`;
+    totalW = ctx.measureText(total).width;
+    if (dateW + totalW <= maxWidth) break;
+  }
+  size = Math.max(size, 22);
   const start = align === "center" ? x - (dateW + totalW) / 2 : align === "right" ? x - dateW - totalW : x;
-  text(ctx, date, start, y, { font: `500 32px ${f}`, color: p.inkSoft });
-  text(ctx, total, start + dateW, y, { font: `800 32px ${f}`, color: p.accent });
+  text(ctx, date, start, y, { font: `500 ${size}px ${f}`, color: p.inkSoft });
+  text(ctx, total, start + dateW, y, { font: `800 ${size}px ${f}`, color: p.accent });
 }
 
 /** Linha de baixo de um item: artista e/ou reproduções, conforme o caso. */

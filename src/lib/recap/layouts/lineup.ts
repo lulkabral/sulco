@@ -1,11 +1,10 @@
 // Formato "Lineup": pôster de festival. O artista mais ouvido é a atração principal,
 // enorme; os outros vêm em andares cada vez menores. Embaixo, 3 capas redondas.
 
-import { formatNumber } from "@/lib/format";
 import type { RecapData, RecapOptions } from "../draw";
 import { cover, eyebrow, fitFontSize, footer, hexAlpha, INNER, measureWith, text, W, type Ctx } from "../helpers";
 import { lineupTiers, packNames, TIER_SIZES } from "../tiers";
-import { genresLine } from "./shared";
+import { genresLine, totalsText } from "./shared";
 
 const CENTER = W / 2;
 /** Máximo de linhas por andar. */
@@ -64,15 +63,21 @@ export function drawLineup(ctx: Ctx, d: RecapData, o: RecapOptions) {
 
   // Embaixo: o "ingresso" com o total (se pedir números) ou os gêneros.
   if (o.showNumbers) {
-    const label = `${formatNumber(d.total)} scrobbles`;
-    ctx.font = `800 40px ${f}`;
+    const label = totalsText(d);
+    // Letra menor se os minutos deixarem o ingresso largo demais.
+    let size = 40;
+    ctx.font = `800 ${size}px ${f}`;
+    while (size > 26 && ctx.measureText(label).width + 80 > INNER) {
+      size -= 2;
+      ctx.font = `800 ${size}px ${f}`;
+    }
     const w = ctx.measureText(label).width + 80;
     ctx.strokeStyle = p.accent;
     ctx.lineWidth = 3;
     ctx.beginPath();
     ctx.roundRect(CENTER - w / 2, 1690, w, 80, 16);
     ctx.stroke();
-    text(ctx, label, CENTER, 1745, { font: `800 40px ${f}`, color: p.accent, align: "center" });
+    text(ctx, label, CENTER, 1745, { font: `800 ${size}px ${f}`, color: p.accent, align: "center" });
   } else {
     genresLine(ctx, d, o, CENTER, 1745, INNER, "center");
   }

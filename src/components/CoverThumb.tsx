@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import type { CoverLookup } from "@/lib/artist-image";
 import { thumbUrl } from "@/lib/grid/layout";
+import { findCover } from "@/lib/lookups";
 
 type Props = {
   /** Nome do item (a inicial aparece quando não há imagem). */
@@ -50,41 +51,4 @@ export function CoverThumb({ name, image, shape, lookup, size = "md" }: Props) {
     // eslint-disable-next-line @next/next/no-img-element
     <img src={thumbUrl(url)} alt="" width={px} height={px} loading="lazy" className={`${box} object-cover`} />
   );
-}
-
-// Capas já pedidas nesta visita (o mesmo álbum pode aparecer em mais de uma lista).
-const cache = new Map<string, Promise<string | null>>();
-// No máximo 3 pedidos ao mesmo tempo (regra do projeto).
-const MAX_PARALLEL = 3;
-let running = 0;
-const waiting: (() => void)[] = [];
-
-function findCover({ type, artist, name }: CoverLookup): Promise<string | null> {
-  const key = `${type}\u0000${artist}\u0000${name}`;
-  let p = cache.get(key);
-  if (!p) {
-    p = limited(async () => {
-      try {
-        const res = await fetch(`/api/lastfm/${type}?${new URLSearchParams({ artist, [type]: name })}`);
-        if (!res.ok) return null;
-        const data = (await res.json()) as { imageUrl?: string | null };
-        return data.imageUrl ?? null;
-      } catch {
-        return null;
-      }
-    });
-    cache.set(key, p);
-  }
-  return p;
-}
-
-async function limited<T>(fn: () => Promise<T>): Promise<T> {
-  if (running >= MAX_PARALLEL) await new Promise<void>((resolve) => waiting.push(resolve));
-  running++;
-  try {
-    return await fn();
-  } finally {
-    running--;
-    waiting.shift()?.();
-  }
 }

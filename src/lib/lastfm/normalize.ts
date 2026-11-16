@@ -222,6 +222,12 @@ export function normalizeTrackCover(raw: unknown): string | null {
   return pickImage(obj(obj(obj(raw).track).album).image);
 }
 
+/** Duração da música em segundos (`track.getInfo` dá em ms), ou null se for 0 ou faltar. */
+export function normalizeTrackDuration(raw: unknown): number | null {
+  const ms = num(obj(obj(raw).track).duration);
+  return ms > 0 ? Math.round(ms / 1000) : null;
+}
+
 /** Soma dos plays de todos os itens do gráfico (sem cortar). */
 export function sumChartPlays(type: TopType, raw: unknown): number {
   const keys = CHART_KEYS[type];

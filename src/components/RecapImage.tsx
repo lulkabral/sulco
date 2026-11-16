@@ -4,6 +4,8 @@ import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "reac
 import { ExportButtons } from "@/components/ExportButtons";
 import { loadImage, pageFontFamily, waitForFonts } from "@/lib/canvas/image";
 import { useCanvasSnapshot } from "@/lib/canvas/use-snapshot";
+import { trackInfo } from "@/lib/lookups";
+import { estimateMinutes } from "@/lib/minutes";
 import { formatNumber } from "@/lib/format";
 import type { Genre } from "@/lib/genres";
 import { coverUrl } from "@/lib/grid/layout";
@@ -35,6 +37,8 @@ type Props = {
   tracks: RecapListItem[];
   /** Até 9 álbuns (o Mosaico usa todas as capas). */
   albums: (RecapListItem & { imageUrl: string | null })[];
+  /** Músicas mais ouvidas (até 10), para estimar os minutos pela duração delas. */
+  minuteSample: { name: string; artist: string; playcount: number }[];
 };
 
 /** O que precisa estar carregado antes de desenhar. */
@@ -51,7 +55,7 @@ type Assets = {
  * cor e números, e baixar/compartilhar. As escolhas ficam guardadas só neste navegador.
  */
 export function RecapImage(props: Props) {
-  const { username, period, periodLabel, from, to, total, genres, artists, tracks, albums } = props;
+  const { username, period, periodLabel, from, to, total, genres, artists, tracks, albums, minuteSample } = props;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [snapshot, takeSnapshot] = useCanvasSnapshot();
   const [assets, setAssets] = useState<Assets | null>(null);
@@ -62,6 +66,26 @@ export function RecapImage(props: Props) {
   // Parte sempre do que está salvo agora (e não da cópia desta renderização):
   // assim dois cliques rápidos não desfazem um ao outro.
   const choose = (patch: Partial<RecapPrefs>) => savePrefs({ ...parsePrefs(readPrefsRaw()), ...patch });
+
+  // Minutos estimados: só calcula quando a pessoa liga "mostrar scrobbles" (poupa pedidos).
+  const [minutes, setMinutes] = useState<{ key: string; value: number } | null>(null);
+  const minutesKey = `${period}-${total}`;
+  useEffect(() => {
+    if (!prefs.showNumbers || minutes?.key === minutesKey) return;
+    let alive = true;
+    Promise.all(minuteSample.map((t) => trackInfo(t.artist, t.name))).then((infos) => {
+      if (!alive) return;
+      const value = estimateMinutes(
+        total,
+        infos.map((info, i) => ({ plays: minuteSample[i].playcount, durationSec: info.durationSec })),
+      );
+      setMinutes({ key: minutesKey, value });
+    });
+    return () => {
+      alive = false;
+    };
+  }, [prefs.showNumbers, minutesKey, minutes?.key, minuteSample, total]);
+  const minutesValue = minutes?.key === minutesKey ? minutes.value : null;
 
   const palette =
     prefs.paletteId === COVER_PALETTE_ID ? (assets?.coverPalette ?? PALETTES[0]) : paletteById(prefs.paletteId);
@@ -103,6 +127,7 @@ export function RecapImage(props: Props) {
         dateText: dateText(period, from, to),
         shortTag: shortTag(period),
         total,
+        minutes: minutesValue,
         albumHeading: albumHeading(period),
         artists,
         tracks,
@@ -114,7 +139,7 @@ export function RecapImage(props: Props) {
       { layout: prefs.layout, palette, showNumbers: prefs.showNumbers, font: assets.font },
     );
     void takeSnapshot(canvasRef.current);
-  }, [assets, prefs, palette, username, period, periodLabel, from, to, total, artists, tracks, albums, takeSnapshot]);
+  }, [assets, prefs, palette, username, period, periodLabel, from, to, total, minutesValue, artists, tracks, albums, takeSnapshot]);
 
   const drawn = assets !== null;
   const coverAccent = assets?.coverPalette?.accent;
@@ -163,6 +188,15 @@ export function RecapImage(props: Props) {
           <p className="text-sm font-bold uppercase tracking-widest text-ink-soft">{periodLabel}</p>
           <p className="mt-1 text-ink-soft">
             <span className="font-bold text-ink">{formatNumber(total)}</span> scrobbles
+            {minutesValue !== null && (
+              <>
+                {" · "}
+                <span className="font-bold text-ink">{formatNumber(minutesValue)}</span> minutos
+                <span className="block text-xs text-ink-faint">
+                  Minutos estimados pela duração das suas músicas mais ouvidas.
+                </span>
+              </>
+            )}
           </p>
         </div>
 
@@ -213,10 +247,12 @@ export function RecapImage(props: Props) {
           </div>
         </fieldset>
 
-        <label className="flex cursor-pointer items-center justify-between gap-3">
+        <label className="flex cursor-pointer items-center justify-between gap-3 rounded-xl border border-line p-3 transition hover:border-ink-faint has-[:checked]:border-amber/60 has-[:checked]:bg-amber/5">
           <span>
-            <span className="block font-semibold">Mostrar números</span>
-            <span className="block text-sm text-ink-soft">Total de scrobbles e reproduções</span>
+            <span className="block font-semibold">Mostrar scrobbles e minutos</span>
+            <span className="block text-sm text-ink-soft">
+              Na imagem: total de scrobbles, minutos ouvidos e quantas vezes você ouviu cada item
+            </span>
           </span>
           <input
             type="checkbox"

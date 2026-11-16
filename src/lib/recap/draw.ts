@@ -39,8 +39,10 @@ export type RecapData = {
   dateText: string;
   /** Rótulo curtinho do período, para o bloco do mosaico (ex.: "OUT 26", "7 DIAS"). */
   shortTag: string;
-  /** Total de scrobbles do período (só aparece com "mostrar números"). */
+  /** Total de scrobbles do período (só aparece com "mostrar scrobbles"). */
   total: number;
+  /** Minutos ouvidos, estimados (src/lib/minutes.ts); null enquanto não calculados. */
+  minutes: number | null;
   /** Ex.: "O álbum do mês", "O álbum da sua vida". */
   albumHeading: string;
   /** Até 15 (o Lineup usa todos; os outros, 5). */
@@ -58,7 +60,7 @@ export type RecapData = {
 export type RecapOptions = {
   layout: RecapLayoutId;
   palette: Palette;
-  /** Mostrar total de scrobbles e reproduções (desligado por padrão: lembrar, não medir). */
+  /** Mostrar total de scrobbles, minutos e reproduções (desligado por padrão: lembrar, não medir). */
   showNumbers: boolean;
   /** Família da fonte (Geist), já carregada. */
   font: string;

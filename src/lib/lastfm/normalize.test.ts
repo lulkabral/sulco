@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   normalizeAlbumCover,
   normalizeTrackCover,
+  normalizeTrackDuration,
   normalizeArtistTags,
   normalizeChart,
   sumChartPlays,
@@ -289,6 +290,17 @@ describe("normalizeTrackCover", () => {
   it("música sem álbum ou erro: null", () => {
     expect(normalizeTrackCover({ track: { name: "x" } })).toBeNull();
     expect(normalizeTrackCover({ error: 6, message: "Track not found" })).toBeNull();
+  });
+});
+
+describe("normalizeTrackDuration", () => {
+  it("converte ms em segundos", () => {
+    expect(normalizeTrackDuration({ track: { duration: "216000" } })).toBe(216);
+  });
+
+  it("0, ausente ou erro: null", () => {
+    expect(normalizeTrackDuration({ track: { duration: "0" } })).toBeNull();
+    expect(normalizeTrackDuration({ error: 6 })).toBeNull();
   });
 });
 

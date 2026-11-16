@@ -9,6 +9,7 @@ import {
   getLastfmErrorNumber,
   normalizeAlbumCover,
   normalizeTrackCover,
+  normalizeTrackDuration,
   normalizeArtistTags,
   normalizeChart,
   sumChartPlays,
@@ -311,16 +312,19 @@ export async function getAlbumCover(artist: string, album: string): Promise<stri
 }
 
 /**
- * Capa do álbum de uma música (`track.getInfo`), para a lista "Músicas": o top de músicas
- * só traz o placeholder. Música sem álbum conhecido (o Last.fm às vezes responde erro 6)
- * vira null. Capas quase nunca mudam: cache de 30 dias.
+ * Capa do álbum e duração de uma música (`track.getInfo`), para a lista "Músicas" (o top
+ * de músicas só traz o placeholder) e a estimativa de minutos do recap. Música desconhecida
+ * (o Last.fm às vezes responde erro 6) vira tudo null. Quase nunca muda: cache de 30 dias.
  */
-export async function getTrackCover(artist: string, track: string): Promise<string | null> {
+export async function getTrackInfo(
+  artist: string,
+  track: string,
+): Promise<{ imageUrl: string | null; durationSec: number | null }> {
   try {
     const raw = await callLastfm("track.getInfo", { artist, track, autocorrect: "1" }, "month");
-    return normalizeTrackCover(raw);
+    return { imageUrl: normalizeTrackCover(raw), durationSec: normalizeTrackDuration(raw) };
   } catch (err) {
-    if (err instanceof LastfmError && err.code === "USER_NOT_FOUND") return null;
+    if (err instanceof LastfmError && err.code === "USER_NOT_FOUND") return { imageUrl: null, durationSec: null };
     throw err;
   }
 }

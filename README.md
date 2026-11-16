@@ -4,7 +4,7 @@
 
 ## O que faz
 
-- **Recap em imagem** (story 1080×1920): o álbum do período, artistas, músicas, álbuns e gêneros mais ouvidos. Quatro formatos (Toca-discos, Mosaico, Lineup e Clássico), seis opções de cor (incluindo a "Cor da capa") e números opcionais.
+- **Recap em imagem** (story 1080×1920): o álbum do período, artistas, músicas, álbuns e gêneros mais ouvidos. Quatro formatos (Toca-discos, Mosaico, Lineup e Clássico), seis opções de cor (incluindo a "Cor da capa") e, se quiser, total de scrobbles e minutos ouvidos (estimados).
 - **Grade de capas** (3x3, 4x4 ou 5x5), com nome do álbum e número de reproduções opcionais.
 - **Períodos:** "Todo o tempo", últimos 7 dias, 30 dias, 3, 6 e 12 meses, e **escolher mês ou ano** num calendário: qualquer ano inteiro ("2026 até agora") ou qualquer mês fechado desde o cadastro no Last.fm.
 - Botões "Baixar imagem" e "Compartilhar" (menu do celular; no computador, copia a imagem). No celular, também dá para segurar a imagem e salvar. O recap leva a assinatura "sulco" e o crédito ao Last.fm; a grade é só das capas.
