@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { formatNumber, yearOf } from "@/lib/format";
 import type { UserInfo } from "@/lib/lastfm/types";
 import { LogoLink } from "./Logo";
@@ -15,8 +16,15 @@ export function UserHeader({ user, covers }: Props) {
   const since = yearOf(user.registeredAt);
   return (
     <header className="relative -mx-4 sm:mx-0">
-      <div className="px-4 pb-3 pt-4 sm:px-0 sm:pt-0">
+      <div className="flex items-center justify-between px-4 pb-3 pt-4 sm:px-0 sm:pt-0">
         <LogoLink />
+        {/* Não há login: "trocar" é só voltar ao início e digitar outro username. */}
+        <Link
+          href="/"
+          className="inline-flex items-center gap-1.5 rounded-full border border-line px-3 py-1.5 text-sm font-medium text-ink-soft transition hover:border-ink-faint hover:text-ink active:scale-95"
+        >
+          <span aria-hidden>↺</span> Trocar usuário
+        </Link>
       </div>
       {covers.length > 0 ? (
         <div className="opacity-70">

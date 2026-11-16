@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { groupByYear, monthLabel } from "@/lib/months";
 import { UI_PERIODS } from "@/lib/periods";
 import { userPageHref, type Tab } from "@/lib/tabs";
+import { MonthYearPicker } from "./MonthYearPicker";
 
 type Props = {
   username: string;
@@ -24,25 +24,13 @@ const SHORT: Record<string, string> = {
   "12month": "12 meses",
 };
 
-const MONTH_SHORT = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
-
 /**
  * Seletor de período em duas partes:
- * - fileira com "Todo o tempo" e os períodos do Last.fm;
- * - máquina do tempo: os anos (cada um abre o ano inteiro; o corrente, "até agora")
- *   e, embaixo, os meses do ano escolhido.
- * Tudo são links (/u/USERNAME?tab=...&period=...).
+ * - fileira com "Todo o tempo" e os períodos do Last.fm (no celular, rola para o lado);
+ * - "Escolher mês ou ano": calendário com ‹ ano › e a grade de meses (MonthYearPicker).
+ * Tudo leva a /u/USERNAME?tab=...&period=...
  */
 export function PeriodSelector({ username, current, tab, months, years }: Props) {
-  const monthsByYear = groupByYear(months);
-  // Ano em foco: o do mês escolhido, o próprio ano escolhido ou, sem nenhum, o mais recente.
-  const focusYear = months.includes(current)
-    ? Number(current.slice(0, 4))
-    : years.includes(Number(current))
-      ? Number(current)
-      : years[0];
-  const yearMonths = monthsByYear.find((y) => y.year === focusYear)?.months ?? [];
-
   return (
     <nav aria-label="Período" className="-mx-4 flex flex-col gap-3 sm:mx-0">
       <Row>
@@ -56,58 +44,18 @@ export function PeriodSelector({ username, current, tab, months, years }: Props)
           />
         ))}
       </Row>
-
       {years.length > 0 && (
-        <div className="flex flex-col gap-2 rounded-2xl bg-card py-3 sm:px-3">
-          <p className="px-4 text-xs font-bold uppercase tracking-widest text-ink-soft sm:px-1">
-            Máquina do tempo
-          </p>
-          <Row label="Ano" wrap>
-            {years.map((y, i) => (
-              <Pill
-                key={y}
-                // Clicar no ano abre o ano inteiro (o corrente: até hoje).
-                href={userPageHref(username, tab, String(y))}
-                active={current === String(y)}
-                outlined={y === focusYear}
-                label={i === 0 ? `${y} até agora` : String(y)}
-                title={i === 0 ? `Seu ${y} até agora` : `Seu ${y} inteiro`}
-              />
-            ))}
-          </Row>
-          <Row label="Mês" wrap>
-            {yearMonths.map((m) => (
-              <Pill
-                key={m}
-                href={userPageHref(username, tab, m)}
-                active={m === current}
-                label={MONTH_SHORT[Number(m.slice(5, 7)) - 1]}
-                title={monthLabel(m)}
-                small
-              />
-            ))}
-          </Row>
+        <div className="px-4 sm:px-0">
+          <MonthYearPicker username={username} tab={tab} current={current} months={months} years={years} />
         </div>
       )}
     </nav>
   );
 }
 
-/**
- * Fileira de bolinhas. Sem `wrap`, no celular ela rola para o lado; com `wrap`
- * (anos e meses da máquina do tempo), quebra linha para o item escolhido nunca ficar escondido.
- */
-function Row({ children, label, wrap }: { children: React.ReactNode; label?: string; wrap?: boolean }) {
-  return (
-    <ul
-      aria-label={label}
-      className={
-        "flex gap-2 px-4 pb-0.5 sm:flex-wrap sm:px-0 " + (wrap ? "flex-wrap" : "no-scrollbar overflow-x-auto")
-      }
-    >
-      {children}
-    </ul>
-  );
+/** Fileira de bolinhas: no celular rola para o lado; no computador quebra linha. */
+function Row({ children }: { children: React.ReactNode }) {
+  return <ul className="no-scrollbar flex gap-2 overflow-x-auto px-4 pb-0.5 sm:flex-wrap sm:px-0">{children}</ul>;
 }
 
 type PillProps = {
@@ -115,12 +63,9 @@ type PillProps = {
   active: boolean;
   label: string;
   title?: string;
-  /** Ano escolhido mas com outro período ativo: só contorno. */
-  outlined?: boolean;
-  small?: boolean;
 };
 
-function Pill({ href, active, label, title, outlined, small }: PillProps) {
+function Pill({ href, active, label, title }: PillProps) {
   return (
     <li className="shrink-0">
       <Link
@@ -129,13 +74,10 @@ function Pill({ href, active, label, title, outlined, small }: PillProps) {
         title={title}
         scroll={false}
         className={
-          "inline-block whitespace-nowrap rounded-full font-medium transition active:scale-95 " +
-          (small ? "px-3 py-1 text-sm capitalize " : "px-3.5 py-1.5 text-sm ") +
+          "inline-block whitespace-nowrap rounded-full px-3.5 py-1.5 text-sm font-medium transition active:scale-95 " +
           (active
             ? "bg-amber font-bold text-amber-ink"
-            : outlined
-              ? "border border-amber text-ink"
-              : "border border-line text-ink-soft hover:border-ink-faint hover:text-ink")
+            : "border border-line text-ink-soft hover:border-ink-faint hover:text-ink")
         }
       >
         {label}

@@ -42,7 +42,7 @@ export function lastClosedMonths(now: Date, count = MONTH_OPTIONS): MonthId[] {
 }
 
 /**
- * Máquina do tempo: todos os meses já encerrados desde o mês de cadastro
+ * Todos os meses já encerrados desde o mês de cadastro
  * (`registeredAt`, timestamp UNIX em segundos), do mais recente para o mais antigo.
  * Cadastro desconhecido (0) vira os últimos 12 meses. Calendário em UTC.
  */
@@ -57,18 +57,6 @@ export function monthsSince(registeredAt: number, now: Date): MonthId[] {
 /** `monthsSince` de agora. Só para código de servidor que já chamou `connection()`. */
 export function currentMonthsSince(registeredAt: number): MonthId[] {
   return monthsSince(registeredAt, new Date());
-}
-
-/** Agrupa os meses por ano: [{ year: 2026, months: ["2026-01", ..., "2026-10"] }, ...]. */
-export function groupByYear(months: readonly string[]): { year: number; months: string[] }[] {
-  const groups = new Map<number, string[]>();
-  for (const m of months) {
-    const year = Number(m.slice(0, 4));
-    groups.set(year, [...(groups.get(year) ?? []), m]);
-  }
-  return [...groups]
-    .sort((a, b) => b[0] - a[0])
-    .map(([year, list]) => ({ year, months: [...list].sort() }));
 }
 
 /** "2026-10" -> "Outubro de 2026". */
@@ -106,7 +94,7 @@ export function parseYearId(raw: string | null | undefined): number | null {
 }
 
 /**
- * Anos da máquina do tempo: do ano corrente até o ano de cadastro, do mais recente
+ * Anos que dá para escolher: do ano corrente até o ano de cadastro, do mais recente
  * para o mais antigo. Calendário em UTC (o servidor não sabe o fuso de quem pede).
  */
 export function yearsSince(registeredAt: number, now: Date): number[] {

@@ -111,7 +111,8 @@ Descartar antes de escolher as 5 mais fortes evita que lixo forte ("the voice": 
 
 ## Mês fechado (fase 6)
 
-- Máquina do tempo: qualquer mês desde o cadastro da pessoa no Last.fm (seletor de ano e mês). O botão do ano abre o ano inteiro (o corrente: "até agora"); no endereço, `?period=AAAA`.
+- "Escolher mês ou ano": calendário com ‹ ano › e a grade de 12 meses (meses ainda abertos ou de antes do cadastro ficam apagados), mais um botão para o ano inteiro (o corrente: "até agora"). Vale qualquer mês ou ano desde o cadastro da pessoa no Last.fm; no endereço, `?period=AAAA-MM` ou `?period=AAAA`. Não usar o nome "máquina do tempo" (lembra recurso do Spotify).
+- No topo da página do usuário, um botão "Trocar usuário" volta ao início (não há login nem conta para sair).
 - O navegador calcula início e fim do mês no fuso da pessoa e envia como timestamps.
 - O navegador pede as páginas de scrobbles pela nossa rota (a 1ª sozinha, depois até 3 ao mesmo tempo, porque cada página leva de 1 a 4 s) e soma por artista, álbum e música. A soma acontece no navegador; o servidor não guarda nada.
 - Só meses já encerrados (o mês corrente fica de fora) e a partir do mês de cadastro; qualquer outro valor volta ao padrão. No endereço: `?period=AAAA-MM`.

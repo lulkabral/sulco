@@ -43,7 +43,7 @@ const RECAP_ALBUMS = 9;
 const GRID_LIMIT = 25;
 
 /**
- * Máquina do tempo: um mês fechado ou um ano inteiro.
+ * Mês ou ano escolhido no calendário: um mês fechado ou um ano inteiro.
  * - Mês: busca as páginas de scrobbles pela nossa rota e soma aqui no navegador.
  * - Ano: 3 chamadas de gráfico + as capas dos álbuns que aparecem (ver loadYearTops).
  * O servidor não guarda nem soma nada. Depois, mostra recap, grade e listas.

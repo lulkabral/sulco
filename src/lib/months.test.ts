@@ -1,6 +1,5 @@
 import { afterEach, describe, expect, it } from "vitest";
 import {
-  groupByYear,
   lastClosedMonths,
   monthLabel,
   monthRange,
@@ -100,15 +99,6 @@ describe("monthsSince", () => {
 
   it("sem data de cadastro: últimos 12 meses", () => {
     expect(monthsSince(0, now)).toHaveLength(12);
-  });
-});
-
-describe("groupByYear", () => {
-  it("anos do mais recente para o mais antigo, meses em ordem do calendário", () => {
-    expect(groupByYear(["2026-02", "2026-01", "2025-12", "2025-11"])).toEqual([
-      { year: 2026, months: ["2026-01", "2026-02"] },
-      { year: 2025, months: ["2025-11", "2025-12"] },
-    ]);
   });
 });
 

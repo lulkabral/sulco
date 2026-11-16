@@ -103,7 +103,7 @@ async function Profile({ params, searchParams }: Pick<PageProps<"/u/[username]">
     return <ErrorState code={errorCodeOf(err)} username={username.value} />;
   }
 
-  // Máquina do tempo: os meses fechados vão do cadastro até o mês passado.
+  // "Escolher mês ou ano": os meses fechados vão do cadastro até o mês passado.
   // Dependem da data de hoje: `connection()` diz ao Next que isto roda a cada pedido.
   await connection();
   const months = currentMonthsSince(user.registeredAt);
@@ -126,7 +126,7 @@ async function Profile({ params, searchParams }: Pick<PageProps<"/u/[username]">
       <ProfileTabs username={user.username} current={tab} period={chosenPeriod} />
       <PeriodSelector username={user.username} current={current} tab={tab} months={months} years={years} />
       {history ? (
-        // Máquina do tempo (mês ou ano): os dados são montados no navegador (SPEC, "Mês fechado").
+        // Mês ou ano escolhido no calendário: os dados são montados no navegador (SPEC, "Mês fechado").
         <MonthView key={`${tab}-${history}`} username={user.username} period={history} label={historyLabel} tab={tab} />
       ) : (
         // key: ao trocar de período ou aba, mostra o esqueleto de novo enquanto carrega
