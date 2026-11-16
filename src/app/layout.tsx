@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import type { Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import Link from "next/link";
 import { PrivateAnalytics } from "@/components/PrivateAnalytics";
+import { SiteFooter, X_AUTHOR, X_SITE } from "@/components/SiteFooter";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -27,10 +27,6 @@ const SITE_URL = "https://sulcofm.vercel.app";
 const NAME = "sulco";
 const TAGLINE = "seu mês em música";
 /** Repositório público do projeto (link no rodapé, pedido pela SPEC). */
-const REPO_URL = "https://github.com/lulkabral/sulco";
-/** Perfis no X: o oficial do sulco e o de quem fez o site. */
-const X_SITE = "sulcofm";
-const X_AUTHOR = "alcoholicgoatt";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -70,61 +66,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           Pular para o conteúdo
         </a>
         {children}
-        <footer className="border-t border-line px-4 py-6 text-sm text-ink-soft">
-          <div className="mx-auto flex max-w-5xl flex-col justify-between gap-2 sm:flex-row">
-            <div className="space-y-1">
-              <p>
-                <Link href="/" className="font-extrabold tracking-tight text-ink hover:text-amber">
-                  {NAME}
-                </Link>{" "}
-                · {TAGLINE} · sem cadastro, gerado no seu aparelho ·{" "}
-                <Link href="/privacidade" className="underline underline-offset-2 hover:text-ink">
-                  Privacidade
-                </Link>
-              </p>
-              <p>
-                No X:{" "}
-                <a
-                  href={`https://x.com/${X_SITE}`}
-                  className="underline underline-offset-2 hover:text-ink"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  @{X_SITE}
-                </a>{" "}
-                · feito por{" "}
-                <a
-                  href={`https://x.com/${X_AUTHOR}`}
-                  className="underline underline-offset-2 hover:text-ink"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  @{X_AUTHOR}
-                </a>
-              </p>
-            </div>
-            <p>
-              Dados:{" "}
-              <a
-                href="https://www.last.fm"
-                className="underline underline-offset-2 hover:text-ink"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Last.fm
-              </a>{" "}
-              ·{" "}
-              <a
-                href={REPO_URL}
-                className="underline underline-offset-2 hover:text-ink"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Código aberto
-              </a>
-            </p>
-          </div>
-        </footer>
+        <SiteFooter />
         <PrivateAnalytics />
       </body>
     </html>
