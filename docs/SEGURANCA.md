@@ -22,7 +22,14 @@ A única variável de ambiente lida pelo código é `LASTFM_API_KEY`, no servido
 - O log de pedidos do `next dev` ignora `/api/lastfm/*` e `/u/*`. Conferido com pedidos reais: nenhum username nos logs.
 - **Corrigido nesta revisão:** o formulário da página inicial não tinha `action`. Se fosse enviado antes de o JavaScript carregar, virava `GET /?username=NOME`, que aparecia no log (e não levava a lugar nenhum). Agora ele envia para `/u?username=NOME`, que redireciona para `/u/NOME` e também fica fora do log.
 
-## Riscos que continuam (para a fase 8)
+## Publicação (fase 8, 16/11/2026)
+
+- Site em https://sulcofm.vercel.app; repositório público em https://github.com/lulkabral/sulco.
+- Antes de publicar: `.env.local` nunca foi commitado; o valor da chave não aparece no histórico do git nem nos arquivos do repositório.
+- Depois de publicar: busca da chave nas páginas e nos 10 arquivos JavaScript servidos ao navegador: 0 ocorrências. POST nas rotas: 405.
+- Corrigido na publicação: a imagem de compartilhamento apontava para um domínio interno da Vercel (404). Agora `metadataBase` fixa o endereço oficial em `src/app/layout.tsx`.
+
+## Riscos que continuam
 
 - **Sem limite de pedidos nas nossas rotas.** Qualquer pessoa pode chamar `/api/lastfm/*` em sequência, e cada chamada que não estiver em cache gasta a nossa chave no Last.fm (que pode suspendê-la). O cache reduz bastante o problema, mas não o elimina. Recomendação: ligar uma regra de limite de pedidos por IP no firewall da Vercel ao publicar.
 - **Registros da hospedagem.** A Vercel guarda por pouco tempo os endereços acessados, e `/u/NOME` inclui o username. Isso está dito na página `/privacidade`.

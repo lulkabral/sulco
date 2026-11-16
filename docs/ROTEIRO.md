@@ -177,9 +177,9 @@ Me guie passo a passo para publicar: criar o repositório no GitHub, conectar na
 
 Pronto quando:
 
-- [ ] site abre no endereço público
-- [ ] recap e grade funcionam em produção, no celular
-- [ ] a chave está só no painel da Vercel
+- [x] site abre no endereço público (https://sulcofm.vercel.app, publicado em 16/11/2026; código em https://github.com/lulkabral/sulco)
+- [ ] recap e grade funcionam em produção, no celular (no computador: conferido; falta o celular, incluindo Compartilhar)
+- [x] a chave está só no painel da Vercel (0 ocorrências no repositório, no histórico e nos 10 arquivos JS publicados)
 
 ---
 
