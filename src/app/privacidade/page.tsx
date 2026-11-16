@@ -39,7 +39,7 @@ export default function PrivacyPage() {
         <ul className="list-disc space-y-1 pl-5">
           <li>Cadastro, login ou senha.</li>
           <li>Banco de dados.</li>
-          <li>Cookies de rastreio, anúncios ou ferramentas de análise de visitas.</li>
+          <li>Cookies de rastreio ou anúncios.</li>
           <li>Histórico do que cada pessoa pesquisou.</li>
         </ul>
       </Section>
@@ -62,6 +62,24 @@ export default function PrivacyPage() {
           acesso, como o endereço da página visitada. Como o username faz parte do endereço
           (ex.: /u/seu-username), ele pode aparecer nesses registros. O site em si não grava
           nenhum registro com username.
+        </p>
+      </Section>
+
+      <Section title="Contagem de visitas">
+        <p>
+          Para saber quantas pessoas usam o site, ele usa o Vercel Web Analytics, que conta visitas
+          sem cookies. Antes de cada contagem sair do seu navegador, o site apaga o username do
+          endereço (/u/seu-username vira /u/[perfil]) e tudo que vem depois do &quot;?&quot;, como
+          o período escolhido. Assim, ninguém consegue ver quais perfis foram consultados.
+        </p>
+        <p>
+          A contagem registra só a página (sem username), o país, o tipo de aparelho, o navegador
+          e, se você veio de outro site, de qual. A Vercel diferencia visitantes por um código que
+          muda todo dia, sem guardar quem você é.
+        </p>
+        <p>
+          Se o seu navegador estiver com &quot;Não rastrear&quot; (Do Not Track) ou Global Privacy
+          Control ligado, a visita não é contada.
         </p>
       </Section>
 

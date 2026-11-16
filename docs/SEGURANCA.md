@@ -36,6 +36,13 @@ Painel da Vercel nas primeiras 12 horas: 8,3 mil pedidos na CDN, 2,3 mil execuç
 - **As rotas `/api/lastfm/*`** respondem com `s-maxage`, então pedidos repetidos saem da CDN sem executar função nem chamar o Last.fm. Mês fechado fica 1 dia na CDN.
 - **Se algo estourar no plano Hobby, a Vercel pausa o recurso até o mês virar** (não cobra). Acompanhar em Observability e em Usage no painel.
 
+## Contagem de visitas (16/11/2026)
+
+Vercel Web Analytics, sem cookies, ligado pelo componente `PrivateAnalytics` em `src/app/layout.tsx`. O filtro `beforeSend` (`src/lib/analytics.ts`, com teste):
+- troca `/u/NOME` por `/u/[perfil]` e descarta tudo depois do `?` e do `#`;
+- não envia nada se o navegador pedir Do Not Track ou Global Privacy Control.
+O script da Vercel só envia o endereço de origem quando a pessoa vem de outro site (conferido no código do script), então páginas internas com username nunca vão como origem. Nada de eventos personalizados com dados do perfil.
+
 ## Riscos que continuam
 
 - ~~Sem limite de pedidos nas nossas rotas.~~ **Resolvido em 16/11/2026:** regra `limite-api` no Firewall da Vercel (projeto `sulco`): caminho começando com `/api/lastfm`, 120 pedidos por 60 s por IP, acima disso responde 429. Criada e publicada pela CLI (`vercel firewall rules list --project sulco` mostra). Além dela, a proteção automática da Vercel ("Security Checkpoint") desafia rajadas de pedidos de um mesmo IP: no teste, 130 pedidos seguidos via `curl` levaram 403 antes de chegar à regra; navegadores passam pela verificação sozinhos. Não repita testes de rajada contra o site em produção.

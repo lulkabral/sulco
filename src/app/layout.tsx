@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import type { Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
+import { PrivateAnalytics } from "@/components/PrivateAnalytics";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -93,6 +94,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             </p>
           </div>
         </footer>
+        <PrivateAnalytics />
       </body>
     </html>
   );

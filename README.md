@@ -59,7 +59,7 @@ Mais detalhes: [docs/SPEC.md](docs/SPEC.md) (o que o site faz), [docs/LASTFM.md]
 
 ## Privacidade
 
-O site lê apenas dados públicos do perfil no Last.fm. Não tem cadastro, banco de dados nem cookies de rastreio, não guarda buscas e gera as imagens no próprio navegador. A chave da API fica só no servidor. Texto completo na página `/privacidade`.
+O site lê apenas dados públicos do perfil no Last.fm. Não tem cadastro, banco de dados nem cookies de rastreio, não guarda buscas e gera as imagens no próprio navegador. Conta visitas com o Vercel Web Analytics (sem cookies), apagando o username e os parâmetros do endereço antes do envio (`src/lib/analytics.ts`). A chave da API fica só no servidor. Texto completo na página `/privacidade`.
 
 ## Tecnologias
 

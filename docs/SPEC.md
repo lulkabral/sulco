@@ -135,6 +135,7 @@ O que o site faz e deve continuar fazendo:
 - Recebe só um username, que já é informação pública do Last.fm.
 - Lê só dados públicos do perfil.
 - Não tem cadastro, senha, banco de dados nem cookies de rastreio.
+- Contagem de visitas: Vercel Web Analytics (sem cookies). Antes do envio, `/u/NOME` vira `/u/[perfil]` e os parâmetros são descartados; quem tem Do Not Track ou Global Privacy Control ligado não é contado.
 - Não guarda o que cada pessoa pesquisou. O cache guarda respostas da API por tempo limitado, sem ligação com quem pediu.
 - Gera as imagens no aparelho da pessoa.
 - Lembra as escolhas da imagem (formato, cor, números) só no navegador da pessoa (`localStorage`), sem cookie e sem enviar ao servidor.
