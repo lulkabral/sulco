@@ -1,0 +1,48 @@
+import Image from "next/image";
+import Link from "next/link";
+
+type Props = {
+  /** "sm" para cabeçalhos, "lg" para a página inicial. */
+  size?: "sm" | "lg";
+};
+
+const SIZES = {
+  sm: "text-2xl",
+  lg: "text-5xl sm:text-6xl",
+};
+
+/**
+ * Logo "sulco": o disco de vinil (que é o "S") + "ulco" em Geist 800, minúsculas.
+ * O disco tem a altura do "l" e se apoia na linha de base, como no lockup de brand/.
+ * O SVG entra por <img> (next/image): assim os ids internos dele não se repetem
+ * quando o logo aparece mais de uma vez na página.
+ * Leitores de tela leem só "sulco".
+ */
+export function Logo({ size = "sm" }: Props) {
+  return (
+    <span className={`inline-flex items-baseline font-extrabold leading-none tracking-tighter text-ink ${SIZES[size]}`}>
+      <span className="sr-only">sulco</span>
+      <Image
+        src="/brand/simbolo.svg"
+        alt=""
+        aria-hidden
+        width={400}
+        height={400}
+        unoptimized
+        priority={size === "lg"}
+        // O desenho ocupa 380 dos 400 px do SVG: 0,8em deixa o disco da altura do "l".
+        className="relative top-[0.04em] mr-[0.01em] h-[0.8em] w-auto"
+      />
+      <span aria-hidden>ulco</span>
+    </span>
+  );
+}
+
+/** Logo pequeno que leva à página inicial (cabeçalho das outras páginas). */
+export function LogoLink() {
+  return (
+    <Link href="/" aria-label="sulco, página inicial" className="inline-block rounded-md transition hover:opacity-80">
+      <Logo size="sm" />
+    </Link>
+  );
+}

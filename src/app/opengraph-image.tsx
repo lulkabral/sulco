@@ -4,65 +4,57 @@ import { ImageResponse } from "next/og";
 import { THEME, TILE_COLORS } from "@/lib/theme";
 
 // Imagem que aparece quando o link do site é colado no WhatsApp, redes etc.
-// Identidade "Sala escura": fundo escuro, faixas de peças coloridas (como no topo
-// da página inicial), Geist pesada e destaque âmbar. Não depende de usuário.
+// Segue o post fixado da marca (brand/post-fixado-1200x675.png): logo "sulco",
+// título com a tagline e peças abstratas à direita. Não depende de usuário.
 
-export const alt = "sulco: seu mês em música, a partir do Last.fm";
+export const alt = "sulco: seu mês em música, em uma imagem. A partir do Last.fm, sem cadastro.";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-/** Uma faixa de peças: quadrados, discos (vinil) e quadrados com selo, como em Marquee.tsx. */
-function Row({ offset, shift }: { offset: number; shift: number }) {
-  const tile = 110;
+/** Peça abstrata: quadrado colorido com um círculo (ou um disco), como as da página inicial. */
+function Tile({ index }: { index: number }) {
+  const side = 170;
+  const color = TILE_COLORS[(index * 5) % TILE_COLORS.length];
+  const dot = TILE_COLORS[(index * 5 + 7) % TILE_COLORS.length];
+  const shape = index % 3;
   return (
-    <div style={{ display: "flex", gap: 12, marginLeft: shift }}>
-      {Array.from({ length: 12 }, (_, i) => {
-        const color = TILE_COLORS[(i + offset) % TILE_COLORS.length];
-        const shape = (i + offset) % 3;
-        return shape === 1 ? (
-          <div
-            key={i}
-            style={{
-              width: tile,
-              height: tile,
-              borderRadius: tile / 2,
-              background: "#0d0b09",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <div style={{ width: tile * 0.38, height: tile * 0.38, borderRadius: tile, background: color }} />
-          </div>
-        ) : (
-          <div
-            key={i}
-            style={{
-              width: tile,
-              height: tile,
-              borderRadius: 14,
-              background: color,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            {shape === 2 && (
-              <div style={{ width: tile / 2, height: tile / 2, borderRadius: tile, background: "rgba(0,0,0,0.25)" }} />
-            )}
-          </div>
-        );
-      })}
+    <div
+      style={{
+        width: side,
+        height: side,
+        background: color,
+        borderRadius: 14,
+        display: "flex",
+        alignItems: shape === 1 ? "flex-end" : "center",
+        justifyContent: "center",
+        overflow: "hidden",
+      }}
+    >
+      {shape === 0 && <div style={{ width: 90, height: 90, borderRadius: 45, background: dot, display: "flex" }} />}
+      {shape === 1 && <div style={{ width: 170, height: 85, borderRadius: "85px 85px 0 0", background: dot, display: "flex" }} />}
+      {shape === 2 && (
+        <div
+          style={{
+            width: 120,
+            height: 120,
+            borderRadius: 60,
+            border: `22px solid ${dot}`,
+            display: "flex",
+          }}
+        />
+      )}
     </div>
   );
 }
 
 export default async function Image() {
-  // Geist em TTF estático (licença OFL): o gerador não aceita WOFF2 nem fonte variável.
-  const [medium, extraBold] = await Promise.all([
+  // Geist em TTF estático (licença OFL) e o símbolo da marca em PNG.
+  const [medium, extraBold, symbol] = await Promise.all([
     readFile(join(process.cwd(), "assets/Geist-500.ttf")),
     readFile(join(process.cwd(), "assets/Geist-800.ttf")),
+    readFile(join(process.cwd(), "brand/simbolo-800.png")),
   ]);
+  const symbolSrc = `data:image/png;base64,${symbol.toString("base64")}`;
 
   return new ImageResponse(
     (
@@ -71,27 +63,39 @@ export default async function Image() {
           width: "100%",
           height: "100%",
           display: "flex",
-          flexDirection: "column",
           background: THEME.room,
           fontFamily: "Geist",
           color: THEME.ink,
+          padding: "60px 64px",
+          justifyContent: "space-between",
         }}
       >
-        <div style={{ display: "flex", flexDirection: "column", gap: 12, paddingTop: 24, opacity: 0.9 }}>
-          <Row offset={0} shift={-40} />
-          <Row offset={5} shift={-100} />
+        <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", width: 640 }}>
+          {/* Logo: o disco é o "S" de "sulco". */}
+          <div style={{ display: "flex", alignItems: "flex-end" }}>
+            {/* eslint-disable-next-line @next/next/no-img-element -- ImageResponse só aceita <img> */}
+            <img src={symbolSrc} width={64} height={64} alt="" style={{ marginRight: 2, marginBottom: 2 }} />
+            <span style={{ fontSize: 78, fontWeight: 800, letterSpacing: -4, lineHeight: 0.8 }}>ulco</span>
+          </div>
+
+          <div style={{ display: "flex", flexDirection: "column" }}>
+            <div style={{ fontSize: 64, fontWeight: 800, letterSpacing: -2.5, lineHeight: 1.02 }}>
+              Seu mês em música,
+            </div>
+            <div style={{ fontSize: 64, fontWeight: 800, letterSpacing: -2.5, lineHeight: 1.08, color: THEME.amber }}>
+              em uma imagem.
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", marginTop: 26, fontSize: 28, color: THEME.inkSoft, fontWeight: 500, lineHeight: 1.45 }}>
+              <span>Digite seu usuário do Last.fm.</span>
+              <span>Sem cadastro, sem login.</span>
+            </div>
+          </div>
         </div>
-        <div style={{ display: "flex", flexDirection: "column", padding: "36px 72px 0" }}>
-          <div style={{ fontSize: 76, fontWeight: 800, letterSpacing: -3, lineHeight: 1 }}>
-            O que você ouviu
-          </div>
-          <div style={{ fontSize: 76, fontWeight: 800, letterSpacing: -3, lineHeight: 1.05, color: THEME.amber }}>
-            no último mês?
-          </div>
-          <div style={{ display: "flex", justifyContent: "space-between", marginTop: 22, fontSize: 30 }}>
-            <span style={{ color: THEME.inkSoft, fontWeight: 500 }}>Recap e grade de capas a partir do Last.fm</span>
-            <span style={{ fontWeight: 800 }}>sulco</span>
-          </div>
+
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 14, width: 354, alignContent: "center" }}>
+          {[0, 1, 2, 3, 4, 5].map((i) => (
+            <Tile key={i} index={i} />
+          ))}
         </div>
       </div>
     ),

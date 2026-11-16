@@ -1,3 +1,4 @@
+import { Logo } from "@/components/Logo";
 import { Marquee } from "@/components/Marquee";
 import { UsernameForm } from "@/components/UsernameForm";
 
@@ -18,6 +19,7 @@ export default function Home() {
 
       <div className="mx-auto flex w-full max-w-xl flex-1 flex-col justify-center gap-8 px-4 py-10">
         <div className="flex flex-col gap-4 motion-safe:animate-rise">
+          <Logo size="lg" />
           <h1 className="text-5xl font-extrabold leading-[0.95] tracking-tight sm:text-6xl">
             O que você ouviu <span className="text-amber">no último mês?</span>
           </h1>

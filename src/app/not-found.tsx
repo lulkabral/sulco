@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { LogoLink } from "@/components/Logo";
 import { UsernameForm } from "@/components/UsernameForm";
 
 export const metadata: Metadata = {
@@ -10,6 +11,7 @@ export const metadata: Metadata = {
 export default function NotFound() {
   return (
     <main id="conteudo" className="mx-auto flex w-full max-w-xl flex-1 flex-col justify-center gap-6 px-4 py-12">
+      <LogoLink />
       <div className="flex flex-col gap-2">
         <p className="text-sm font-semibold tracking-widest text-amber">ERRO 404</p>
         <h1 className="text-4xl font-extrabold tracking-tight">Essa página não existe</h1>

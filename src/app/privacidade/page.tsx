@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { LogoLink } from "@/components/Logo";
 
 export const metadata: Metadata = {
   title: "Privacidade",
@@ -10,6 +11,7 @@ export const metadata: Metadata = {
 export default function PrivacyPage() {
   return (
     <main id="conteudo" className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-8 px-4 py-12">
+      <LogoLink />
       <div className="flex flex-col gap-3">
         <h1 className="text-4xl font-extrabold tracking-tight">Privacidade</h1>
         <p className="text-lg text-ink-soft">
