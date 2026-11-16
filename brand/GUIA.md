@@ -65,4 +65,4 @@ Só para a conta oficial do sulco (não é recurso do site). Gera a capa do perf
 3. Rode `npm run banner` (ou `npm run banner -- brand/outro.json`).
 4. Saem `brand/banner-AAAA-MM-1500x500.png` e `-3000x1000.png` (o nome pode ser trocado com `"arquivo"` no JSON).
 
-Usa a chave do `.env.local` e o ImageMagick (`convert`). A disposição (`src/lib/banner/layout.ts`) deixa livres o canto inferior esquerdo (avatar) e as faixas de cima e de baixo (o X corta no celular); há teste para isso. Capa que o Last.fm não tiver vira um quadrado colorido.
+Os seus `banner*.json` e os banners gerados (`banner-AAAA-MM-…png`) ficam fora do git (`.gitignore`); só o exemplo é versionado. Usa a chave do `.env.local` e o ImageMagick (`convert`). A disposição (`src/lib/banner/layout.ts`) deixa livres o canto inferior esquerdo (avatar) e as faixas de cima e de baixo (o X corta no celular); há teste para isso. Capa que o Last.fm não tiver vira um quadrado colorido.

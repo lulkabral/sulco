@@ -27,3 +27,8 @@ next-env.d.ts
 .DS_Store
 *.pem
 *.log
+
+# banner da conta oficial (npm run banner): configurações e imagens geradas ficam só na máquina
+brand/banner*.json
+!brand/banner.exemplo.json
+brand/banner-[0-9][0-9][0-9][0-9]-*.png
