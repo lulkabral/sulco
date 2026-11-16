@@ -39,7 +39,9 @@ function fail(message: string): never {
 }
 
 function readConfig(file: string): Config {
-  if (!fs.existsSync(file)) fail(`Não achei ${file}. Copie brand/banner.exemplo.json para brand/banner.json e edite.`);
+  if (!fs.existsSync(file)) {
+    fail(`Não achei ${file}. Crie esse arquivo copiando o exemplo e depois edite:\n  cp brand/banner.exemplo.json ${file}`);
+  }
   let data: Config;
   try {
     data = JSON.parse(fs.readFileSync(file, "utf8"));
