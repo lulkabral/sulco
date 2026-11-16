@@ -31,6 +31,6 @@ A única variável de ambiente lida pelo código é `LASTFM_API_KEY`, no servido
 
 ## Riscos que continuam
 
-- **Sem limite de pedidos nas nossas rotas.** Qualquer pessoa pode chamar `/api/lastfm/*` em sequência, e cada chamada que não estiver em cache gasta a nossa chave no Last.fm (que pode suspendê-la). O cache reduz bastante o problema, mas não o elimina. Recomendação: ligar uma regra de limite de pedidos por IP no firewall da Vercel ao publicar.
+- ~~Sem limite de pedidos nas nossas rotas.~~ **Resolvido em 16/11/2026:** regra `limite-api` no Firewall da Vercel (projeto `sulco`): caminho começando com `/api/lastfm`, 120 pedidos por 60 s por IP, acima disso responde 429. Criada e publicada pela CLI (`vercel firewall rules list --project sulco` mostra). Além dela, a proteção automática da Vercel ("Security Checkpoint") desafia rajadas de pedidos de um mesmo IP: no teste, 130 pedidos seguidos via `curl` levaram 403 antes de chegar à regra; navegadores passam pela verificação sozinhos. Não repita testes de rajada contra o site em produção.
 - **Registros da hospedagem.** A Vercel guarda por pouco tempo os endereços acessados, e `/u/NOME` inclui o username. Isso está dito na página `/privacidade`.
 - **`metadataBase` local.** O build local avisa que usa `http://localhost:3000` nos endereços da imagem de compartilhamento. Na Vercel, o Next usa o domínio do projeto sozinho (`VERCEL_PROJECT_PRODUCTION_URL`). Conferir na fase 8.
