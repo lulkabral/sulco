@@ -14,7 +14,13 @@ type Props = {
   reverse?: boolean;
   /** Desloca a paleta das peças abstratas (para duas faixas não ficarem iguais). */
   offset?: number;
+  /** Capas com cara de colagem: borda clara, um pouco tortas e fita em algumas. */
+  collage?: boolean;
 };
+
+/** Giro de cada capa na faixa "colagem" (repete em ciclo) e quais levam fita. */
+const TILTS = [-4, 3, -2, 4, -3, 2];
+const TAPED = new Set([1, 4]);
 
 /**
  * Faixa de capas passando sem parar (decorativa: leitores de tela ignoram).
@@ -22,10 +28,30 @@ type Props = {
  * o fim encaixa no começo. Para com o mouse em cima e fica parada para quem
  * pediu "reduzir movimento" no sistema.
  */
-export function Marquee({ covers, size, seconds, reverse = false, offset = 0 }: Props) {
+export function Marquee({ covers, size, seconds, reverse = false, offset = 0, collage = false }: Props) {
   const items =
     covers && covers.length > 0
-      ? covers.map((url, i) => (
+      ? covers.map((url, i) =>
+          collage ? (
+            <div
+              key={`${url}-${i}`}
+              className="relative shrink-0"
+              style={{ transform: `rotate(${TILTS[i % TILTS.length]}deg)` }}
+            >
+              <Image
+                src={thumbUrl(url)}
+                alt=""
+                width={size}
+                height={size}
+                loading="eager"
+                className="block border-[3px] border-ink object-cover shadow-lg shadow-black/50"
+                style={{ width: size, height: size }}
+              />
+              {TAPED.has(i % TILTS.length) && (
+                <span className="absolute -top-1.5 left-1/2 h-3.5 w-10 -translate-x-1/2 -rotate-12 bg-ink/75" />
+              )}
+            </div>
+          ) : (
           <Image
             key={`${url}-${i}`}
             // Miniatura direto do Last.fm (ver `images.unoptimized` em next.config.ts).
@@ -38,7 +64,8 @@ export function Marquee({ covers, size, seconds, reverse = false, offset = 0 }: 
             className="shrink-0 rounded-lg object-cover"
             style={{ width: size, height: size }}
           />
-        ))
+          ),
+        )
       : TILE_COLORS.map((_, i) => <Tile key={i} index={i + offset} size={size} />);
 
   const style = {
@@ -50,11 +77,11 @@ export function Marquee({ covers, size, seconds, reverse = false, offset = 0 }: 
     <div aria-hidden className="group overflow-hidden">
       <div
         style={style}
-        className="flex w-max gap-2 motion-safe:animate-marquee group-hover:[animation-play-state:paused]"
+        className={`flex w-max motion-safe:animate-marquee group-hover:[animation-play-state:paused] ${collage ? "gap-4 py-3" : "gap-2"}`}
       >
         {/* Duas cópias lado a lado: quando a 1ª sai, a 2ª está no lugar dela. */}
-        <div className="flex gap-2">{items}</div>
-        <div className="flex gap-2">{items}</div>
+        <div className={`flex ${collage ? "gap-4" : "gap-2"}`}>{items}</div>
+        <div className={`flex ${collage ? "gap-4" : "gap-2"}`}>{items}</div>
       </div>
     </div>
   );

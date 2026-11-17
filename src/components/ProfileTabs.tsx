@@ -36,7 +36,7 @@ export function ProfileTabs({ username, current, period }: Props) {
   }
 
   return (
-    <nav aria-label="Abas">
+    <nav aria-label="Abas" className="flex-1 sm:flex-none">
       <ul className="relative grid grid-cols-2 rounded-2xl bg-card p-1 sm:inline-grid sm:w-72">
         {/* Destaque que desliza para a aba escolhida. */}
         <li

@@ -21,8 +21,8 @@ Quem usa Spotify, Deezer, YouTube Music etc. só precisa ter o scrobbling ligado
 
 ### 2. Página do usuário (`/u/[username]`)
 
-- Cabeçalho com avatar, username (link para o perfil no Last.fm), total de scrobbles e uma faixa com as capas mais ouvidas do último ano (1 chamada `user.getTopAlbums` com `12month`, com cache).
-- Seletor de período: uma fileira só, com os períodos do Last.fm e os 12 meses fechados (no celular, rola para o lado).
+- Cabeçalho (desde 17/11/2026): faixa com as capas mais ouvidas do último ano **passando**, com cara de colagem (borda clara, cada capa um pouco torta, fita em algumas; 1 chamada `user.getTopAlbums` com `12month`, com cache). O avatar é o selo de um **disco de vinil girando**: um aro fino de vinil em volta da foto (gira o disco, a foto fica parada; para com "reduzir movimento"). O disco avança sobre a faixa; ao lado, o username grande (link para o perfil no Last.fm) e os números em etiquetas ("70.182 scrobbles", "desde 2019").
+- Abas e período numa linha só: **Recap | Grade** e um botão com o período atual ("30 dias ▾", "out 2026 ▾"), com visual de adesivo. Ele abre a escolha de período (os 6 períodos do Last.fm + o calendário de mês ou ano): no celular, uma gaveta que sobe de baixo; no computador, uma janela no meio. Usa o `<dialog>` do navegador (foco preso, Esc fecha, foco volta ao botão); fecha também ao tocar fora ou ao escolher. Assim o recap aparece já na primeira tela do celular (antes começava a 638 px; agora a ~420 px).
 - Duas abas: **Recap** e **Grade**, num seletor com ícones e um destaque âmbar que desliza para a aba escolhida assim que a pessoa toca (sem esperar o servidor). Trocar de aba não recarrega os dados do período.
 - Listas em texto dos tops (artistas, músicas, álbuns), que servem de conferência e de versão acessível da imagem.
 
@@ -35,7 +35,7 @@ Escolhida no redesign entre as fases 7 e 8, no lugar da direção "Encarte" da f
 - **Colagem (desde 17/11/2026):** dentro da Sala escura, a página inicial ganhou a vibe de zine: capas reais coladas tortas com fita e bilhete à mão. A ideia é parecer feito por uma pessoa, não por um gerador de site. Não usar verde neon (lembra o Spotify).
 - **Movimento:**
   - na página inicial, as capas da colagem "caem e colam" uma de cada vez e se endireitam com o mouse em cima (as peças abstratas vivas só aparecem se a colagem não carregar);
-  - capas do usuário (últimos 12 meses) passando no topo da página dele;
+  - na página do usuário, as capas do ano passam no topo (param com o mouse em cima) e o avatar gira como um disco;
   - entrada suave de cartões e barrinhas.
   - Tudo para com "reduzir movimento" no sistema; as faixas também param com o mouse em cima.
 - As cores ficam em `src/app/globals.css` (site) e `src/lib/theme.ts` (canvas). Mudou uma, mude a outra.

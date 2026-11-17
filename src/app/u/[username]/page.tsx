@@ -126,8 +126,11 @@ async function Profile({ params, searchParams }: Pick<PageProps<"/u/[username]">
   return (
     <>
       <UserHeader user={user} covers={covers} />
-      <ProfileTabs username={user.username} current={tab} period={chosenPeriod} />
-      <PeriodSelector username={user.username} current={current} tab={tab} months={months} years={years} />
+      {/* Abas e período numa linha só (o calendário fica guardado na gaveta do botão de período). */}
+      <div className="flex items-center gap-2">
+        <ProfileTabs username={user.username} current={tab} period={chosenPeriod} />
+        <PeriodSelector username={user.username} current={current} tab={tab} months={months} years={years} />
+      </div>
       {history ? (
         // Mês ou ano escolhido no calendário: os dados são montados no navegador (SPEC, "Mês fechado").
         <MonthView key={history} username={user.username} period={history} label={historyLabel} tab={tab} />

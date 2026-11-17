@@ -5,7 +5,7 @@ type Props = { covers: TrendingCover[] };
 
 /**
  * Posição de cada capa na colagem, em % da caixa: [esquerda, topo, largura, giro em graus, fita?].
- * Fixas (não sorteadas) para a colagem não "pular" a cada visita. As duas últimas só no computador.
+ * Fixas (não sorteadas) para a colagem não "pular" a cada visita.
  */
 const SLOTS: [number, number, number, number, boolean][] = [
   [1, 7, 34, -8, false],
@@ -17,8 +17,9 @@ const SLOTS: [number, number, number, number, boolean][] = [
 ];
 
 /**
- * Colagem de capas (página inicial): capas reais "impressas" com borda clara, coladas
- * tortas com fita crepe. Decorativa: o bilhete abaixo diz o que é.
+ * Colagem de capas da página inicial (vitrine): capas reais "impressas" com borda clara,
+ * coladas tortas com fita crepe. Decorativa: o bilhete abaixo diz o que é.
+ * (No perfil, a mesma ideia vai na faixa que passa: Marquee com `collage`.)
  */
 export function CoverCollage({ covers }: Props) {
   const shown = covers.slice(0, SLOTS.length);

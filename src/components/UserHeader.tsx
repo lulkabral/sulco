@@ -1,10 +1,9 @@
-import Image from "next/image";
 import Link from "next/link";
 import { formatNumber, yearOf } from "@/lib/format";
-import { thumbUrl } from "@/lib/grid/layout";
 import type { UserInfo } from "@/lib/lastfm/types";
 import { LogoLink } from "./Logo";
 import { Marquee } from "./Marquee";
+import { VinylAvatar } from "./VinylAvatar";
 
 type Props = {
   user: UserInfo;
@@ -12,12 +11,15 @@ type Props = {
   covers: string[];
 };
 
-/** Topo da página do usuário: capas dele passando, avatar, username e total de scrobbles. */
+/**
+ * Topo da página do usuário: as capas do ano dela passando (com cara de colagem), o avatar
+ * como selo de um vinil girando, o username grande e os números em etiquetas.
+ */
 export function UserHeader({ user, covers }: Props) {
   const since = yearOf(user.registeredAt);
   return (
     <header className="relative -mx-4 sm:mx-0">
-      <div className="flex items-center justify-between px-4 pb-3 pt-4 sm:px-0 sm:pt-0">
+      <div className="flex items-center justify-between px-4 pb-2 pt-4 sm:px-0 sm:pt-0">
         <LogoLink />
         {/* Não há login: "trocar" é só voltar ao início e digitar outro username. */}
         <Link
@@ -28,42 +30,28 @@ export function UserHeader({ user, covers }: Props) {
         </Link>
       </div>
       {covers.length > 0 ? (
-        <div className="opacity-70">
-          <Marquee covers={covers} size={88} seconds={Math.max(40, covers.length * 4)} />
-        </div>
+        <Marquee covers={covers} size={84} seconds={Math.max(40, covers.length * 4)} collage />
       ) : (
-        <Marquee size={88} seconds={80} />
+        <Marquee size={84} seconds={80} />
       )}
       {/* Escurece a parte de baixo das capas para o nome ficar legível em cima delas. */}
-      <div aria-hidden className="pointer-events-none absolute inset-0 bg-linear-to-b from-room/0 via-room/40 to-room" />
+      <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-linear-to-b from-room/0 via-room/80 to-room" />
 
-      <div className="relative -mt-10 flex items-end gap-4 px-4 sm:px-0">
-        {user.avatarUrl ? (
-          <Image
-            src={thumbUrl(user.avatarUrl)}
-            alt=""
-            width={80}
-            height={80}
-            loading="eager"
-            className="size-20 shrink-0 rounded-full border-4 border-room object-cover"
-          />
-        ) : (
-          <div
-            aria-hidden
-            className="flex size-20 shrink-0 items-center justify-center rounded-full border-4 border-room bg-card text-3xl font-extrabold uppercase text-amber"
-          >
-            {user.username.charAt(0)}
-          </div>
-        )}
-        <div className="min-w-0 pb-1">
-          <h1 className="truncate text-3xl font-extrabold tracking-tight">
+      {/* O disco avança sobre a faixa; o nome fica logo abaixo dela, legível. */}
+      <div className="relative -mt-10 flex items-end gap-3 px-4 sm:px-0">
+        <VinylAvatar avatarUrl={user.avatarUrl} username={user.username} />
+        <div className="min-w-0 pt-10">
+          <h1 className="truncate text-3xl font-extrabold tracking-tighter sm:text-4xl">
             <a href={user.url} target="_blank" rel="noopener noreferrer" className="hover:text-amber">
               {user.username}
             </a>
           </h1>
-          <p className="text-sm text-ink-soft">
-            {formatNumber(user.playcount)} scrobbles{since ? ` desde ${since}` : ""}
-          </p>
+          <ul className="mt-1.5 flex flex-wrap gap-1.5 font-mono text-xs text-ink-soft">
+            <li className="rounded-full border border-line bg-room/70 px-2.5 py-1">
+              <span className="font-bold text-ink">{formatNumber(user.playcount)}</span> scrobbles
+            </li>
+            {since && <li className="rounded-full border border-line bg-room/70 px-2.5 py-1">desde {since}</li>}
+          </ul>
         </div>
       </div>
     </header>

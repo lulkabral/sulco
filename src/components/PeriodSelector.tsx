@@ -1,11 +1,13 @@
 import Link from "next/link";
+import { PERIOD_SHORT, shortPeriodLabel } from "@/lib/period-label";
 import { UI_PERIODS } from "@/lib/periods";
 import { userPageHref, type Tab } from "@/lib/tabs";
 import { MonthYearPicker } from "./MonthYearPicker";
+import { PeriodPicker } from "./PeriodPicker";
 
 type Props = {
   username: string;
-  /** Período atual: um dos períodos do Last.fm ("7day"...) ou um mês ("2026-10"). */
+  /** Período atual: um dos períodos do Last.fm ("7day"...), um mês ("2026-10") ou um ano. */
   current: string;
   tab: Tab;
   /** Meses fechados desde o cadastro (do mais recente para o mais antigo). */
@@ -14,48 +16,37 @@ type Props = {
   years: number[];
 };
 
-/** Rótulos curtos para caber na fileira. */
-const SHORT: Record<string, string> = {
-  overall: "Todo o tempo",
-  "7day": "7 dias",
-  "1month": "30 dias",
-  "3month": "3 meses",
-  "6month": "6 meses",
-  "12month": "12 meses",
-};
-
 /**
- * Seletor de período em duas partes:
- * - fileira com "Todo o tempo" e os períodos do Last.fm (no celular, rola para o lado);
- * - "Escolher mês ou ano": calendário com ‹ ano › e a grade de meses (MonthYearPicker).
- * Tudo leva a /u/USERNAME?tab=...&period=...
+ * Escolha de período ao lado das abas: um botão com o período atual ("30 dias ▾") que abre
+ * a gaveta (celular) ou a janela (computador) com os períodos do Last.fm e o calendário
+ * (MonthYearPicker). Tudo leva a /u/USERNAME?tab=...&period=...
  */
 export function PeriodSelector({ username, current, tab, months, years }: Props) {
+  const label = shortPeriodLabel(current, years[0] ?? new Date().getFullYear());
+  const pills = (
+    <ul className="flex flex-wrap gap-2">
+      {UI_PERIODS.map((p) => (
+        <Pill
+          key={p.value}
+          href={userPageHref(username, tab, p.value)}
+          active={p.value === current}
+          label={PERIOD_SHORT[p.value]}
+          title={p.label}
+        />
+      ))}
+    </ul>
+  );
+
   return (
-    <nav aria-label="Período" className="-mx-4 flex flex-col gap-3 sm:mx-0">
-      <Row>
-        {UI_PERIODS.map((p) => (
-          <Pill
-            key={p.value}
-            href={userPageHref(username, tab, p.value)}
-            active={p.value === current}
-            label={SHORT[p.value]}
-            title={p.label}
-          />
-        ))}
-      </Row>
-      {years.length > 0 && (
-        <div className="px-4 sm:px-0">
+    <nav aria-label="Período" className="ml-auto">
+      <PeriodPicker label={label}>
+        {pills}
+        {years.length > 0 && (
           <MonthYearPicker username={username} tab={tab} current={current} months={months} years={years} />
-        </div>
-      )}
+        )}
+      </PeriodPicker>
     </nav>
   );
-}
-
-/** Fileira de bolinhas: no celular rola para o lado; no computador quebra linha. */
-function Row({ children }: { children: React.ReactNode }) {
-  return <ul className="no-scrollbar flex gap-2 overflow-x-auto px-4 pb-0.5 sm:flex-wrap sm:px-0">{children}</ul>;
 }
 
 type PillProps = {
