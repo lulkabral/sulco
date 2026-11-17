@@ -152,7 +152,75 @@ const NOT_GENRE = new Set([
   "uruguay",
   "venezuela",
   "california",
+  "greece",
+  "greek",
+  "russia",
+  "russian",
+  "poland",
+  "polish",
+  "ukraine",
+  "ukrainian",
+  "china",
+  "chinese",
+  "taiwan",
+  "taiwanese",
+  "nigeria",
+  "nigerian",
+  "south africa",
+  "australia",
+  "new zealand",
+  "jamaica",
+  "jamaican",
+  // estados e cidades (gênero com lugar no nome, como "detroit trap", continua valendo)
+  "texas",
+  "florida",
+  "georgia",
+  "missouri",
+  "tennessee",
+  "louisiana",
+  "michigan",
+  "ohio",
+  "new york",
+  "nyc",
+  "los angeles",
+  "la",
+  "chicago",
+  "atlanta",
+  "houston",
+  "detroit",
+  "memphis",
+  "miami",
+  "new orleans",
+  "philadelphia",
+  "seattle",
+  "london",
+  "manchester",
+  "toronto",
+  "montreal",
+  "seoul",
+  "tokyo",
+  "pernambuco",
+  "bahia",
+  "minas gerais",
+  "rio de janeiro",
+  "sao paulo",
+  "são paulo",
+  "recife",
+  "salvador",
+  "belo horizonte",
+  // vagas demais para serem gênero
+  "ethnic",
+  "world",
 ]);
+
+/**
+ * Tags erradas de um artista específico (chave e tags na forma de `genreKey`). Acontece quando
+ * o Last.fm junta duas pessoas com o mesmo nome: a Marina Sena brasileira herdou as tags de
+ * uma cantora grega. Use pouco: só para artista conhecido com tag claramente trocada.
+ */
+const WRONG_TAGS: Record<string, string[]> = {
+  "marina sena": ["greek", "greek pop", "ethnic", "laiko", "entechno", "greek folk", "pop folk"],
+};
 
 /** Anos, décadas e números soltos: "80s", "00s", "1990s", "2010", "11". */
 const YEAR_RE = /^(\d{2}s|\d{4}s|\d+)$/;
@@ -186,13 +254,12 @@ export function isNotGenre(key: string, artistKey: string): boolean {
   if (key === "" || NOT_GENRE.has(key) || YEAR_RE.test(key)) return true;
   if (VOCALIST_RE.test(key) || JOKE_RE.test(key)) return true;
   if (key === artistKey) return true;
+  if (WRONG_TAGS[artistKey]?.includes(key)) return true;
   // Pedaço do nome do artista com 2+ palavras ("kpop demon hunters" em "KPop Demon Hunters Cast").
   // Com 1 palavra não: "pop" não pode sumir só porque o artista se chama "Pop Smoke".
   return key.includes(" ") && artistKey.includes(key);
 }
 
-/** Quantas tags candidatas por artista passam pela conferência no Last.fm (`tag.getInfo`). */
-export const TAGS_TO_CHECK = 8;
 /** Tag sem descrição só conta como gênero se tanta gente a usa. */
 export const MIN_TAG_REACH = 1000;
 
@@ -204,22 +271,33 @@ export function looksLikeGenre(info: { reach: number; hasWiki: boolean }): boole
   return info.hasWiki || info.reach >= MIN_TAG_REACH;
 }
 
+/** Rodadas de conferência: cada uma tira as tags recusadas e refaz o top. */
+const CHECK_ROUNDS = 3;
+
 /**
- * Candidatas a gênero de um artista: tira o que já se sabe que não é gênero e fica com as
- * `max` mais fortes (uma por grafia). São estas que vão para a conferência no Last.fm.
+ * Top de gêneros conferido: calcula o top, pergunta a `isGenre` só pelas tags do top
+ * (as outras não aparecem, então não gastam chamada), tira as recusadas e refaz.
+ * Cada tag é conferida uma vez. `isGenre` recebe o nome como o Last.fm escreveu.
  */
-export function genreCandidates(artist: string, tags: ArtistTag[], max = TAGS_TO_CHECK): ArtistTag[] {
-  const artistKey = genreKey(artist);
-  const seen = new Set<string>();
-  const out: ArtistTag[] = [];
-  for (const tag of [...tags].sort((a, b) => b.count - a.count)) {
-    const key = genreKey(tag.name);
-    if (tag.count <= 0 || seen.has(key) || isNotGenre(key, artistKey)) continue;
-    seen.add(key);
-    out.push(tag);
-    if (out.length >= max) break;
+export async function computeCheckedGenres(
+  artists: GenreInput[],
+  isGenre: (tag: string) => Promise<boolean>,
+  limit = GENRE_LIMIT,
+): Promise<Genre[]> {
+  const checked = new Map<string, boolean>(); // nome mostrado -> é gênero?
+  const exclude = new Set<string>();
+  let top = computeTopGenres(artists, limit);
+  for (let round = 0; round < CHECK_ROUNDS; round++) {
+    const pending = top.filter((g) => !checked.has(g.name));
+    if (pending.length === 0) break;
+    const answers = await mapWithLimit(pending, 3, (g) => isGenre(g.name));
+    pending.forEach((g, i) => {
+      checked.set(g.name, answers[i]);
+      if (!answers[i]) exclude.add(genreKey(g.name));
+    });
+    top = computeTopGenres(artists, limit, exclude);
   }
-  return out;
+  return top.filter((g) => checked.get(g.name) !== false);
 }
 
 export type GenreInput = {
@@ -243,7 +321,12 @@ export const ARTISTS_PER_GENRE = 3;
  * Top de gêneros: para cada artista, descarta o que não é gênero, pega as
  * `TAGS_PER_ARTIST` tags mais fortes e soma plays x (força / 100) em cada gênero.
  */
-export function computeTopGenres(artists: GenreInput[], limit = GENRE_LIMIT): Genre[] {
+export function computeTopGenres(
+  artists: GenreInput[],
+  limit = GENRE_LIMIT,
+  /** Tags (na forma de `genreKey`) recusadas pela conferência no Last.fm. */
+  exclude: ReadonlySet<string> = new Set(),
+): Genre[] {
   const totals = new Map<string, number>();
   const labels = new Map<string, string>(); // chave -> primeira grafia vista
   const contributors = new Map<string, { name: string; amount: number }[]>(); // gênero -> artistas
@@ -254,7 +337,7 @@ export function computeTopGenres(artists: GenreInput[], limit = GENRE_LIMIT): Ge
     const strongest = new Map<string, number>();
     for (const tag of artist.tags) {
       const key = genreKey(tag.name);
-      if (tag.count <= 0 || isNotGenre(key, artistKey)) continue;
+      if (tag.count <= 0 || exclude.has(key) || isNotGenre(key, artistKey)) continue;
       if (!labels.has(key)) labels.set(key, tag.name);
       strongest.set(key, Math.max(strongest.get(key) ?? 0, tag.count));
     }

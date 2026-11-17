@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   computeTopGenres,
-  genreCandidates,
+  computeCheckedGenres,
   genreKey,
   genreLabel,
   isNotGenre,
@@ -185,20 +185,39 @@ describe("looksLikeGenre", () => {
   });
 });
 
-describe("genreCandidates", () => {
-  const tags = [
-    { name: "Korean", count: 100 },
-    { name: "Martin", count: 100 },
-    { name: "Cortis", count: 66 },
-    { name: "k-pop", count: 29 },
-    { name: "kpop", count: 20 },
-    { name: "seen live", count: 10 },
-    { name: "zero", count: 0 },
+describe("computeCheckedGenres", () => {
+  const artists = [
+    { name: "CORTIS", playcount: 50, tags: [{ name: "Martin", count: 100 }, { name: "k-pop", count: 30 }] },
+    { name: "Doechii", playcount: 40, tags: [{ name: "rap", count: 100 }, { name: "rnb", count: 70 }] },
   ];
-  it("tira descarte conhecido, nome do artista, repetidas e força zero", () => {
-    expect(genreCandidates("CORTIS", tags).map((t) => t.name)).toEqual(["Martin", "k-pop"]);
+
+  it("tira a tag recusada e põe a próxima no lugar", async () => {
+    const asked: string[] = [];
+    const isGenre = async (tag: string) => {
+      asked.push(tag);
+      return tag !== "martin";
+    };
+    const top = await computeCheckedGenres(artists, isGenre, 3);
+    expect(top.map((g) => g.name)).toEqual(["rap", "R&B", "k-pop"]);
+    // Cada tag é conferida uma vez, e só as que chegaram ao top.
+    expect(new Set(asked).size).toBe(asked.length);
+    expect(asked).toContain("martin");
   });
-  it("respeita o máximo", () => {
-    expect(genreCandidates("CORTIS", tags, 1)).toHaveLength(1);
+
+  it("não confere tag que nunca chega ao top", async () => {
+    const asked: string[] = [];
+    await computeCheckedGenres(artists, async (t) => (asked.push(t), true), 1);
+    expect(asked).toEqual(["martin"]);
+  });
+});
+
+describe("tags erradas e lugares", () => {
+  it("tira as tags gregas só da Marina Sena", () => {
+    expect(isNotGenre("greek pop", genreKey("Marina Sena"))).toBe(true);
+    expect(isNotGenre("greek pop", genreKey("Outra Cantora"))).toBe(false);
+  });
+  it("tira estado e cidade, mas não gênero com lugar no nome", () => {
+    expect(isNotGenre("texas", "don toliver")).toBe(true);
+    expect(isNotGenre("detroit trap", "sexyy red")).toBe(false);
   });
 });

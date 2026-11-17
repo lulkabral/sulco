@@ -2,7 +2,7 @@
 // (o navegador nunca chama o Last.fm direto).
 
 import type { MonthTops } from "@/lib/aggregate";
-import { computeTopGenres, GENRE_ARTISTS, mapWithLimit, type Genre } from "@/lib/genres";
+import { computeCheckedGenres, GENRE_ARTISTS, mapWithLimit, type Genre } from "@/lib/genres";
 import {
   ERROR_CODES,
   type ArtistTagsResponse,
@@ -110,7 +110,19 @@ export async function loadGenres(
     }
   });
   if (top.length > 0 && tags.every((t) => t === null)) return null;
-  return computeTopGenres(top.map((a, i) => ({ ...a, tags: tags[i] ?? [] })));
+  // Confere só as tags que chegam ao top (some "martin"); falha na conferência mantém a tag.
+  const isGenre = async (tag: string) => {
+    try {
+      const url = `/api/lastfm/tag?${new URLSearchParams({ name: tag })}`;
+      return (await getJson<{ genre: boolean }>(url, signal)).genre !== false;
+    } catch {
+      return true;
+    }
+  };
+  return computeCheckedGenres(
+    top.map((a, i) => ({ ...a, tags: tags[i] ?? [] })),
+    isGenre,
+  );
 }
 
 /**

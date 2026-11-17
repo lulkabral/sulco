@@ -114,9 +114,10 @@ O Last.fm não tem campo de gênero. O cálculo usa as tags dos artistas:
 2. buscar as tags de cada um (`artist.getTopTags`);
 3. normalizar nomes (minúsculas, juntar variações óbvias como "hip hop" e "hip-hop");
 4. descartar tags que não são gênero (lista configurável: "seen live", "favorites", "favourites", "albums i own", anos e décadas, nacionalidades, "female vocalists", o próprio nome do artista etc.);
-5. conferir no Last.fm (`tag.getInfo`) as 8 candidatas mais fortes de cada artista: fica só a tag que tem descrição ou que mais de 1.000 pessoas usam. Isso tira apelido de fã e nome de integrante ("martin", "james" no CORTIS), que nenhuma lista pega. A conferência fica 30 dias em cache e vale para todos os usuários;
-6. para cada artista, usar as 5 tags mais fortes que sobraram; peso = plays do artista x (força da tag / 100);
-7. somar e mostrar o top 5.
+5. para cada artista, usar as 5 tags mais fortes que sobraram; peso = plays do artista x (força da tag / 100);
+6. somar e mostrar o top 5, conferindo no Last.fm (`tag.getInfo`) só os gêneros que chegaram ao top: fica a tag que tem descrição ou que mais de 1.000 pessoas usam. A recusada sai e o top é refeito (até 3 rodadas). Isso tira apelido de fã e nome de integrante ("martin", "james" no CORTIS), que nenhuma lista pega. A conferência fica 30 dias em cache e vale para todos os usuários; na vista de ano o navegador pergunta pela rota `/api/lastfm/tag`.
+
+Tags erradas de um artista específico (o Last.fm juntou a Marina Sena com uma cantora grega: "greek", "greek pop") ficam numa lista própria em `src/lib/genres.ts` (`WRONG_TAGS`). Estados e cidades ("texas", "atlanta", "pernambuco") estão na lista de descarte.
 
 Descartar antes de escolher as 5 mais fortes evita que lixo forte ("the voice": 100) tome a vaga de um gênero de verdade. Implementação: `src/lib/genres.ts`.
 
