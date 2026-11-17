@@ -1,5 +1,13 @@
-/** Onde buscar uma capa que ainda não temos (rotas /api/lastfm/album e /api/lastfm/track). */
-export type CoverLookup = { type: "album" | "track"; artist: string; name: string };
+/**
+ * Onde buscar uma capa que ainda não temos (rotas /api/lastfm/album, /track e /artist).
+ * `fallback`: o que tentar se esta busca não achar capa.
+ */
+export type CoverLookup = {
+  type: "album" | "track" | "artist";
+  artist: string;
+  name: string;
+  fallback?: CoverLookup;
+};
 
 export type ArtistPicture = {
   /** Capa já conhecida, ou null. */
@@ -16,8 +24,9 @@ const key = (s: string) => s.toLocaleLowerCase("pt-BR");
  * (as listas já vêm do mais para o menos ouvido):
  * - se o álbum já tem capa, usa a capa;
  * - se não tem (no ano só as primeiras capas são buscadas), diz qual álbum buscar;
- * - sem álbum do artista na lista, busca a capa da música mais ouvida dele.
- * Sem nada disso, fica null (a tela mostra a inicial).
+ * - sem álbum do artista na lista, busca a capa da música mais ouvida dele;
+ * - se nada disso tiver capa, usa o álbum mais popular do artista no Last.fm (de todos os tempos).
+ * Só se nem esse tiver capa a tela mostra a inicial.
  */
 export function artistPictures(
   artists: { name: string }[],
@@ -41,11 +50,16 @@ export function artistPictures(
     const k = key(a.name);
     const cover = withCover.get(k);
     if (cover) return { image: cover };
+    const byArtist: CoverLookup = { type: "artist", artist: a.name, name: a.name };
     const album = firstAlbum.get(k);
-    if (album) return { image: null, lookup: { type: "album", artist: album.artist, name: album.name } };
+    if (album) {
+      return { image: null, lookup: { type: "album", artist: album.artist, name: album.name, fallback: byArtist } };
+    }
     const track = firstTrack.get(k);
     if (track?.imageUrl) return { image: track.imageUrl };
-    if (track) return { image: null, lookup: { type: "track", artist: track.artist, name: track.name } };
-    return { image: null };
+    if (track) {
+      return { image: null, lookup: { type: "track", artist: track.artist, name: track.name, fallback: byArtist } };
+    }
+    return { image: null, lookup: byArtist };
   });
 }

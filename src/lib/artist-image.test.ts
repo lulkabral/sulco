@@ -24,18 +24,36 @@ describe("artistPictures", () => {
 
   it("álbum sem capa: diz qual álbum buscar", () => {
     expect(artistPictures([{ name: "Gal Costa" }], albums)).toEqual([
-      { image: null, lookup: { type: "album", artist: "Gal Costa", name: "India" } },
+      {
+        image: null,
+        lookup: {
+          type: "album",
+          artist: "Gal Costa",
+          name: "India",
+          fallback: { type: "artist", artist: "Gal Costa", name: "Gal Costa" },
+        },
+      },
     ]);
   });
 
   it("sem álbum: usa a música mais ouvida (capa pronta ou a buscar)", () => {
     expect(artistPictures([{ name: "Bad Bunny" }, { name: "Janet Jackson" }], albums, tracks)).toEqual([
       { image: "dance.jpg" },
-      { image: null, lookup: { type: "track", artist: "Janet Jackson", name: "Velvet Rope" } },
+      {
+        image: null,
+        lookup: {
+          type: "track",
+          artist: "Janet Jackson",
+          name: "Velvet Rope",
+          fallback: { type: "artist", artist: "Janet Jackson", name: "Janet Jackson" },
+        },
+      },
     ]);
   });
 
-  it("sem álbum nem música: sem imagem", () => {
-    expect(artistPictures([{ name: "Megadeth" }], albums, tracks)).toEqual([{ image: null }]);
+  it("sem álbum nem música: busca o álbum mais popular do artista", () => {
+    expect(artistPictures([{ name: "Megadeth" }], albums, tracks)).toEqual([
+      { image: null, lookup: { type: "artist", artist: "Megadeth", name: "Megadeth" } },
+    ]);
   });
 });

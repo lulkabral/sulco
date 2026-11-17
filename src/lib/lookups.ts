@@ -49,9 +49,22 @@ export function trackInfo(artist: string, name: string): Promise<TrackInfo> {
   });
 }
 
-/** Capa de um álbum ou de uma música. */
-export function findCover(lookup: CoverLookup): Promise<string | null> {
+/** Capa de um álbum, de uma música ou do álbum mais popular de um artista; sem capa, tenta o `fallback`. */
+export async function findCover(lookup: CoverLookup): Promise<string | null> {
+  const url = await findOne(lookup);
+  return url ?? (lookup.fallback ? findCover(lookup.fallback) : null);
+}
+
+function findOne(lookup: CoverLookup): Promise<string | null> {
   if (lookup.type === "track") return trackInfo(lookup.artist, lookup.name).then((t) => t.imageUrl);
+  if (lookup.type === "artist") {
+    return once(`artist\u0000${lookup.artist}`, async () => {
+      const data = await getJson<{ imageUrl?: string | null }>(
+        `/api/lastfm/artist?${new URLSearchParams({ name: lookup.artist })}`,
+      );
+      return data?.imageUrl ?? null;
+    });
+  }
   return once(`album\u0000${lookup.artist}\u0000${lookup.name}`, async () => {
     const data = await getJson<{ imageUrl?: string | null }>(
       `/api/lastfm/album?${new URLSearchParams({ artist: lookup.artist, album: lookup.name })}`,

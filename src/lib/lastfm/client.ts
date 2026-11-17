@@ -17,6 +17,7 @@ import {
   normalizeChartTracks,
   normalizeArtistTags,
   normalizeTagInfo,
+  normalizeArtistTopCover,
   normalizeChart,
   sumChartPlays,
   normalizeRecentTotal,
@@ -47,6 +48,7 @@ const ALLOWED_METHODS = [
   "user.getTopTracks",
   "user.getRecentTracks",
   "artist.getTopTags",
+  "artist.getTopAlbums",
   "tag.getInfo",
   "user.getWeeklyArtistChart",
   "user.getWeeklyAlbumChart",
@@ -329,6 +331,21 @@ export async function getAlbumCover(artist: string, album: string): Promise<stri
   try {
     const raw = await callLastfm("album.getInfo", { artist, album, autocorrect: "1" }, "month");
     return normalizeAlbumCover(raw);
+  } catch (err) {
+    if (err instanceof LastfmError && err.code === "USER_NOT_FOUND") return null;
+    throw err;
+  }
+}
+
+/**
+ * "Foto" de um artista quando o período não deu nenhuma capa dele: a capa do álbum mais
+ * popular (`artist.getTopAlbums`, os 5 primeiros), com cache de 30 dias. Artista
+ * desconhecido (erro 6) devolve null.
+ */
+export async function getArtistCover(artist: string): Promise<string | null> {
+  try {
+    const raw = await callLastfm("artist.getTopAlbums", { artist, limit: "5", autocorrect: "1" }, "month");
+    return normalizeArtistTopCover(raw);
   } catch (err) {
     if (err instanceof LastfmError && err.code === "USER_NOT_FOUND") return null;
     throw err;

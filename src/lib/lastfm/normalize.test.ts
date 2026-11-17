@@ -16,6 +16,7 @@ import {
   pickImage,
   toArray,
   normalizeTagInfo,
+  normalizeArtistTopCover,
 } from "./normalize";
 import type { TopAlbum, TopTrack } from "./types";
 
@@ -359,5 +360,25 @@ describe("normalizeTagInfo", () => {
   });
   it("resposta estranha vira zero e sem descrição", () => {
     expect(normalizeTagInfo(null)).toEqual({ reach: 0, hasWiki: false });
+  });
+});
+
+describe("normalizeArtistTopCover", () => {
+  const img = (url: string) => [{ "#text": url, size: "extralarge" }];
+  it("pula álbum sem capa e a estrela", () => {
+    const raw = {
+      topalbums: {
+        album: [
+          { name: "A", image: img("") },
+          { name: "B", image: img("https://x/i/u/300x300/2a96cbd8b46e442fc41c2b86b821562f.png") },
+          { name: "C", image: img("https://x/i/u/300x300/c.png") },
+        ],
+      },
+    };
+    expect(normalizeArtistTopCover(raw)).toBe("https://x/i/u/300x300/c.png");
+  });
+  it("sem nenhuma capa: null", () => {
+    expect(normalizeArtistTopCover({ topalbums: { album: [] } })).toBeNull();
+    expect(normalizeArtistTopCover(null)).toBeNull();
   });
 });

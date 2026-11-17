@@ -233,6 +233,18 @@ export function normalizeAlbumCover(raw: unknown): string | null {
   return pickImage(obj(obj(raw).album).image);
 }
 
+/**
+ * Capa do álbum mais popular de um artista (`artist.getTopAlbums`): a primeira que tiver
+ * imagem de verdade (não a estrela), ou null.
+ */
+export function normalizeArtistTopCover(raw: unknown): string | null {
+  for (const album of toArray(obj(obj(raw).topalbums).album).filter(isObj)) {
+    const url = pickImage(album.image);
+    if (url) return url;
+  }
+  return null;
+}
+
 /** Capa do álbum de `track.getInfo` (maior tamanho), ou null se a música não tiver álbum. */
 export function normalizeTrackCover(raw: unknown): string | null {
   return pickImage(obj(obj(obj(raw).track).album).image);
