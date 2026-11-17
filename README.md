@@ -33,6 +33,7 @@ Depois abra http://localhost:3000.
 | `npm run build` | build de produção |
 | `npm run genres -- USERNAME [periodo]` | relatório de gêneros, para ajustar a lista de descarte |
 | `npm run banner` | banner do X da conta oficial (ferramenta local; ver `brand/GUIA.md`) |
+| `npm run vitrine` | confere os álbuns da vitrine da página inicial (`src/data/vitrine.json`; ver `brand/GUIA.md`) |
 
 ## Como está organizado
 

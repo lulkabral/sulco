@@ -3,7 +3,7 @@ import { CoverCollage } from "@/components/CoverCollage";
 import { LogoLink } from "@/components/Logo";
 import { Marquee } from "@/components/Marquee";
 import { UsernameForm } from "@/components/UsernameForm";
-import { getTrendingCovers } from "@/lib/lastfm/client";
+import { getShowcaseCovers } from "@/lib/lastfm/client";
 
 // Letra de "bilhete escrito à mão", só para as anotações da página inicial.
 const hand = Gochi_Hand({ weight: "400", subsets: ["latin"], display: "swap" });
@@ -22,8 +22,8 @@ function editionLabel(timestamp: number): string {
 }
 
 export default async function Home() {
-  // Álbuns em alta no mundo (Last.fm), guardados 1 dia (src/lib/lastfm/client.ts).
-  const { covers, updatedAt } = await getTrendingCovers();
+  // Vitrine escolhida em src/data/vitrine.json (ou, se faltar capa, os em alta no mundo).
+  const { covers, caption, updatedAt } = await getShowcaseCovers();
   const hasCollage = covers.length >= 4;
 
   return (
@@ -45,17 +45,7 @@ export default async function Home() {
             </div>
           )}
           {hasCollage && (
-            <figcaption className={`${hand.className} mt-3 -rotate-2 text-lg text-ink`}>
-              ↑ álbuns em alta no mundo hoje, segundo o{" "}
-              <a
-                href="https://www.last.fm/charts"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="underline decoration-amber decoration-2 underline-offset-4 hover:text-amber"
-              >
-                Last.fm
-              </a>
-            </figcaption>
+            <figcaption className={`${hand.className} mt-3 -rotate-2 text-lg text-ink`}>↑ {caption}</figcaption>
           )}
         </figure>
 

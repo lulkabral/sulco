@@ -56,6 +56,16 @@ Textos de apoio em Geist 500.
 
 Os arquivos foram gerados por script. Para trocar o nome, basta gerar tudo de novo: o símbolo não muda.
 
+## Vitrine da página inicial
+
+A colagem de capas da página inicial mostra os álbuns que você escolhe, como no banner.
+
+1. Edite `src/data/vitrine.json`: a `legenda` (o bilhete escrito à mão embaixo da colagem, depois da setinha) e até 6 `itens`, cada um com `artista` e `album` (os dois são obrigatórios).
+2. Rode `npm run vitrine`: ele procura cada álbum no Last.fm e diz se achou a capa (✓) ou não (✗). Se não achar, confira a grafia na página do álbum no last.fm.
+3. Publique: `git add src/data/vitrine.json`, `git commit -m "Vitrine: ..."` e `git push`. A Vercel publica sozinha e a página já sai com a lista nova.
+
+Com menos de 4 capas encontradas, o site mostra os álbuns em alta no mundo no lugar da vitrine. A ordem do arquivo é a ordem na colagem (no celular, as 3 primeiras ficam em cima).
+
 ## Banner da conta (ferramenta local)
 
 Só para a conta oficial do sulco (não é recurso do site). Gera a capa do perfil com os artistas em evidência no mês ou no momento.

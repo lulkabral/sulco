@@ -10,7 +10,8 @@ Quem usa Spotify, Deezer, YouTube Music etc. só precisa ter o scrobbling ligado
 
 ### 1. Início (`/`)
 
-- **Colagem de álbuns em alta no mundo.** O Last.fm não tem ranking de álbuns global, então ele é montado: top 50 músicas global (`chart.getTopTracks`), o álbum e a capa de cada uma (`track.getInfo`) e pontos pela posição no ranking (1º lugar vale mais; o `playcount` do ranking é de todos os tempos e não serve). Coletâneas ("Various Artists") ficam de fora. 6 capas. Guardado 1 dia para o site inteiro (~51 chamadas por dia, não por visitante). Capas tortas com borda clara e fita crepe; bilhete escrito à mão embaixo: "álbuns em alta no mundo hoje, segundo o Last.fm" (link para os charts). Se o Last.fm falhar (menos de 4 capas), volta para as faixas abstratas.
+- **Colagem da vitrine.** Até 6 álbuns escolhidos a dedo pelo dono do site em `src/data/vitrine.json` (como o banner do X), com a capa de cada um via `album.getInfo` (cache de 30 dias; a página toda se renova a cada dia ou a cada publicação). Confere-se com `npm run vitrine` (passo a passo em `brand/GUIA.md`). Capas tortas com borda clara e fita crepe; bilhete escrito à mão embaixo com a `legenda` do arquivo.
+- **Plano B: álbuns em alta no mundo.** Se menos de 4 capas da vitrine forem achadas, a colagem mostra um ranking montado do top 50 músicas global (`chart.getTopTracks`), o álbum de cada uma (`track.getInfo`) e pontos pela posição (o `playcount` do ranking é de todos os tempos e não serve); sem coletâneas. Guardado 1 dia. Se também falhar, volta para as faixas abstratas.
 - Título "o que tocou no seu mês?" com marca-texto âmbar em "seu mês?", uma frase explicando o que o site faz.
 - Campo para o username com visual de adesivo (borda clara, sombra âmbar dura) e botão "Gerar".
 - No topo, ao lado do logo, a "edição" do dia (nº N · data), contada desde o lançamento (16/11/2026).

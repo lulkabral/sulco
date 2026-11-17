@@ -4,6 +4,8 @@ import "server-only";
 
 import { cacheLife } from "next/cache";
 import { computeTopGenres, mapWithLimit, type Genre } from "@/lib/genres";
+import vitrine from "@/data/vitrine.json";
+import { parseShowcase } from "@/lib/showcase";
 import { rankTrendingAlbums, type TrendingCover } from "@/lib/trending";
 import { LastfmError, mapLastfmError } from "./errors";
 import {
@@ -307,7 +309,7 @@ export async function getChart(username: string, type: TopType, from: number, to
  */
 export async function getAlbumCover(artist: string, album: string): Promise<string | null> {
   try {
-    const raw = await callLastfm("album.getInfo", { artist, album }, "month");
+    const raw = await callLastfm("album.getInfo", { artist, album, autocorrect: "1" }, "month");
     return normalizeAlbumCover(raw);
   } catch (err) {
     if (err instanceof LastfmError && err.code === "USER_NOT_FOUND") return null;
@@ -370,4 +372,37 @@ export async function getTrendingCovers(): Promise<{ covers: TrendingCover[]; up
   }
   cacheLife(covers.length > 0 ? CACHE_PROFILES.day : { revalidate: 300, expire: 900 });
   return { covers, updatedAt: Date.now() };
+}
+
+/**
+ * Capas da vitrine da página inicial: os álbuns escolhidos em src/data/vitrine.json, com a
+ * capa de cada um (`album.getInfo`, 3 por vez, cache de 30 dias). Se menos de 4 capas
+ * forem achadas, usa os álbuns em alta no mundo. Nunca lança erro.
+ */
+export async function getShowcaseCovers(): Promise<{
+  covers: TrendingCover[];
+  caption: string;
+  updatedAt: number;
+}> {
+  "use cache";
+  const { caption, items } = parseShowcase(vitrine);
+  const images = await mapWithLimit(items, TAGS_CONCURRENCY, async (it) => {
+    try {
+      return await getAlbumCover(it.artist, it.album);
+    } catch {
+      return null;
+    }
+  });
+  const covers = items.flatMap((it, i) => {
+    const imageUrl = images[i];
+    return imageUrl ? [{ imageUrl, name: it.album, artist: it.artist }] : [];
+  });
+  if (covers.length >= 4) {
+    cacheLife(CACHE_PROFILES.day);
+    return { covers, caption: caption || "em evidência", updatedAt: Date.now() };
+  }
+  // Faltou capa (nome errado ou Last.fm fora do ar): mostra os em alta e tenta de novo logo.
+  cacheLife({ revalidate: 300, expire: 900 });
+  const trending = await getTrendingCovers();
+  return { ...trending, caption: "álbuns em alta no mundo hoje" };
 }
