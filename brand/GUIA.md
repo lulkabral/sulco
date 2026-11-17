@@ -66,6 +66,8 @@ A colagem de capas da página inicial mostra os álbuns que você escolhe, como 
 
 Com menos de 4 capas encontradas, o site mostra os álbuns em alta no mundo no lugar da vitrine. A ordem do arquivo é a ordem na colagem (no celular, as 3 primeiras ficam em cima).
 
+A prévia do link (a imagem que aparece ao colar o endereço no X ou no WhatsApp, `src/app/opengraph-image.tsx`) usa a mesma colagem e se atualiza uma vez por dia. O canto de baixo à esquerda fica vazio porque o X põe ali o nome do site. O X guarda a prévia de links já postados por um tempo; links novos já saem com a vitrine atual.
+
 ## Banner da conta (ferramenta local)
 
 Só para a conta oficial do sulco (não é recurso do site). Gera a capa do perfil com os artistas em evidência no mês ou no momento.

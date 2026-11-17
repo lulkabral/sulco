@@ -4,7 +4,7 @@
 import { formatPlays } from "@/lib/format";
 import type { RecapData, RecapOptions } from "../draw";
 import { cover, eyebrow, fitFontSize, footer, INNER, lines, M, text, type Ctx } from "../helpers";
-import { dateLine, genresLine, nameColumn } from "./shared";
+import { ACCENT_ROOM, dateLine, genresLine, nameColumn } from "./shared";
 
 const SLEEVE = 540; // lado das capas
 const SLEEVE_X = M;
@@ -34,8 +34,9 @@ export function drawTurntable(ctx: Ctx, d: RecapData, o: RecapOptions) {
   cover(ctx, d.covers[0] ?? null, SLEEVE_X, SLEEVE_Y, SLEEVE, SLEEVE, 14, 0);
 
   // Título e datas.
-  eyebrow(ctx, f, `@${d.username}`, M, 820, p.accent, INNER);
   const size = fitFontSize(ctx, d.title, INNER, 104, 60, (px) => `800 ${px}px ${f}`);
+  // Acima do título fica o espaço do acento (Ú, Í, Ô): a linha de cima sobe junto com o tamanho.
+  eyebrow(ctx, f, `@${d.username}`, M, 920 - size - ACCENT_ROOM, p.accent, INNER);
   text(ctx, d.title, M - 4, 920, { font: `800 ${size}px ${f}`, color: p.ink, maxWidth: INNER, spacing: -2 });
   dateLine(ctx, d, o, M, 978);
 

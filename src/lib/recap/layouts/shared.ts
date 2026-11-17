@@ -4,6 +4,9 @@ import { formatNumber, formatPlays } from "@/lib/format";
 import type { RecapData, RecapListItem, RecapOptions } from "../draw";
 import { eyebrow, INNER, measureWith, text, type Ctx } from "../helpers";
 
+/** Folga entre a linha de cima (@usuário) e o topo das letras do título, onde moram os acentos. */
+export const ACCENT_ROOM = 22;
+
 /** "564 scrobbles · 1.950 minutos" (os minutos só quando já foram estimados). */
 export function totalsText(d: RecapData): string {
   const scrobbles = `${formatNumber(d.total)} scrobbles`;

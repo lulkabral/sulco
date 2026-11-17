@@ -4,7 +4,7 @@
 import { formatNumber, formatPlays } from "@/lib/format";
 import type { RecapData, RecapListItem, RecapOptions } from "../draw";
 import { card, cover, eyebrow, fadeToRoom, fitFontSize, footer, INNER, lines, M, roundRect, text, type Ctx } from "../helpers";
-import { dateLine } from "./shared";
+import { ACCENT_ROOM, dateLine } from "./shared";
 
 const GAP = 24;
 const COL_W = (INNER - GAP) / 2;
@@ -17,8 +17,9 @@ export function drawClassic(ctx: Ctx, d: RecapData, o: RecapOptions) {
   for (let i = 0; i < 5; i++) cover(ctx, d.covers[i] ?? null, i * 220, -40, 200, 200, 20, i);
   fadeToRoom(ctx, p, 10, 200);
 
-  eyebrow(ctx, f, `Recap · @${d.username}`, M, 256, p.accent, INNER);
   const size = fitFontSize(ctx, d.title, INNER, 104, 64, (px) => `800 ${px}px ${f}`);
+  // Acima do título fica o espaço do acento (Ú, Í, Ô): a linha de cima sobe junto com o tamanho.
+  eyebrow(ctx, f, `Recap · @${d.username}`, M, 352 - size - ACCENT_ROOM, p.accent, INNER);
   text(ctx, d.title, M - 4, 352, { font: `800 ${size}px ${f}`, color: p.ink, maxWidth: INNER, spacing: -2 });
   dateLine(ctx, d, o, M, 408);
 

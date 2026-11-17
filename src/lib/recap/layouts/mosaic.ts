@@ -4,7 +4,7 @@
 import { formatPlays } from "@/lib/format";
 import type { RecapData, RecapOptions } from "../draw";
 import { cover, eyebrow, fadeToRoom, fitFontSize, footer, INNER, M, roundRect, text, W, type Ctx } from "../helpers";
-import { dateLine, genresLine, nameColumn } from "./shared";
+import { ACCENT_ROOM, dateLine, genresLine, nameColumn } from "./shared";
 
 const EDGE = 24; // margem da colagem
 const GAP = 16;
@@ -63,8 +63,9 @@ export function drawMosaic(ctx: Ctx, d: RecapData, o: RecapOptions) {
   const bottom = EDGE + 4 * CELL + 3 * GAP;
   fadeToRoom(ctx, p, bottom - 360, bottom + 4);
 
-  eyebrow(ctx, f, `@${d.username}`, M, bottom - 150, p.accent, INNER);
   const size = fitFontSize(ctx, d.title, INNER, 112, 60, (px) => `800 ${px}px ${f}`);
+  // Acima do título fica o espaço do acento (Ú, Í, Ô): a linha de cima sobe junto com o tamanho.
+  eyebrow(ctx, f, `@${d.username}`, M, bottom - 52 - size - ACCENT_ROOM, p.accent, INNER);
   text(ctx, d.title, M - 4, bottom - 52, { font: `800 ${size}px ${f}`, color: p.ink, maxWidth: INNER, spacing: -2 });
   dateLine(ctx, d, o, M, bottom + 10);
 
