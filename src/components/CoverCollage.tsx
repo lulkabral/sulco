@@ -18,7 +18,7 @@ const SLOTS: [number, number, number, number, boolean][] = [
 
 /**
  * Colagem de capas (página inicial): capas reais "impressas" com borda clara, coladas
- * tortas com fita crepe, mais o adesivo "sem login". Decorativa: o bilhete abaixo diz o que é.
+ * tortas com fita crepe. Decorativa: o bilhete abaixo diz o que é.
  */
 export function CoverCollage({ covers }: Props) {
   const shown = covers.slice(0, SLOTS.length);
@@ -54,11 +54,6 @@ export function CoverCollage({ covers }: Props) {
           </div>
         );
       })}
-      <span className="absolute right-[1%] bottom-[2%] z-20 flex size-16 rotate-12 items-center justify-center rounded-full bg-amber text-center text-xs leading-tight font-extrabold text-amber-ink shadow-lg shadow-black/40 sm:size-20 sm:text-sm">
-        sem
-        <br />
-        login
-      </span>
     </div>
   );
 }

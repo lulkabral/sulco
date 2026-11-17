@@ -10,10 +10,9 @@ Quem usa Spotify, Deezer, YouTube Music etc. só precisa ter o scrobbling ligado
 
 ### 1. Início (`/`)
 
-- **Colagem de capas em alta no mundo** (top 20 músicas global do Last.fm, `chart.getTopTracks`, e a capa de cada uma via `track.getInfo`; 6 capas sem repetir álbum). Guardada 1 dia para o site inteiro, então são ~21 chamadas por dia, não por visitante. Capas tortas com borda clara, fita crepe e o adesivo âmbar "sem login"; bilhete escrito à mão embaixo: "em alta no mundo hoje, segundo o Last.fm" (link para os charts). Se o Last.fm falhar (menos de 4 capas), volta para as faixas abstratas.
+- **Colagem de álbuns em alta no mundo.** O Last.fm não tem ranking de álbuns global, então ele é montado: top 50 músicas global (`chart.getTopTracks`), o álbum e a capa de cada uma (`track.getInfo`) e pontos pela posição no ranking (1º lugar vale mais; o `playcount` do ranking é de todos os tempos e não serve). Coletâneas ("Various Artists") ficam de fora. 6 capas. Guardado 1 dia para o site inteiro (~51 chamadas por dia, não por visitante). Capas tortas com borda clara e fita crepe; bilhete escrito à mão embaixo: "álbuns em alta no mundo hoje, segundo o Last.fm" (link para os charts). Se o Last.fm falhar (menos de 4 capas), volta para as faixas abstratas.
 - Título "o que tocou no seu mês?" com marca-texto âmbar em "seu mês?", uma frase explicando o que o site faz.
 - Campo para o username com visual de adesivo (borda clara, sombra âmbar dura) e botão "Gerar".
-- Bilhete à mão com a voz de quem fez o site, assinado @alcoholicgoatt.
 - No topo, ao lado do logo, a "edição" do dia (nº N · data), contada desde o lançamento (16/11/2026).
 - Nada dos cartões "1, 2, 3" (repetiam o óbvio).
 - Link "Não tem Last.fm?" explicando em duas linhas como criar conta e ligar o scrobbling.
@@ -31,8 +30,8 @@ Quem usa Spotify, Deezer, YouTube Music etc. só precisa ter o scrobbling ligado
 Escolhida no redesign entre as fases 7 e 8, no lugar da direção "Encarte" da fase 4.
 
 - **Tema escuro sempre.** Fundo preto quente (`#15120F`), cartões `#221D19`, texto `#F4EEE6`, destaque âmbar (`#E8A13A`). Nada de verde nem de degradês coloridos (não lembrar o Spotify).
-- **Tipografia:** Geist, com títulos bem pesados (800). A única exceção é a letra "escrita à mão" (Gochi Hand) dos bilhetes da página inicial.
-- **Colagem (desde 17/11/2026):** dentro da Sala escura, a página inicial ganhou a vibe de zine: capas reais coladas tortas com fita, adesivo âmbar e bilhetes à mão. A ideia é parecer feito por uma pessoa, não por um gerador de site. Não usar verde neon (lembra o Spotify).
+- **Tipografia:** Geist, com títulos bem pesados (800). A única exceção é a letra "escrita à mão" (Gochi Hand) do bilhete da página inicial.
+- **Colagem (desde 17/11/2026):** dentro da Sala escura, a página inicial ganhou a vibe de zine: capas reais coladas tortas com fita e bilhete à mão. A ideia é parecer feito por uma pessoa, não por um gerador de site. Não usar verde neon (lembra o Spotify).
 - **Movimento:**
   - na página inicial, as capas da colagem "caem e colam" uma de cada vez e se endireitam com o mouse em cima (as peças abstratas vivas só aparecem se a colagem não carregar);
   - capas do usuário (últimos 12 meses) passando no topo da página dele;

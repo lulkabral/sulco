@@ -4,6 +4,7 @@ import {
   normalizeTrackCover,
   normalizeChartTracks,
   normalizeTrackDuration,
+  normalizeTrackAlbum,
   normalizeArtistTags,
   normalizeChart,
   sumChartPlays,
@@ -291,6 +292,19 @@ describe("normalizeTrackCover", () => {
   it("música sem álbum ou erro: null", () => {
     expect(normalizeTrackCover({ track: { name: "x" } })).toBeNull();
     expect(normalizeTrackCover({ error: 6, message: "Track not found" })).toBeNull();
+  });
+});
+
+describe("normalizeTrackAlbum", () => {
+  it("pega título e artista do álbum", () => {
+    expect(normalizeTrackAlbum({ track: { album: { title: "Currents", artist: "Tame Impala" } } })).toEqual({
+      title: "Currents",
+      artist: "Tame Impala",
+    });
+  });
+
+  it("sem álbum: null", () => {
+    expect(normalizeTrackAlbum({ track: { name: "x" } })).toBeNull();
   });
 });
 

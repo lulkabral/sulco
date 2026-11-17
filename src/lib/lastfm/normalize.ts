@@ -222,6 +222,14 @@ export function normalizeTrackCover(raw: unknown): string | null {
   return pickImage(obj(obj(obj(raw).track).album).image);
 }
 
+/** Álbum da música em `track.getInfo` (título e artista do álbum), ou null. */
+export function normalizeTrackAlbum(raw: unknown): { title: string; artist: string } | null {
+  const album = obj(obj(obj(raw).track).album);
+  const title = str(album.title).trim();
+  const artist = str(album.artist).trim();
+  return title && artist ? { title, artist } : null;
+}
+
 /** Duração da música em segundos (`track.getInfo` dá em ms), ou null se for 0 ou faltar. */
 export function normalizeTrackDuration(raw: unknown): number | null {
   const ms = num(obj(obj(raw).track).duration);

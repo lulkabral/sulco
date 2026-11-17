@@ -14,8 +14,8 @@ export async function GET(request: NextRequest) {
   if (!track.ok) return jsonError("BAD_REQUEST", track.message);
 
   try {
-    const info = await getTrackInfo(artist.value, track.value);
-    return jsonOk({ artist: artist.value, track: track.value, ...info }, CACHE_SECONDS.month, CACHE_SECONDS.day);
+    const { imageUrl, durationSec } = await getTrackInfo(artist.value, track.value);
+    return jsonOk({ artist: artist.value, track: track.value, imageUrl, durationSec }, CACHE_SECONDS.month, CACHE_SECONDS.day);
   } catch (err) {
     return handleRouteError(err);
   }

@@ -22,7 +22,7 @@ function editionLabel(timestamp: number): string {
 }
 
 export default async function Home() {
-  // Capas do top mundial do Last.fm, guardadas 1 dia (src/lib/lastfm/client.ts).
+  // Álbuns em alta no mundo (Last.fm), guardados 1 dia (src/lib/lastfm/client.ts).
   const { covers, updatedAt } = await getTrendingCovers();
   const hasCollage = covers.length >= 4;
 
@@ -46,7 +46,7 @@ export default async function Home() {
           )}
           {hasCollage && (
             <figcaption className={`${hand.className} mt-3 -rotate-2 text-lg text-ink`}>
-              ↑ em alta no mundo hoje, segundo o{" "}
+              ↑ álbuns em alta no mundo hoje, segundo o{" "}
               <a
                 href="https://www.last.fm/charts"
                 target="_blank"
@@ -79,17 +79,6 @@ export default async function Home() {
 
           <UsernameForm sticker />
 
-          <p className={`${hand.className} -mt-1 -rotate-1 text-lg text-ink-soft`}>
-            fiz porque não queria esperar dezembro pra ver o que ouvi.{" "}
-            <a
-              href="https://x.com/alcoholicgoatt"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="whitespace-nowrap text-ink underline decoration-amber decoration-2 underline-offset-4 hover:text-amber"
-            >
-              — @alcoholicgoatt
-            </a>
-          </p>
 
           <details className="text-sm text-ink-soft">
             <summary className="cursor-pointer font-semibold text-ink">Não tem Last.fm?</summary>
