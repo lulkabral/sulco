@@ -1,64 +1,113 @@
-import { Logo } from "@/components/Logo";
+import { Gochi_Hand } from "next/font/google";
+import { CoverCollage } from "@/components/CoverCollage";
+import { LogoLink } from "@/components/Logo";
 import { Marquee } from "@/components/Marquee";
 import { UsernameForm } from "@/components/UsernameForm";
+import { getTrendingCovers } from "@/lib/lastfm/client";
 
-const STEPS = [
-  { n: 1, title: "Digite o username", text: "do seu Last.fm" },
-  { n: 2, title: "Escolha o período", text: "uma semana ou um mês fechado" },
-  { n: 3, title: "Baixe a imagem", text: "recap ou grade de capas" },
-];
+// Letra de "bilhete escrito à mão", só para as anotações da página inicial.
+const hand = Gochi_Hand({ weight: "400", subsets: ["latin"], display: "swap" });
 
-export default function Home() {
+/** Dia em que o site foi ao ar: a "edição" do dia conta a partir daqui. */
+const LAUNCH_DAY = Date.UTC(2026, 10, 16);
+
+/** "nº 2 · 17 nov": número da edição (um por dia desde o lançamento) e a data. */
+function editionLabel(timestamp: number): string {
+  const n = Math.max(1, Math.floor((timestamp - LAUNCH_DAY) / 86_400_000) + 1);
+  const date = new Intl.DateTimeFormat("pt-BR", { day: "numeric", month: "short", timeZone: "America/Sao_Paulo" })
+    .format(timestamp)
+    .replace(" de ", " ")
+    .replace(".", "");
+  return `nº ${n} · ${date}`;
+}
+
+export default async function Home() {
+  // Capas do top mundial do Last.fm, guardadas 1 dia (src/lib/lastfm/client.ts).
+  const { covers, updatedAt } = await getTrendingCovers();
+  const hasCollage = covers.length >= 4;
+
   return (
-    <main id="conteudo" className="flex flex-1 flex-col">
-      {/* Faixas abstratas: ainda não há usuário, então não há capas para mostrar. */}
-      <div className="flex flex-col gap-2 pt-4">
-        <Marquee size={72} seconds={70} />
-        <Marquee size={72} seconds={90} reverse offset={5} />
-      </div>
+    <main id="conteudo" className="mx-auto flex w-full max-w-5xl flex-1 flex-col px-4 pb-12">
+      <header className="flex items-center justify-between py-4">
+        <LogoLink />
+        <span className="font-mono text-xs text-ink-faint">{editionLabel(updatedAt)}</span>
+      </header>
 
-      <div className="mx-auto flex w-full max-w-xl flex-1 flex-col justify-center gap-8 px-4 py-10">
-        <div className="flex flex-col gap-4 motion-safe:animate-rise">
-          <Logo size="lg" />
-          <h1 className="text-5xl font-extrabold leading-[0.95] tracking-tight sm:text-6xl">
-            O que você ouviu <span className="text-amber">no último mês?</span>
+      <div className="flex flex-1 flex-col gap-8 md:grid md:grid-cols-[1fr_1.1fr] md:items-center md:gap-12">
+        {/* Colagem primeiro no celular (é o que chama atenção); à direita no computador. */}
+        <figure className="md:order-2">
+          {hasCollage ? (
+            <CoverCollage covers={covers} />
+          ) : (
+            <div className="flex flex-col gap-2 py-6">
+              <Marquee size={72} seconds={70} />
+              <Marquee size={72} seconds={90} reverse offset={5} />
+            </div>
+          )}
+          {hasCollage && (
+            <figcaption className={`${hand.className} mt-3 -rotate-2 text-lg text-ink`}>
+              ↑ em alta no mundo hoje, segundo o{" "}
+              <a
+                href="https://www.last.fm/charts"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline decoration-amber decoration-2 underline-offset-4 hover:text-amber"
+              >
+                Last.fm
+              </a>
+            </figcaption>
+          )}
+        </figure>
+
+        <div className="flex flex-col gap-6 md:order-1">
+          <h1 className="text-5xl leading-[0.92] font-extrabold tracking-tighter sm:text-6xl">
+            o que tocou
+            <br />
+            no{" "}
+            <span className="relative inline-block whitespace-nowrap">
+              <span
+                aria-hidden
+                className="absolute inset-x-[-0.1em] inset-y-[0.02em] -rotate-2 rounded-md bg-amber"
+              />
+              <span className="relative text-amber-ink">seu mês?</span>
+            </span>
           </h1>
-          <p className="text-lg text-ink-soft">
-            Seus artistas, músicas, álbuns e gêneros mais ouvidos, numa imagem pronta para
-            compartilhar. Basta o username do Last.fm, sem cadastro.
+
+          <p className="max-w-md text-lg text-ink-soft">
+            Seus artistas, músicas, álbuns e gêneros mais ouvidos, numa imagem para postar.
           </p>
-        </div>
 
-        <div className="motion-safe:animate-rise [animation-delay:100ms]">
-          <UsernameForm />
-        </div>
+          <UsernameForm sticker />
 
-        <ol className="grid grid-cols-3 gap-2 motion-safe:animate-rise [animation-delay:200ms]">
-          {STEPS.map((s) => (
-            <li key={s.n} className="rounded-xl bg-card p-3">
-              <span className="text-xl font-extrabold text-amber">{s.n}</span>
-              <p className="mt-1 text-sm font-semibold leading-tight">{s.title}</p>
-              <p className="mt-0.5 text-xs text-ink-soft">{s.text}</p>
-            </li>
-          ))}
-        </ol>
-
-        <details className="text-sm text-ink-soft">
-          <summary className="cursor-pointer font-semibold text-ink">Não tem Last.fm?</summary>
-          <p className="mt-2">
-            Crie uma conta grátis em{" "}
+          <p className={`${hand.className} -mt-1 -rotate-1 text-lg text-ink-soft`}>
+            fiz porque não queria esperar dezembro pra ver o que ouvi.{" "}
             <a
-              href="https://www.last.fm/join"
-              className="text-amber underline underline-offset-2"
+              href="https://x.com/alcoholicgoatt"
               target="_blank"
               rel="noopener noreferrer"
+              className="whitespace-nowrap text-ink underline decoration-amber decoration-2 underline-offset-4 hover:text-amber"
             >
-              last.fm
-            </a>{" "}
-            e ligue o scrobbling no seu app de música (Spotify, Deezer, YouTube Music e outros) nas
-            configurações do Last.fm. A partir daí, tudo que você ouvir passa a contar.
+              — @alcoholicgoatt
+            </a>
           </p>
-        </details>
+
+          <details className="text-sm text-ink-soft">
+            <summary className="cursor-pointer font-semibold text-ink">Não tem Last.fm?</summary>
+            <p className="mt-2">
+              Crie uma conta grátis em{" "}
+              <a
+                href="https://www.last.fm/join"
+                className="text-amber underline underline-offset-2"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                last.fm
+              </a>{" "}
+              e ligue o scrobbling no seu app de música (Spotify, Deezer, YouTube Music e outros) nas
+              configurações do Last.fm. A partir daí, tudo que você ouvir passa a contar.
+            </p>
+          </details>
+        </div>
       </div>
     </main>
   );

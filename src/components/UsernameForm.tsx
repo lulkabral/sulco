@@ -6,10 +6,12 @@ import { validateUsername } from "@/lib/lastfm/validate";
 
 type Props = {
   defaultValue?: string;
+  /** Visual de "adesivo" (borda clara e sombra âmbar dura), usado na página inicial. */
+  sticker?: boolean;
 };
 
 /** Campo de username. Valida no navegador e leva para /u/USERNAME. */
-export function UsernameForm({ defaultValue = "" }: Props) {
+export function UsernameForm({ defaultValue = "", sticker = false }: Props) {
   const router = useRouter();
   const [value, setValue] = useState(defaultValue);
   const [error, setError] = useState<string | null>(null);
@@ -33,7 +35,13 @@ export function UsernameForm({ defaultValue = "" }: Props) {
       <label htmlFor="username" className="text-sm font-semibold text-ink-soft">
         Username do Last.fm
       </label>
-      <div className="flex gap-1.5 rounded-2xl border border-line bg-card p-1.5 focus-within:border-amber focus-within:ring-1 focus-within:ring-amber">
+      <div
+        className={
+          sticker
+            ? "flex overflow-hidden rounded-xl border-2 border-ink bg-card shadow-[4px_4px_0_var(--color-amber)] focus-within:shadow-[6px_6px_0_var(--color-amber)] transition-shadow"
+            : "flex gap-1.5 rounded-2xl border border-line bg-card p-1.5 focus-within:border-amber focus-within:ring-1 focus-within:ring-amber"
+        }
+      >
         <input
           id="username"
           name="username"
@@ -51,7 +59,10 @@ export function UsernameForm({ defaultValue = "" }: Props) {
         <button
           type="submit"
           disabled={sending}
-          className="rounded-xl bg-amber px-5 py-2 font-bold text-amber-ink transition hover:bg-amber-hover active:scale-95 disabled:opacity-60"
+          className={
+            (sticker ? "px-5 py-3 font-extrabold " : "rounded-xl px-5 py-2 font-bold ") +
+            "bg-amber text-amber-ink transition hover:bg-amber-hover active:scale-95 disabled:opacity-60"
+          }
         >
           {sending ? "Abrindo…" : "Gerar"}
         </button>

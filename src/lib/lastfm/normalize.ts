@@ -228,6 +228,16 @@ export function normalizeTrackDuration(raw: unknown): number | null {
   return ms > 0 ? Math.round(ms / 1000) : null;
 }
 
+/** Top de músicas global (`chart.getTopTracks`): só nome e artista, na ordem. */
+export function normalizeChartTracks(raw: unknown): { name: string; artist: string }[] {
+  return toArray(obj(obj(raw).tracks).track)
+    .map((item) => {
+      const t = obj(item);
+      return { name: str(t.name).trim(), artist: str(obj(t.artist).name).trim() };
+    })
+    .filter((t) => t.name !== "" && t.artist !== "");
+}
+
 /** Soma dos plays de todos os itens do gráfico (sem cortar). */
 export function sumChartPlays(type: TopType, raw: unknown): number {
   const keys = CHART_KEYS[type];

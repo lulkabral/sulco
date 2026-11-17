@@ -28,6 +28,7 @@ GET https://ws.audioscrobbler.com/2.0/?method=user.gettopalbums&user=USERNAME&pe
 | `artist.getTopTags` | tags do artista (gêneros) | `artist` |
 | `user.getWeeklyArtistChart`, `user.getWeeklyAlbumChart`, `user.getWeeklyTrackChart` | tops de um ano inteiro (com `from`/`to` livres) | `user`, `from`, `to` |
 | `album.getInfo` | só a capa dos álbuns do ano (o gráfico não traz imagem) | `artist`, `album` |
+| `chart.getTopTracks` | top músicas global, para a colagem da página inicial (só nome e artista; as imagens são a estrela) | `limit=20` |
 | `track.getInfo` | só a capa do álbum de cada música da lista "Músicas" (o top de músicas só traz a estrela) | `artist`, `track`, `autocorrect=1` |
 
 Qualquer outro método deve ser recusado pela rota.
@@ -103,6 +104,7 @@ Fora do site, a ferramenta local `npm run banner` (só para a conta oficial) tam
   - O gráfico de álbuns agrupa pelo **artista do álbum** ("Various Artists" em coletâneas), diferente da soma de scrobbles do mês fechado.
   - Os itens vêm **sem capa** (álbum sem `image`; música com a estrela genérica). A capa vem de `album.getInfo`, só para os álbuns que aparecem (9 na imagem, 25 na grade), 3 por vez, com cache de 30 dias. Na primeira vez, algumas capas demoram vários segundos.
   - `album.getInfo` de álbum inexistente: HTTP 200 com `{"error": 6, "message": "Album not found"}`. Tratamos como "sem capa".
+- `chart.getTopTracks` (testado em 17/11/2026): todas as imagens vêm com a estrela (placeholder), como no top do usuário. A capa vem de `track.getInfo`: 18 de 20 músicas tinham capa, 16 de álbuns diferentes. `geo.getTopTracks` (por país) tem o mesmo formato, mas escolhemos o mundial. Chamado só no servidor, guardado 1 dia.
 - `track.getInfo` (testado em 16/11/2026): `track.album.image` traz a capa do álbum da música (4 de 5 músicas testadas) e `track.duration` traz a duração em milissegundos (6 de 6 testadas; pode vir 0, que tratamos como "sem duração"). A duração serve para estimar os minutos do recap. Música sem álbum conhecido responde HTTP 200 com erro 6; tratamos como "sem capa". Chamado pelo navegador via `/api/lastfm/track`, só para as 10 músicas da lista e só quando a capa não veio de outro lugar (no mês fechado ela vem dos scrobbles), 3 por vez, cache de 30 dias.
   - Risco: como é um uso não documentado, o Last.fm pode mudar. Se mudar, só o ano inteiro para de funcionar.
 - **`artist.getTopTags` (fase 5, testado em 15/11/2026):**

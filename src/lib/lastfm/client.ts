@@ -4,12 +4,14 @@ import "server-only";
 
 import { cacheLife } from "next/cache";
 import { computeTopGenres, mapWithLimit, type Genre } from "@/lib/genres";
+import { pickTrendingCovers, type TrendingCover } from "@/lib/trending";
 import { LastfmError, mapLastfmError } from "./errors";
 import {
   getLastfmErrorNumber,
   normalizeAlbumCover,
   normalizeTrackCover,
   normalizeTrackDuration,
+  normalizeChartTracks,
   normalizeArtistTags,
   normalizeChart,
   sumChartPlays,
@@ -46,6 +48,7 @@ const ALLOWED_METHODS = [
   "user.getWeeklyTrackChart",
   "album.getInfo",
   "track.getInfo",
+  "chart.getTopTracks",
 ] as const;
 type Method = (typeof ALLOWED_METHODS)[number];
 
@@ -327,4 +330,30 @@ export async function getTrackInfo(
     if (err instanceof LastfmError && err.code === "USER_NOT_FOUND") return { imageUrl: null, durationSec: null };
     throw err;
   }
+}
+
+/**
+ * Capas "em alta no mundo" para a colagem da página inicial (SPEC, "Página inicial"):
+ * top 20 músicas global do Last.fm e a capa de cada uma (3 por vez), sem repetidas.
+ * Guardado 1 dia para o site inteiro (não é por visitante). Nunca lança erro: se o
+ * Last.fm falhar, devolve lista vazia por poucos minutos e a página usa as formas abstratas.
+ */
+export async function getTrendingCovers(): Promise<{ covers: TrendingCover[]; updatedAt: number }> {
+  "use cache";
+  let covers: TrendingCover[] = [];
+  try {
+    const tracks = normalizeChartTracks(await callLastfm("chart.getTopTracks", { limit: "20" }, "day"));
+    const images = await mapWithLimit(tracks, TAGS_CONCURRENCY, async (t) => {
+      try {
+        return (await getTrackInfo(t.artist, t.name)).imageUrl;
+      } catch {
+        return null;
+      }
+    });
+    covers = pickTrendingCovers(tracks.map((t, i) => ({ ...t, imageUrl: images[i] })));
+  } catch {
+    covers = [];
+  }
+  cacheLife(covers.length > 0 ? CACHE_PROFILES.day : { revalidate: 300, expire: 900 });
+  return { covers, updatedAt: Date.now() };
 }

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   normalizeAlbumCover,
   normalizeTrackCover,
+  normalizeChartTracks,
   normalizeTrackDuration,
   normalizeArtistTags,
   normalizeChart,
@@ -301,6 +302,25 @@ describe("normalizeTrackDuration", () => {
   it("0, ausente ou erro: null", () => {
     expect(normalizeTrackDuration({ track: { duration: "0" } })).toBeNull();
     expect(normalizeTrackDuration({ error: 6 })).toBeNull();
+  });
+});
+
+describe("normalizeChartTracks", () => {
+  it("pega nome e artista, na ordem, e pula itens quebrados", () => {
+    const raw = {
+      tracks: {
+        track: [
+          { name: "Nicole Kidman", artist: { name: "ADÉLA" } },
+          { name: "", artist: { name: "X" } },
+          { name: "the cure", artist: { name: "Olivia Rodrigo" } },
+        ],
+      },
+    };
+    expect(normalizeChartTracks(raw)).toEqual([
+      { name: "Nicole Kidman", artist: "ADÉLA" },
+      { name: "the cure", artist: "Olivia Rodrigo" },
+    ]);
+    expect(normalizeChartTracks({})).toEqual([]);
   });
 });
 
