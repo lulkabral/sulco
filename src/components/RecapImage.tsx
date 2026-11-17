@@ -41,24 +41,30 @@ type Props = {
   minuteSample: { name: string; artist: string; playcount: number }[];
 };
 
-/** O que precisa estar carregado antes de desenhar. */
-type Assets = {
-  font: string;
-  covers: (HTMLImageElement | null)[];
-  genres: string[] | null;
-  /** Paleta tirada da capa nº 1 (null se não der). */
-  coverPalette: Palette | null;
-};
+/** Capas que entram na imagem (o Mosaico usa todas). */
+const RECAP_COVERS = 9;
 
 /**
  * Aba Recap: imagem story (1080 x 1920) desenhada no canvas, com escolha de formato,
  * cor e números, e baixar/compartilhar. As escolhas ficam guardadas só neste navegador.
+ *
+ * Desenha assim que a fonte está pronta e vai completando: cada capa entra quando chega,
+ * e os gêneros (que podem levar alguns segundos) entram por último. Os botões de baixar
+ * e compartilhar só liberam com a imagem completa.
  */
 export function RecapImage(props: Props) {
   const { username, period, periodLabel, from, to, total, genres, artists, tracks, albums, minuteSample } = props;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [snapshot, takeSnapshot] = useCanvasSnapshot();
-  const [assets, setAssets] = useState<Assets | null>(null);
+  const [font, setFont] = useState<string | null>(null);
+  const [covers, setCovers] = useState<(HTMLImageElement | null)[]>(() =>
+    albums.slice(0, RECAP_COVERS).map(() => null),
+  );
+  const [coversDone, setCoversDone] = useState(false);
+  /** undefined = ainda calculando; null = não deu para calcular. */
+  const [genreNames, setGenreNames] = useState<string[] | null | undefined>(undefined);
+  /** Paleta tirada da capa nº 1 (null se não der). */
+  const [coverPalette, setCoverPalette] = useState<Palette | null>(null);
 
   // Escolhas guardadas no navegador. No servidor (e no 1º desenho) valem as padrão.
   const prefsRaw = useSyncExternalStore(subscribePrefs, readPrefsRaw, () => null);
@@ -88,36 +94,62 @@ export function RecapImage(props: Props) {
   const minutesValue = minutes?.key === minutesKey ? minutes.value : null;
 
   const palette =
-    prefs.paletteId === COVER_PALETTE_ID ? (assets?.coverPalette ?? PALETTES[0]) : paletteById(prefs.paletteId);
+    prefs.paletteId === COVER_PALETTE_ID ? (coverPalette ?? PALETTES[0]) : paletteById(prefs.paletteId);
 
-  // 1) Carrega fontes, capas e gêneros uma vez (trocar formato ou cor não baixa de novo).
+  // 1) Fonte: o único item que segura o 1º desenho (sem ela, o texto sairia na fonte reserva).
   useEffect(() => {
     let cancelled = false;
-    (async () => {
-      const font = pageFontFamily();
-      await waitForFonts(font);
-      const [genreList, ...covers] = await Promise.all([
-        genres,
-        // Todas em 600 px: alguns formatos desenham capas além da nº 1 em mais de 500 px
-        // (Mosaico, Toca-discos), e a imagem baixada precisa ficar nítida.
-        ...albums.slice(0, 9).map((a) => (a.imageUrl ? loadImage(coverUrl(a.imageUrl, 600)) : null)),
-      ]);
-      if (cancelled) return;
-      setAssets({
-        font,
-        covers: covers as (HTMLImageElement | null)[],
-        genres: genreList ? (genreList as Genre[]).map((g) => g.name) : null,
-        coverPalette: covers[0] ? paletteFromCover(covers[0] as HTMLImageElement) : null,
-      });
-    })();
+    const family = pageFontFamily();
+    waitForFonts(family).then(() => !cancelled && setFont(family));
     return () => {
       cancelled = true;
     };
-  }, [albums, genres]);
+  }, []);
 
-  // 2) Desenha sempre que os dados ou as escolhas mudam (é instantâneo).
+  // 2) Capas, cada uma por conta própria: a imagem é redesenhada quando cada uma chega,
+  // então uma capa lenta não segura as outras. Todas em 600 px: alguns formatos desenham
+  // capas além da nº 1 em mais de 500 px (Mosaico, Toca-discos) e a imagem baixada precisa
+  // ficar nítida. Trocar formato ou cor não baixa de novo.
   useEffect(() => {
-    if (!assets || !canvasRef.current) return;
+    let cancelled = false;
+    const list = albums.slice(0, RECAP_COVERS);
+    let pending = list.length;
+    const settle = () => {
+      pending -= 1;
+      if (pending <= 0) setCoversDone(true);
+    };
+    if (list.length === 0) Promise.resolve().then(() => !cancelled && setCoversDone(true));
+    list.forEach((a, i) => {
+      const load = a.imageUrl ? loadImage(coverUrl(a.imageUrl, 600)) : Promise.resolve(null);
+      load.then((img) => {
+        if (cancelled) return;
+        if (img) {
+          setCovers((prev) => prev.map((c, j) => (j === i ? img : c)));
+          if (i === 0) setCoverPalette(paletteFromCover(img));
+        }
+        settle();
+      });
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [albums]);
+
+  // 3) Gêneros: chegam por último (calculados a partir das tags dos artistas).
+  useEffect(() => {
+    let cancelled = false;
+    genres.then((list) => !cancelled && setGenreNames(list ? list.map((g: Genre) => g.name) : null));
+    return () => {
+      cancelled = true;
+    };
+  }, [genres]);
+
+  const drawn = font !== null;
+  const complete = drawn && coversDone && genreNames !== undefined;
+
+  // 4) Desenha sempre que os dados ou as escolhas mudam (é instantâneo).
+  useEffect(() => {
+    if (!font || !canvasRef.current) return;
     drawRecap(
       canvasRef.current,
       {
@@ -132,17 +164,20 @@ export function RecapImage(props: Props) {
         artists,
         tracks,
         albums,
-        covers: assets.covers,
-        genres: assets.genres,
+        covers,
+        genres: genreNames,
         siteHost: window.location.host,
       },
-      { layout: prefs.layout, palette, showNumbers: prefs.showNumbers, font: assets.font },
+      { layout: prefs.layout, palette, showNumbers: prefs.showNumbers, font },
     );
-    void takeSnapshot(canvasRef.current);
-  }, [assets, prefs, palette, username, period, periodLabel, from, to, total, minutesValue, artists, tracks, albums, takeSnapshot]);
+    // A cópia "segurável" só serve no celular, e só com a imagem completa.
+    if (complete) takeSnapshot(canvasRef.current);
+  }, [font, covers, genreNames, complete, prefs, palette, username, period, periodLabel, from, to, total, minutesValue, artists, tracks, albums, takeSnapshot]);
 
-  const drawn = assets !== null;
-  const coverAccent = assets?.coverPalette?.accent;
+  const coverAccent = coverPalette?.accent;
+  const altText = `Recap de ${username}: ${periodLabel.toLowerCase()}, formato ${
+    RECAP_LAYOUTS.find((l) => l.id === prefs.layout)?.name
+  }. Os tops em texto estão abaixo.`;
 
   return (
     <section
@@ -158,19 +193,16 @@ export function RecapImage(props: Props) {
           ref={canvasRef}
           width={RECAP_WIDTH}
           height={RECAP_HEIGHT}
-          aria-hidden
+          // Sem a cópia em <img> (computador), o próprio canvas é a imagem para leitores de tela.
+          role={snapshot ? undefined : "img"}
+          aria-label={snapshot ? undefined : altText}
+          aria-hidden={snapshot ? true : undefined}
           className="block aspect-[9/16] w-full rounded-2xl bg-card shadow-2xl shadow-black/50 ring-1 ring-line"
         />
         {snapshot && (
           // Cópia em PNG por cima do canvas: no celular, segurar o dedo abre "Salvar imagem".
           // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={snapshot}
-            alt={`Recap de ${username}: ${periodLabel.toLowerCase()}, formato ${
-              RECAP_LAYOUTS.find((l) => l.id === prefs.layout)?.name
-            }. Os tops em texto estão abaixo.`}
-            className="absolute left-0 top-0 aspect-[9/16] w-full rounded-2xl"
-          />
+          <img src={snapshot} alt={altText} className="absolute left-0 top-0 aspect-[9/16] w-full rounded-2xl" />
         )}
         {!drawn && (
           <p
@@ -180,7 +212,12 @@ export function RecapImage(props: Props) {
             Montando o recap…
           </p>
         )}
-        {drawn && <SaveHint />}
+        {drawn && !complete && (
+          <p role="status" className="mt-2 text-center text-xs text-ink-faint">
+            Completando capas e gêneros…
+          </p>
+        )}
+        {complete && <SaveHint />}
       </div>
 
       <div className="flex flex-col gap-5 rounded-2xl bg-card p-5 md:min-w-80">
@@ -240,7 +277,7 @@ export function RecapImage(props: Props) {
               onClick={() => choose({ paletteId: COVER_PALETTE_ID })}
               background={
                 coverAccent
-                  ? `linear-gradient(135deg, ${assets?.coverPalette?.room} 50%, ${coverAccent} 50%)`
+                  ? `linear-gradient(135deg, ${coverPalette?.room} 50%, ${coverAccent} 50%)`
                   : "conic-gradient(#e8a13a, #ff7aa2, #c59bff, #6fc3ff, #e8a13a)"
               }
             />
@@ -271,7 +308,7 @@ export function RecapImage(props: Props) {
           canvasRef={canvasRef}
           filename={`recap-${username}-${period}-${prefs.layout}.png`}
           shareTitle={`Meu recap: ${periodLabel.toLowerCase()}`}
-          disabled={!drawn}
+          disabled={!complete}
         />
       </div>
     </section>

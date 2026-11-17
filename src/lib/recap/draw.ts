@@ -51,8 +51,8 @@ export type RecapData = {
   /** Até 9 álbuns; `covers[i]` é a capa de `albums[i]` (null se não houver). */
   albums: RecapListItem[];
   covers: (HTMLImageElement | null)[];
-  /** Top gêneros. null = não deu para calcular; [] = artistas sem tags. */
-  genres: string[] | null;
+  /** Top gêneros. undefined = ainda calculando; null = não deu para calcular; [] = artistas sem tags. */
+  genres: string[] | null | undefined;
   /** Endereço do site, mostrado no rodapé. */
   siteHost: string;
 };

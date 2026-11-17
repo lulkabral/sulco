@@ -32,10 +32,15 @@ export function AlbumGrid({ username, period, periodLabel, albums }: Props) {
   const [size, setSize] = useState<GridSize>(3);
   const [showCaption, setShowCaption] = useState(true);
   const [showPlays, setShowPlays] = useState(false);
+  /** Chave das opções já desenhadas pelo menos uma vez (com as capas que chegaram). */
   const [drawnKey, setDrawnKey] = useState<string | null>(null);
+  /** Chave das opções com todas as capas já desenhadas (libera baixar e compartilhar). */
+  const [doneKey, setDoneKey] = useState<string | null>(null);
 
   const key = `${size}-${showCaption}-${showPlays}`;
   const loading = drawnKey !== key;
+  const complete = doneKey === key;
+  const altText = `Grade ${size}x${size} com as capas dos álbuns mais ouvidos: ${periodLabel.toLowerCase()}. A lista em texto está abaixo.`;
 
   useEffect(() => {
     let cancelled = false;
@@ -53,30 +58,56 @@ export function AlbumGrid({ username, period, periodLabel, albums }: Props) {
       return p;
     };
 
+    const optionsKey = `${size}-${showCaption}-${showPlays}`;
+    let redraw: ReturnType<typeof setTimeout> | null = null;
+
     (async () => {
       const fontFamily = pageFontFamily();
       await waitForFonts(fontFamily);
+      if (cancelled) return;
 
       const needed = albums.slice(0, size * size);
       const px = coverPxFor(GRID_CANVAS_SIDE / size);
-      // Capas vêm do servidor de imagens (não da API), então podem vir todas juntas.
-      const covers = await Promise.all(
-        needed.map((a) => (a.imageUrl ? getCover(coverUrl(a.imageUrl, px)) : null)),
-      );
-      if (cancelled || !canvasRef.current) return;
+      const covers: (HTMLImageElement | null)[] = needed.map(() => null);
+      let pending = needed.length;
 
-      drawGrid(
-        canvasRef.current,
-        needed.map((a, i) => ({ name: a.name, artist: a.artist, playcount: a.playcount, cover: covers[i] })),
-        // Sem assinatura: a grade é só das capas (decisão de 16/11/2026).
-        { size, showCaption, showPlays, fontFamily },
-      );
-      void takeSnapshot(canvasRef.current);
-      setDrawnKey(`${size}-${showCaption}-${showPlays}`);
+      const draw = () => {
+        redraw = null;
+        if (cancelled || !canvasRef.current) return;
+        drawGrid(
+          canvasRef.current,
+          needed.map((a, i) => ({ name: a.name, artist: a.artist, playcount: a.playcount, cover: covers[i] })),
+          // Sem assinatura: a grade é só das capas (decisão de 16/11/2026).
+          { size, showCaption, showPlays, fontFamily },
+        );
+        setDrawnKey(optionsKey);
+        if (pending === 0) {
+          setDoneKey(optionsKey);
+          takeSnapshot(canvasRef.current);
+        }
+      };
+      // Capas que chegam juntas viram um redesenho só.
+      const schedule = () => {
+        if (!redraw) redraw = setTimeout(draw, 30);
+      };
+
+      // Capas vêm do servidor de imagens (não da API), então podem vir todas juntas;
+      // cada uma entra na grade quando chega, sem esperar as outras.
+      if (pending === 0) schedule();
+      needed.forEach((a, i) => {
+        const load = a.imageUrl ? getCover(coverUrl(a.imageUrl, px)) : Promise.resolve(null);
+        load.then((img) => {
+          if (cancelled) return;
+          covers[i] = img;
+          pending -= 1;
+          schedule();
+        });
+      });
     })();
 
     return () => {
       cancelled = true;
+      if (redraw) clearTimeout(redraw);
     };
   }, [albums, size, showCaption, showPlays, takeSnapshot]);
 
@@ -98,17 +129,21 @@ export function AlbumGrid({ username, period, periodLabel, albums }: Props) {
           ref={canvasRef}
           width={GRID_CANVAS_SIDE}
           height={GRID_CANVAS_SIDE}
-          aria-hidden
+          // Sem a cópia em <img> (computador), o próprio canvas é a imagem para leitores de tela.
+          role={snapshot ? undefined : "img"}
+          aria-label={snapshot ? undefined : altText}
+          aria-hidden={snapshot ? true : undefined}
           className="block aspect-square w-full rounded-2xl bg-card shadow-2xl shadow-black/50 ring-1 ring-line"
         />
         {snapshot && (
           // Cópia em PNG por cima do canvas: no celular, segurar o dedo abre "Salvar imagem".
           // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={snapshot}
-            alt={`Grade ${size}x${size} com as capas dos álbuns mais ouvidos: ${periodLabel.toLowerCase()}. A lista em texto está abaixo.`}
-            className="absolute left-0 top-0 aspect-square w-full rounded-2xl"
-          />
+          <img src={snapshot} alt={altText} className="absolute left-0 top-0 aspect-square w-full rounded-2xl" />
+        )}
+        {!loading && !complete && (
+          <p role="status" className="mt-2 text-center text-xs text-ink-faint">
+            Completando as capas…
+          </p>
         )}
         {loading && (
           <p
@@ -175,7 +210,7 @@ export function AlbumGrid({ username, period, periodLabel, albums }: Props) {
           canvasRef={canvasRef}
           filename={`grade-${username}-${period}-${size}x${size}.png`}
           shareTitle={`Meus álbuns: ${periodLabel.toLowerCase()}`}
-          disabled={loading}
+          disabled={!complete}
         />
       </div>
     </section>

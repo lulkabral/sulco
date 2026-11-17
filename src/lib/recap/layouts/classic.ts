@@ -79,7 +79,7 @@ function listCard(ctx: Ctx, o: RecapOptions, x: number, top: number, title: stri
   });
 }
 
-function genresCard(ctx: Ctx, o: RecapOptions, x: number, top: number, genres: string[] | null) {
+function genresCard(ctx: Ctx, o: RecapOptions, x: number, top: number, genres: string[] | null | undefined) {
   const f = o.font;
   const p = o.palette;
   card(ctx, p, x, top, COL_W, 410, 32);
@@ -88,7 +88,8 @@ function genresCard(ctx: Ctx, o: RecapOptions, x: number, top: number, genres: s
   const left = x + pad;
   eyebrow(ctx, f, "Gêneros", left, top + 58, p.inkSoft, inner);
   if (!genres || genres.length === 0) {
-    text(ctx, genres ? "sem tags suficientes" : "indisponível", left, top + 120, { font: `500 26px ${f}`, color: p.inkSoft });
+    const note = genres === undefined ? "calculando…" : genres ? "sem tags suficientes" : "indisponível";
+    text(ctx, note, left, top + 120, { font: `500 26px ${f}`, color: p.inkSoft });
     return;
   }
   genres.slice(0, 5).forEach((genre, i) => {
