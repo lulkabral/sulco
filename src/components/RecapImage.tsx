@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { ExportButtons } from "@/components/ExportButtons";
+import { useI18n } from "@/i18n/client";
 import { loadImage, pageFontFamily, waitForFonts } from "@/lib/canvas/image";
 import { useCanvasSnapshot } from "@/lib/canvas/use-snapshot";
 import { albumCover, trackInfo } from "@/lib/lookups";
@@ -54,6 +55,7 @@ const RECAP_COVERS = 9;
  */
 export function RecapImage(props: Props) {
   const { username, period, periodLabel, from, to, total, genres, artists, tracks, albums, minuteSample } = props;
+  const { lang, t } = useI18n();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [snapshot, takeSnapshot] = useCanvasSnapshot();
   const [font, setFont] = useState<string | null>(null);
@@ -156,11 +158,11 @@ export function RecapImage(props: Props) {
         username,
         title: periodLabel,
         // Datas no fuso do aparelho de quem gera a imagem.
-        dateText: dateText(period, from, to),
-        shortTag: shortTag(period),
+        dateText: dateText(period, from, to, undefined, lang),
+        shortTag: shortTag(period, lang),
         total,
         minutes: minutesValue,
-        albumHeading: albumHeading(period),
+        albumHeading: albumHeading(period, lang),
         artists,
         tracks,
         albums,
@@ -168,16 +170,14 @@ export function RecapImage(props: Props) {
         genres: genreNames,
         siteHost: window.location.host,
       },
-      { layout: prefs.layout, palette, showNumbers: prefs.showNumbers, font },
+      { layout: prefs.layout, palette, showNumbers: prefs.showNumbers, font, lang },
     );
     // A cópia "segurável" só serve no celular, e só com a imagem completa.
     if (complete) takeSnapshot(canvasRef.current);
-  }, [font, covers, genreNames, complete, prefs, palette, username, period, periodLabel, from, to, total, minutesValue, artists, tracks, albums, takeSnapshot]);
+  }, [font, covers, genreNames, complete, prefs, palette, username, period, periodLabel, from, to, total, minutesValue, artists, tracks, albums, takeSnapshot, lang]);
 
   const coverAccent = coverPalette?.accent;
-  const altText = `Recap de ${username}: ${periodLabel.toLowerCase()}, formato ${
-    RECAP_LAYOUTS.find((l) => l.id === prefs.layout)?.name
-  }. Os tops em texto estão abaixo.`;
+  const altText = t.recap.alt(username, periodLabel, t.recap.layouts[prefs.layout]);
 
   return (
     <section
@@ -185,7 +185,7 @@ export function RecapImage(props: Props) {
       className="flex flex-col gap-4 motion-safe:animate-rise md:flex-row md:items-start md:gap-6"
     >
       <h2 id="recap-titulo" className="sr-only">
-        Imagem do recap
+        {t.recap.heading}
       </h2>
 
       <div className="relative w-full max-w-xs self-center transition-transform duration-300 hover:-translate-y-1 md:self-start">
@@ -209,12 +209,12 @@ export function RecapImage(props: Props) {
             role="status"
             className="absolute inset-0 flex items-center justify-center rounded-2xl text-sm font-semibold text-ink-soft"
           >
-            Montando o recap…
+            {t.recap.building}
           </p>
         )}
         {drawn && !complete && (
           <p role="status" className="mt-2 text-center text-xs text-ink-faint">
-            Completando capas e gêneros…
+            {t.recap.completing}
           </p>
         )}
         {complete && <SaveHint />}
@@ -224,21 +224,19 @@ export function RecapImage(props: Props) {
         <div>
           <p className="text-sm font-bold uppercase tracking-widest text-ink-soft">{periodLabel}</p>
           <p className="mt-1 text-ink-soft">
-            <span className="font-bold text-ink">{formatNumber(total)}</span> scrobbles
+            <span className="font-bold text-ink">{formatNumber(total, lang)}</span> {t.units.scrobbles}
             {minutesValue !== null && (
               <>
                 {" · "}
-                <span className="font-bold text-ink">{formatNumber(minutesValue)}</span> minutos
-                <span className="block text-xs text-ink-faint">
-                  Minutos estimados pela duração das suas músicas mais ouvidas.
-                </span>
+                <span className="font-bold text-ink">{formatNumber(minutesValue, lang)}</span> {t.units.minutes}
+                <span className="block text-xs text-ink-faint">{t.recap.minutesNote}</span>
               </>
             )}
           </p>
         </div>
 
         <fieldset>
-          <legend className="mb-2 text-sm font-bold uppercase tracking-widest text-ink-soft">Formato</legend>
+          <legend className="mb-2 text-sm font-bold uppercase tracking-widest text-ink-soft">{t.recap.format}</legend>
           <div className="grid grid-cols-2 gap-2">
             {RECAP_LAYOUTS.map((l) => (
               <button
@@ -253,26 +251,26 @@ export function RecapImage(props: Props) {
                     : "border-line text-ink-soft hover:text-ink")
                 }
               >
-                {l.name}
+                {t.recap.layouts[l.id]}
               </button>
             ))}
           </div>
         </fieldset>
 
         <fieldset>
-          <legend className="mb-2 text-sm font-bold uppercase tracking-widest text-ink-soft">Cor</legend>
+          <legend className="mb-2 text-sm font-bold uppercase tracking-widest text-ink-soft">{t.recap.color}</legend>
           <div className="flex flex-wrap gap-2">
             {PALETTES.map((p) => (
               <Swatch
                 key={p.id}
-                label={p.name}
+                label={t.recap.palettes[p.id] ?? p.name}
                 active={prefs.paletteId === p.id}
                 onClick={() => choose({ paletteId: p.id })}
                 background={`linear-gradient(135deg, ${p.room} 50%, ${p.accent} 50%)`}
               />
             ))}
             <Swatch
-              label="Cor da capa"
+              label={t.recap.coverColor}
               active={prefs.paletteId === COVER_PALETTE_ID}
               onClick={() => choose({ paletteId: COVER_PALETTE_ID })}
               background={
@@ -286,10 +284,8 @@ export function RecapImage(props: Props) {
 
         <label className="flex cursor-pointer items-center justify-between gap-3 rounded-xl border border-line p-3 transition hover:border-ink-faint has-[:checked]:border-amber/60 has-[:checked]:bg-amber/5">
           <span>
-            <span className="block font-semibold">Mostrar scrobbles e minutos</span>
-            <span className="block text-sm text-ink-soft">
-              Na imagem: total de scrobbles, minutos ouvidos e quantas vezes você ouviu cada item
-            </span>
+            <span className="block font-semibold">{t.recap.showNumbers}</span>
+            <span className="block text-sm text-ink-soft">{t.recap.showNumbersHint}</span>
           </span>
           <input
             type="checkbox"
@@ -307,7 +303,7 @@ export function RecapImage(props: Props) {
         <ExportButtons
           canvasRef={canvasRef}
           filename={`recap-${username}-${period}-${prefs.layout}.png`}
-          shareTitle={`Meu recap: ${periodLabel.toLowerCase()}`}
+          shareTitle={t.recap.shareTitle(periodLabel)}
           disabled={!complete}
         />
       </div>
@@ -344,9 +340,10 @@ function Swatch({
 
 /** Dica de salvar segurando a imagem (só em telas de toque, onde isso funciona). */
 export function SaveHint() {
+  const { t } = useI18n();
   return (
     <p className="mt-2 hidden text-center text-xs text-ink-faint [@media(pointer:coarse)]:block">
-      Dica: segure a imagem para salvar ou compartilhar.
+      {t.recap.saveHint}
     </p>
   );
 }

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useOptimistic, useTransition, type MouseEvent } from "react";
+import { useI18n } from "@/i18n/client";
 import { TABS, userPageHref, type Tab } from "@/lib/tabs";
 
 type Props = {
@@ -19,6 +20,7 @@ type Props = {
  */
 export function ProfileTabs({ username, current, period }: Props) {
   const router = useRouter();
+  const { lang, t: dict } = useI18n();
   const [, startTransition] = useTransition();
   // Mostra a aba tocada imediatamente; volta ao valor real se a navegação falhar.
   const [shown, setShown] = useOptimistic(current);
@@ -36,7 +38,7 @@ export function ProfileTabs({ username, current, period }: Props) {
   }
 
   return (
-    <nav aria-label="Abas" className="flex-1 sm:flex-none">
+    <nav aria-label={dict.profile.tabsLabel} className="flex-1 sm:flex-none">
       <ul className="relative grid grid-cols-2 rounded-2xl bg-card p-1 sm:inline-grid sm:w-72">
         {/* Destaque que desliza para a aba escolhida. */}
         <li
@@ -46,7 +48,7 @@ export function ProfileTabs({ username, current, period }: Props) {
         />
         {TABS.map((t) => {
           const active = t.value === shown;
-          const href = userPageHref(username, t.value, period);
+          const href = userPageHref(username, t.value, period, lang);
           return (
             <li key={t.value} className="relative">
               <Link
@@ -60,7 +62,7 @@ export function ProfileTabs({ username, current, period }: Props) {
                 }
               >
                 {t.value === "recap" ? <StoryIcon /> : <GridIcon />}
-                {t.label}
+                {dict.profile.tabs[t.value]}
               </Link>
             </li>
           );

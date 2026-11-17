@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { ExportButtons } from "@/components/ExportButtons";
+import { useI18n } from "@/i18n/client";
 import { loadImage, pageFontFamily, waitForFonts } from "@/lib/canvas/image";
 import { useCanvasSnapshot } from "@/lib/canvas/use-snapshot";
 import { SaveHint } from "./RecapImage";
@@ -25,6 +26,7 @@ type Props = {
 
 /** Aba Grade: colagem das capas em canvas, com opções e botão de baixar/compartilhar. */
 export function AlbumGrid({ username, period, periodLabel, albums }: Props) {
+  const { lang, t } = useI18n();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [snapshot, takeSnapshot] = useCanvasSnapshot();
   // Capas já carregadas, por endereço: trocar opção não baixa tudo de novo.
@@ -41,7 +43,7 @@ export function AlbumGrid({ username, period, periodLabel, albums }: Props) {
   const key = `${size}-${showCaption}-${showPlays}`;
   const loading = drawnKey !== key;
   const complete = doneKey === key;
-  const altText = `Grade ${size}x${size} com as capas dos álbuns mais ouvidos: ${periodLabel.toLowerCase()}. A lista em texto está abaixo.`;
+  const altText = t.grid.alt(size, periodLabel);
 
   useEffect(() => {
     let cancelled = false;
@@ -79,7 +81,7 @@ export function AlbumGrid({ username, period, periodLabel, albums }: Props) {
           canvasRef.current,
           needed.map((a, i) => ({ name: a.name, artist: a.artist, playcount: a.playcount, cover: covers[i] })),
           // Sem assinatura: a grade é só das capas (decisão de 16/11/2026).
-          { size, showCaption, showPlays, fontFamily },
+          { size, showCaption, showPlays, fontFamily, lang },
         );
         setDrawnKey(optionsKey);
         if (pending === 0) {
@@ -111,10 +113,10 @@ export function AlbumGrid({ username, period, periodLabel, albums }: Props) {
       cancelled = true;
       if (redraw) clearTimeout(redraw);
     };
-  }, [albums, size, showCaption, showPlays, takeSnapshot]);
+  }, [albums, size, showCaption, showPlays, takeSnapshot, lang]);
 
   if (albums.length === 0) {
-    return <p className="text-ink-soft">Nenhum álbum neste período.</p>;
+    return <p className="text-ink-soft">{t.grid.empty}</p>;
   }
 
   return (
@@ -123,7 +125,7 @@ export function AlbumGrid({ username, period, periodLabel, albums }: Props) {
       className="flex flex-col gap-4 motion-safe:animate-rise md:flex-row md:items-start md:gap-6"
     >
       <h2 id="grade-titulo" className="sr-only">
-        Grade de álbuns
+        {t.grid.heading}
       </h2>
 
       <div className="relative w-full max-w-md self-center transition-transform duration-300 hover:-translate-y-1 md:self-start">
@@ -144,7 +146,7 @@ export function AlbumGrid({ username, period, periodLabel, albums }: Props) {
         )}
         {!loading && !complete && (
           <p role="status" className="mt-2 text-center text-xs text-ink-faint">
-            Completando as capas…
+            {t.grid.completing}
           </p>
         )}
         {loading && (
@@ -152,7 +154,7 @@ export function AlbumGrid({ username, period, periodLabel, albums }: Props) {
             role="status"
             className="absolute left-0 top-0 flex aspect-square w-full items-center justify-center rounded-2xl bg-room/70 text-sm font-semibold text-ink"
           >
-            Montando a grade…
+            {t.grid.building}
           </p>
         )}
         {snapshot && <SaveHint />}
@@ -160,7 +162,7 @@ export function AlbumGrid({ username, period, periodLabel, albums }: Props) {
 
       <div className="flex flex-col gap-5 rounded-2xl bg-card p-5 md:min-w-72">
         <fieldset>
-          <legend className="mb-2 text-sm font-bold uppercase tracking-widest text-ink-soft">Tamanho</legend>
+          <legend className="mb-2 text-sm font-bold uppercase tracking-widest text-ink-soft">{t.grid.size}</legend>
           <div className="flex gap-2">
             {GRID_SIZES.map((s) => (
               <label key={s} className="cursor-pointer">
@@ -179,15 +181,12 @@ export function AlbumGrid({ username, period, periodLabel, albums }: Props) {
             ))}
           </div>
           {albums.length < size * size && (
-            <p className="mt-2 text-sm text-ink-soft">
-              Só {albums.length} {albums.length === 1 ? "álbum" : "álbuns"} neste período; o resto
-              da grade fica vazio.
-            </p>
+            <p className="mt-2 text-sm text-ink-soft">{t.grid.fewAlbums(albums.length)}</p>
           )}
         </fieldset>
 
         <fieldset className="flex flex-col gap-2">
-          <legend className="mb-2 text-sm font-bold uppercase tracking-widest text-ink-soft">Mostrar</legend>
+          <legend className="mb-2 text-sm font-bold uppercase tracking-widest text-ink-soft">{t.grid.show}</legend>
           <label className="flex items-center gap-2">
             <input
               type="checkbox"
@@ -195,7 +194,7 @@ export function AlbumGrid({ username, period, periodLabel, albums }: Props) {
               onChange={(e) => setShowCaption(e.target.checked)}
               className="size-4 accent-amber"
             />
-            Nome do álbum e artista
+            {t.grid.caption}
           </label>
           <label className="flex items-center gap-2">
             <input
@@ -204,14 +203,14 @@ export function AlbumGrid({ username, period, periodLabel, albums }: Props) {
               onChange={(e) => setShowPlays(e.target.checked)}
               className="size-4 accent-amber"
             />
-            Número de reproduções
+            {t.grid.plays}
           </label>
         </fieldset>
 
         <ExportButtons
           canvasRef={canvasRef}
           filename={`grade-${username}-${period}-${size}x${size}.png`}
-          shareTitle={`Meus álbuns: ${periodLabel.toLowerCase()}`}
+          shareTitle={t.grid.shareTitle(periodLabel)}
           disabled={!complete}
         />
       </div>

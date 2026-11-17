@@ -38,10 +38,16 @@ Painel da Vercel nas primeiras 12 horas: 8,3 mil pedidos na CDN, 2,3 mil execuç
 
 ## Contagem de visitas (16/11/2026)
 
-Vercel Web Analytics, sem cookies, ligado pelo componente `PrivateAnalytics` em `src/app/layout.tsx`. O filtro `beforeSend` (`src/lib/analytics.ts`, com teste):
-- troca `/u/NOME` por `/u/[perfil]` e descarta tudo depois do `?` e do `#`;
+Vercel Web Analytics, sem cookies, ligado pelo componente `PrivateAnalytics` em `src/app/[lang]/layout.tsx`. O filtro `beforeSend` (`src/lib/analytics.ts`, com teste):
+- troca `/u/NOME` por `/u/[perfil]` (também com língua: `/en/u/NOME` vira `/en/u/[perfil]`) e descarta tudo depois do `?` e do `#`;
 - não envia nada se o navegador pedir Do Not Track ou Global Privacy Control.
 O script da Vercel só envia o endereço de origem quando a pessoa vem de outro site (conferido no código do script), então páginas internas com username nunca vão como origem. Nada de eventos personalizados com dados do perfil.
+
+## Línguas (17/11/2026)
+
+- `src/proxy.ts` roda antes de cada página (fora `/api`, `/_next` e arquivos). Só lê o cookie `lang`, o `Accept-Language` e o `User-Agent` para decidir a língua; não registra nada. Redireciona com 307 (temporário, não fica em cache).
+- Cookie `lang`: criado só quando a pessoa escolhe no rodapé; guarda "pt", "en" ou "es" (outro valor é ignorado), `samesite=lax`, 1 ano. Não identifica ninguém. A página de privacidade explica.
+- O log do `next dev` ignora também `/en/u/...` e `/es/u/...` (`next.config.ts`).
 
 ## Riscos que continuam
 

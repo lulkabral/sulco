@@ -1,3 +1,4 @@
+import type { Locale } from "@/i18n/config";
 import { truncateText, wrapText } from "@/lib/canvas/text";
 import { formatPlays } from "@/lib/format";
 import { THEME } from "@/lib/theme";
@@ -16,6 +17,8 @@ export type GridOptions = {
   showCaption: boolean;
   showPlays: boolean;
   fontFamily: string;
+  /** Língua do "N reproduções" desenhado. */
+  lang: Locale;
 };
 
 // Cores da identidade "Sala escura" (src/lib/theme.ts).
@@ -62,7 +65,7 @@ function drawCell(
   // Sem capa, o nome já está no meio do quadrado: a faixa de baixo mostra só os plays.
   const showName = opts.showCaption && album.cover !== null;
   if (showName || opts.showPlays) {
-    drawCaption(ctx, cell, album, showName, opts.showPlays, opts.fontFamily);
+    drawCaption(ctx, cell, album, showName, opts.showPlays, opts.fontFamily, opts.lang);
   }
   ctx.restore();
 }
@@ -111,6 +114,7 @@ function drawCaption(
   showName: boolean,
   showPlays: boolean,
   fontFamily: string,
+  lang: Locale,
 ): void {
   const pad = Math.round(side * 0.05);
   const maxWidth = side - pad * 2;
@@ -126,7 +130,7 @@ function drawCaption(
   }
   if (showPlays) {
     lines.push({
-      text: formatPlays(album.playcount),
+      text: formatPlays(album.playcount, lang),
       font: `400 ${smallSize}px ${fontFamily}`,
       color: TEXT_SOFT,
       size: smallSize,

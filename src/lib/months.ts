@@ -1,3 +1,5 @@
+import { INTL_LOCALE, type Locale } from "@/i18n/config";
+import { DICTS } from "@/i18n";
 // Meses fechados do calendário (SPEC, "Mês fechado").
 // No endereço, um mês aparece como "AAAA-MM" (ex.: ?period=2026-10).
 
@@ -59,14 +61,14 @@ export function currentMonthsSince(registeredAt: number): MonthId[] {
   return monthsSince(registeredAt, new Date());
 }
 
-/** "2026-10" -> "Outubro de 2026". */
-export function monthLabel(id: string): string {
+/** "2026-10" -> "Outubro de 2026" ("October 2026", "Octubre de 2026"). */
+export function monthLabel(id: string, lang: Locale = "pt"): string {
   const parsed = parseMonthId(id);
   if (!parsed) return "";
-  const name = new Intl.DateTimeFormat("pt-BR", { month: "long", timeZone: "UTC" }).format(
+  const text = new Intl.DateTimeFormat(INTL_LOCALE[lang], { month: "long", year: "numeric", timeZone: "UTC" }).format(
     new Date(Date.UTC(parsed.year, parsed.month - 1, 1)),
   );
-  return `${name.charAt(0).toUpperCase()}${name.slice(1)} de ${parsed.year}`;
+  return `${text.charAt(0).toUpperCase()}${text.slice(1)}`;
 }
 
 /**
@@ -125,7 +127,7 @@ export function yearRange(year: number, nowSeconds: number): { from: number; to:
   return end < now ? { from, to: end, ongoing: false } : { from, to: now, ongoing: true };
 }
 
-/** "2025" ou, no ano corrente, "2026 até agora". */
-export function yearLabel(year: number, ongoing: boolean): string {
-  return ongoing ? `${year} até agora` : String(year);
+/** "2025" ou, no ano corrente, "2026 até agora" ("2026 so far"). */
+export function yearLabel(year: number, ongoing: boolean, lang: Locale = "pt"): string {
+  return ongoing ? DICTS[lang].periods.yearOngoing(year) : String(year);
 }

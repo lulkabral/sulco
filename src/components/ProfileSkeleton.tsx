@@ -1,3 +1,7 @@
+"use client";
+
+import { useI18n } from "@/i18n/client";
+
 /** Blocos escuros enquanto os dados chegam. */
 
 function Bar({ className }: { className: string }) {
@@ -26,10 +30,11 @@ export function ListsSkeleton() {
 }
 
 export function ProfileSkeleton() {
+  const { t } = useI18n();
   return (
     <div className="flex flex-col gap-6">
       <p className="sr-only" role="status">
-        Carregando…
+        {t.profile.loading}
       </p>
       <div aria-hidden className="-mx-4 h-[88px] bg-card motion-safe:animate-pulse sm:mx-0 sm:rounded-2xl" />
       <div aria-hidden className="-mt-10 flex items-end gap-4 motion-safe:animate-pulse">

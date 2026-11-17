@@ -140,14 +140,26 @@ Descartar antes de escolher as 5 mais fortes evita que lixo forte ("the voice": 
 - Nenhum scrobble no período.
 - Limite de requisições atingido ou Last.fm fora do ar (mensagem clara e botão de tentar de novo).
 
+## Línguas (17/11/2026)
+
+O site existe em português, inglês e espanhol.
+
+- Português fica sem prefixo (`sulcofm.vercel.app/u/nome`); inglês e espanhol ganham `/en` e `/es` (`/en/u/nome`). Por baixo, o português é servido de `/pt/...` (`src/proxy.ts` reescreve o endereço sem mudar a barra).
+- Primeira visita num endereço sem prefixo: se o navegador estiver em inglês ou espanhol (`Accept-Language`), vai para `/en` ou `/es`. Robôs (prévia do link no X, WhatsApp, buscadores) nunca são redirecionados, para a prévia de um link em português não sair em outra língua.
+- Seletor "PT · EN · ES" no rodapé: abre a mesma página na outra língua e guarda a escolha no cookie `lang` (só "pt", "en" ou "es", 1 ano). A escolha vence a língua do navegador.
+- Textos em `src/i18n/` (`pt.ts` é a origem; `en.ts` e `es.ts` têm as mesmas chaves, conferidas pelo TypeScript e por teste). Servidor: `getI18n()`; navegador: `useI18n()`.
+- As imagens (recap e grade) saem na língua da página, inclusive datas, números ("1.950" / "1,950") e "reproduções" / "plays" / "reproducciones". Os gêneros continuam como o Last.fm escreve.
+- A prévia do link existe nas três línguas (`/[lang]/opengraph-image`).
+- A legenda da vitrine pode ter versão em inglês e espanhol (`legenda_en`, `legenda_es` em `vitrine.json`); sem elas, vale a legenda padrão de cada língua.
+
 ## Privacidade
 
 O que o site faz e deve continuar fazendo:
 
 - Recebe só um username, que já é informação pública do Last.fm.
 - Lê só dados públicos do perfil.
-- Não tem cadastro, senha, banco de dados nem cookies de rastreio.
-- Contagem de visitas: Vercel Web Analytics (sem cookies). Antes do envio, `/u/NOME` vira `/u/[perfil]` e os parâmetros são descartados; quem tem Do Not Track ou Global Privacy Control ligado não é contado.
+- Não tem cadastro, senha, banco de dados nem cookies de rastreio. O único cookie é `lang`, com a língua escolhida no rodapé (só "pt", "en" ou "es"; não identifica ninguém).
+- Contagem de visitas: Vercel Web Analytics (sem cookies). Antes do envio, `/u/NOME` (e `/en/u/NOME`, `/es/u/NOME`) vira `/u/[perfil]` e os parâmetros são descartados; quem tem Do Not Track ou Global Privacy Control ligado não é contado.
 - Não guarda o que cada pessoa pesquisou. O cache guarda respostas da API por tempo limitado, sem ligação com quem pediu.
 - Gera as imagens no aparelho da pessoa.
 - Lembra as escolhas da imagem (formato, cor, números) só no navegador da pessoa (`localStorage`), sem cookie e sem enviar ao servidor.

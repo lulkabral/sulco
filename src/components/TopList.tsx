@@ -1,3 +1,6 @@
+"use client";
+
+import { useI18n } from "@/i18n/client";
 import { formatPlays } from "@/lib/format";
 import type { CoverLookup } from "@/lib/artist-image";
 import { CoverThumb } from "./CoverThumb";
@@ -29,6 +32,7 @@ type Props = {
  * e tem uma barrinha proporcional ao 1º colocado (que cresce ao aparecer).
  */
 export function TopList({ title, icon, items, shape = "square" }: Props) {
+  const { lang, t } = useI18n();
   const top = items[0]?.playcount || 1;
   return (
     <section aria-labelledby={`top-${title}`} className="min-w-0 rounded-2xl bg-card p-4 motion-safe:animate-rise">
@@ -37,7 +41,7 @@ export function TopList({ title, icon, items, shape = "square" }: Props) {
         {title}
       </h2>
       {items.length === 0 ? (
-        <p className="text-sm text-ink-soft">Nada neste período.</p>
+        <p className="text-sm text-ink-soft">{t.lists.empty}</p>
       ) : (
         <ol className="flex flex-col gap-2.5">
           {items.map((item, i) => (
@@ -62,7 +66,7 @@ export function TopList({ title, icon, items, shape = "square" }: Props) {
                 </a>
                 <p className="truncate text-sm text-ink-soft">
                   {item.detail ? `${item.detail} · ` : ""}
-                  {formatPlays(item.playcount)}
+                  {formatPlays(item.playcount, lang)}
                 </p>
                 <div aria-hidden className="mt-1 h-1 overflow-hidden rounded-full bg-line">
                   <div

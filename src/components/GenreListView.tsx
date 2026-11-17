@@ -1,4 +1,7 @@
+"use client";
+
 import type { ReactNode } from "react";
+import { useI18n } from "@/i18n/client";
 import type { Genre } from "@/lib/genres";
 import type { ArtistPicture } from "@/lib/artist-image";
 import { CoverThumb } from "./CoverThumb";
@@ -7,11 +10,12 @@ import { GenresSkeleton } from "./ProfileSkeleton";
 
 /** Moldura da lista "Gêneros" (cartão com título). Serve no servidor e no navegador. */
 export function GenreListView({ children }: { children: ReactNode }) {
+  const { t } = useI18n();
   return (
     <section aria-labelledby="top-generos" className="min-w-0 rounded-2xl bg-card p-4 motion-safe:animate-rise">
       <h2 id="top-generos" className="mb-3 flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-ink-soft">
         <ListIcon name="genres" />
-        Gêneros
+        {t.lists.genres}
       </h2>
       {children}
     </section>
@@ -31,12 +35,13 @@ export function GenreItems({
   genres: Genre[] | null | undefined;
   images?: Record<string, ArtistPicture>;
 }) {
+  const { t } = useI18n();
   if (genres === undefined) return <GenresSkeleton />;
   if (genres === null) {
-    return <p className="text-sm text-ink-soft">Não deu para calcular agora. Tente recarregar a página.</p>;
+    return <p className="text-sm text-ink-soft">{t.lists.genresError}</p>;
   }
   if (genres.length === 0) {
-    return <p className="text-sm text-ink-soft">Os artistas deste período não têm tags suficientes no Last.fm.</p>;
+    return <p className="text-sm text-ink-soft">{t.lists.genresNoTags}</p>;
   }
 
   const top = genres[0].weight;
@@ -68,7 +73,7 @@ export function GenreItems({
                   {genre.name}
                 </a>
                 {artists.length > 0 && (
-                  <p className="truncate text-xs text-ink-soft">{joinNames(artists)}</p>
+                  <p className="truncate text-xs text-ink-soft">{joinNames(artists, t.units.and)}</p>
                 )}
               </div>
               {artists.length > 0 && (
@@ -93,9 +98,9 @@ export function GenreItems({
   );
 }
 
-/** "A", "A e B", "A, B e C". */
-function joinNames(names: string[]): string {
+/** "A", "A e B", "A, B e C" ("A, B and C"). */
+function joinNames(names: string[], and: string): string {
   if (names.length <= 1) return names.join("");
-  return `${names.slice(0, -1).join(", ")} e ${names.at(-1)}`;
+  return `${names.slice(0, -1).join(", ")} ${and} ${names.at(-1)}`;
 }
 

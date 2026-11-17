@@ -9,6 +9,7 @@ import {
   downloadBlob,
   shareOrDownload,
 } from "@/lib/canvas/export";
+import { useI18n } from "@/i18n/client";
 
 type Props = {
   canvasRef: RefObject<HTMLCanvasElement | null>;
@@ -28,6 +29,7 @@ const subscribeNever = () => () => {};
  * para colar onde quiser; sem nenhum dos dois, baixa.
  */
 export function ExportButtons({ canvasRef, filename, shareTitle, disabled }: Props) {
+  const { t } = useI18n();
   const [busy, setBusy] = useState(false);
   const [copied, setCopied] = useState(false);
   const canShare = useSyncExternalStore(subscribeNever, canShareFiles, () => false);
@@ -56,7 +58,7 @@ export function ExportButtons({ canvasRef, filename, shareTitle, disabled }: Pro
 
   const base =
     "inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-xl px-3 py-3 text-sm font-bold transition sm:text-base active:scale-95 disabled:opacity-50";
-  const shareLabel = copied ? "Imagem copiada!" : canShare || !canCopy ? "Compartilhar" : "Copiar imagem";
+  const shareLabel = copied ? t.export.copied : canShare || !canCopy ? t.export.share : t.export.copy;
 
   return (
     <div className="grid grid-cols-2 gap-2">
@@ -67,7 +69,7 @@ export function ExportButtons({ canvasRef, filename, shareTitle, disabled }: Pro
         className={`${base} bg-amber text-amber-ink hover:bg-amber-hover`}
       >
         <DownloadIcon />
-        Baixar imagem
+        {t.export.download}
       </button>
       <button
         type="button"

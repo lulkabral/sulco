@@ -1,3 +1,5 @@
+import { INTL_LOCALE } from "@/i18n/config";
+import { DICTS } from "@/i18n";
 // Formato "Lineup": pôster de festival. O artista mais ouvido é a atração principal,
 // enorme; os outros vêm em andares cada vez menores. Embaixo, 3 capas redondas.
 
@@ -21,10 +23,10 @@ export function drawLineup(ctx: Ctx, d: RecapData, o: RecapOptions) {
   ctx.roundRect(40, 40, W - 80, 1920 - 80, 32);
   ctx.stroke();
 
-  const title = d.title.toLocaleUpperCase("pt-BR");
+  const title = d.title.toLocaleUpperCase(INTL_LOCALE[o.lang]);
   const titleSize = fitFontSize(ctx, title, INNER, 54, 30, (px) => `800 ${px}px ${f}`);
   // Acima do título fica o espaço do acento (Ú, Í, Ô): a linha de cima sobe junto com o tamanho.
-  eyebrow(ctx, f, `@${d.username} apresenta`, CENTER, 260 - titleSize - ACCENT_ROOM, p.accent, INNER, "center");
+  eyebrow(ctx, f, DICTS[o.lang].canvas.presents(d.username), CENTER, 260 - titleSize - ACCENT_ROOM, p.accent, INNER, "center");
   text(ctx, title, CENTER, 260, { font: `800 ${titleSize}px ${f}`, color: p.ink, align: "center", spacing: 2 });
   text(ctx, d.dateText, CENTER, 312, { font: `500 30px ${f}`, color: p.inkSoft, align: "center" });
   ctx.fillStyle = hexAlpha(p.inkSoft, 0.35);
@@ -33,7 +35,7 @@ export function drawLineup(ctx: Ctx, d: RecapData, o: RecapOptions) {
   // Os andares do lineup.
   let y = 410;
   const colors = [p.accent, p.ink, p.inkSoft, p.inkFaint];
-  for (const tier of lineupTiers(d.artists.map((a) => a.name.toLocaleUpperCase("pt-BR")))) {
+  for (const tier of lineupTiers(d.artists.map((a) => a.name.toLocaleUpperCase(INTL_LOCALE[o.lang])))) {
     const max = TIER_SIZES[tier.level];
     // A atração principal encolhe para caber numa linha; os outros quebram linha entre nomes.
     const size = tier.level === 0 ? fitFontSize(ctx, tier.names[0], INNER, max, 70, (px) => `800 ${px}px ${f}`) : max;
@@ -64,7 +66,7 @@ export function drawLineup(ctx: Ctx, d: RecapData, o: RecapOptions) {
 
   // Embaixo: o "ingresso" com o total (se pedir números) ou os gêneros.
   if (o.showNumbers) {
-    const label = totalsText(d);
+    const label = totalsText(d, o);
     // Letra menor se os minutos deixarem o ingresso largo demais.
     let size = 40;
     ctx.font = `800 ${size}px ${f}`;

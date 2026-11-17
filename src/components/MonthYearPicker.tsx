@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { useI18n } from "@/i18n/client";
 import { monthLabel } from "@/lib/months";
 import { userPageHref, type Tab } from "@/lib/tabs";
 
@@ -16,14 +17,13 @@ type Props = {
   years: number[];
 };
 
-const MONTH_SHORT = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
-
 /**
  * "Escolher mês ou ano": um calendário compacto. As setas ‹ › trocam o ano mostrado
  * (sem recarregar a página); os meses e o botão do ano inteiro são links.
  * Meses que ainda não terminaram, ou de antes do cadastro, aparecem apagados.
  */
 export function MonthYearPicker({ username, tab, current, months, years }: Props) {
+  const { lang, t } = useI18n();
   // Ano mostrado ao abrir: o do período escolhido (mês ou ano) ou o mais recente.
   const initial = /^\d{4}/.test(current) && years.includes(Number(current.slice(0, 4)))
     ? Number(current.slice(0, 4))
@@ -39,7 +39,7 @@ export function MonthYearPicker({ username, tab, current, months, years }: Props
   return (
     <section aria-labelledby="escolher-mes-ano" className="rounded-2xl bg-card p-4 sm:max-w-md">
       <h2 id="escolher-mes-ano" className="text-xs font-bold uppercase tracking-widest text-ink-soft">
-        Escolher mês ou ano
+        {t.profile.pickerHeading}
       </h2>
 
       <div className="mt-2 flex items-center justify-between">
@@ -48,7 +48,7 @@ export function MonthYearPicker({ username, tab, current, months, years }: Props
           className={arrow}
           onClick={() => setYear(years[index + 1])}
           disabled={index >= years.length - 1}
-          aria-label="Ano anterior"
+          aria-label={t.profile.prevYear}
         >
           ‹
         </button>
@@ -60,14 +60,14 @@ export function MonthYearPicker({ username, tab, current, months, years }: Props
           className={arrow}
           onClick={() => setYear(years[index - 1])}
           disabled={index <= 0}
-          aria-label="Próximo ano"
+          aria-label={t.profile.nextYear}
         >
           ›
         </button>
       </div>
 
-      <ul className="mt-2 grid grid-cols-4 gap-2" aria-label={`Meses de ${year}`}>
-        {MONTH_SHORT.map((name, i) => {
+      <ul className="mt-2 grid grid-cols-4 gap-2" aria-label={t.profile.monthsOf(year)}>
+        {t.periods.monthsShort.map((name, i) => {
           const id = `${year}-${String(i + 1).padStart(2, "0")}`;
           const active = current === id;
           if (!available.has(id)) {
@@ -75,7 +75,7 @@ export function MonthYearPicker({ username, tab, current, months, years }: Props
               <li key={id}>
                 <span
                   aria-disabled
-                  title="Mês ainda não terminou ou é de antes do cadastro"
+                  title={t.profile.monthUnavailable}
                   className="block rounded-xl border border-line/50 py-2 text-center text-sm capitalize text-ink-faint/50"
                 >
                   {name}
@@ -86,9 +86,9 @@ export function MonthYearPicker({ username, tab, current, months, years }: Props
           return (
             <li key={id}>
               <Link
-                href={userPageHref(username, tab, id)}
+                href={userPageHref(username, tab, id, lang)}
                 aria-current={active ? "page" : undefined}
-                title={monthLabel(id)}
+                title={monthLabel(id, lang)}
                 scroll={false}
                 className={
                   "block rounded-xl border py-2 text-center text-sm capitalize transition active:scale-95 " +
@@ -105,7 +105,7 @@ export function MonthYearPicker({ username, tab, current, months, years }: Props
       </ul>
 
       <Link
-        href={userPageHref(username, tab, String(year))}
+        href={userPageHref(username, tab, String(year), lang)}
         aria-current={current === String(year) ? "page" : undefined}
         scroll={false}
         className={
@@ -115,7 +115,7 @@ export function MonthYearPicker({ username, tab, current, months, years }: Props
             : "border-amber/60 text-ink hover:border-amber")
         }
       >
-        {isCurrentYear ? `${year} até agora` : `Ano inteiro de ${year}`}
+        {isCurrentYear ? t.periods.yearOngoing(year) : t.periods.wholeYear(year)}
       </Link>
     </section>
   );

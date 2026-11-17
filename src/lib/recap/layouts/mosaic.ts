@@ -1,6 +1,7 @@
 // Formato "Mosaico": colagem das capas em tamanhos variados (a nº 1 grande),
 // um bloco no destaque com o período e o título por cima da colagem.
 
+import { DICTS } from "@/i18n";
 import { formatPlays } from "@/lib/format";
 import type { RecapData, RecapOptions } from "../draw";
 import { cover, eyebrow, fadeToRoom, fitFontSize, footer, INNER, M, roundRect, text, W, type Ctx } from "../helpers";
@@ -73,13 +74,13 @@ export function drawMosaic(ctx: Ctx, d: RecapData, o: RecapOptions) {
   if (album) {
     eyebrow(ctx, f, d.albumHeading, M, bottom + 100, p.inkSoft, INNER);
     text(ctx, album.name, M, bottom + 156, { font: `800 46px ${f}`, color: p.ink, maxWidth: INNER });
-    const sub = [album.artist, o.showNumbers ? formatPlays(album.playcount) : null].filter(Boolean).join(" · ");
+    const sub = [album.artist, o.showNumbers ? formatPlays(album.playcount, o.lang) : null].filter(Boolean).join(" · ");
     if (sub) text(ctx, sub, M, bottom + 200, { font: `500 30px ${f}`, color: p.inkSoft, maxWidth: INNER });
   }
 
   const colW = (INNER - 40) / 2;
-  nameColumn(ctx, o, "Na sua cabeça", d.artists.slice(0, 5), M, 1340, colW, 34);
-  nameColumn(ctx, o, "No repeat", d.tracks.slice(0, 5), M + colW + 40, 1340, colW, 30);
+  nameColumn(ctx, o, DICTS[o.lang].canvas.inYourHead, d.artists.slice(0, 5), M, 1340, colW, 34);
+  nameColumn(ctx, o, DICTS[o.lang].canvas.onRepeat, d.tracks.slice(0, 5), M + colW + 40, 1340, colW, 30);
 
   genresLine(ctx, d, o, M, 1770, INNER);
   footer(ctx, p, f, d.siteHost);

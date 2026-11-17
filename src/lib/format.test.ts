@@ -57,3 +57,20 @@ describe("formatSince", () => {
     expect(formatSince(Date.UTC(2019, 2, 10, 15) / 1000, "America/Sao_Paulo")).toBe("desde março de 2019");
   });
 });
+
+describe("formatação em outras línguas", () => {
+  it("números e reproduções", () => {
+    expect(formatNumber(69921, "en")).toBe("69,921");
+    expect(formatPlays(25, "en")).toBe("25 plays");
+    expect(formatPlays(1, "es")).toBe("1 reproducción");
+  });
+  it("datas", () => {
+    const tz = "America/Sao_Paulo";
+    const from = Date.UTC(2026, 9, 16, 15) / 1000;
+    const to = Date.UTC(2026, 10, 15, 15) / 1000;
+    expect(formatDateRange(from, to, tz, "en")).toBe("16 Oct – 15 Nov 2026");
+    expect(formatDateRange(from, to, tz, "es")).toBe("16 oct – 15 nov 2026");
+    expect(formatSince(Date.UTC(2019, 2, 10, 15) / 1000, tz, "en")).toBe("since March 2019");
+    expect(formatSince(Date.UTC(2019, 2, 10, 15) / 1000, tz, "es")).toBe("desde marzo de 2019");
+  });
+});

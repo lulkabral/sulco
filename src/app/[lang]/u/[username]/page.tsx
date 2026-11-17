@@ -12,6 +12,7 @@ import { ProfileTabs } from "@/components/ProfileTabs";
 import { RecapImage } from "@/components/RecapImage";
 import { TopList } from "@/components/TopList";
 import { UserHeader } from "@/components/UserHeader";
+import { getI18n } from "@/i18n/server";
 import { GENRE_ARTISTS } from "@/lib/genres";
 import { getScrobbleTotal, getTop, getTopGenres, getUserInfo } from "@/lib/lastfm/client";
 import { LastfmError } from "@/lib/lastfm/errors";
@@ -43,11 +44,10 @@ const HEADER_COVERS = 20;
 
 export async function generateMetadata({ params }: PageProps<"/[lang]/u/[username]">): Promise<Metadata> {
   const username = validateUsername(safeDecode((await params).username));
+  const { t } = await getI18n();
   return {
-    title: username.ok ? username.value : "Usuário",
-    description: username.ok
-      ? `Recap e grade de álbuns de ${username.value}, a partir do Last.fm.`
-      : undefined,
+    title: username.ok ? username.value : t.profile.fallbackTitle,
+    description: username.ok ? t.profile.metaDescription(username.value) : undefined,
     // Páginas de usuário não entram em buscadores (o username fica fora do Google).
     robots: { index: false, follow: true },
   };
@@ -84,6 +84,7 @@ async function Profile({ params, searchParams }: Pick<PageProps<"/[lang]/u/[user
   const rawPeriod = Array.isArray(query.period) ? query.period[0] : query.period;
   const period = parseUiPeriod(query.period, tab === "grade" ? DEFAULT_GRID_PERIOD : DEFAULT_UI_PERIOD);
 
+  const { lang } = await getI18n();
   const username = validateUsername(safeDecode(rawUsername));
   if (!username.ok) {
     return <ErrorState code="BAD_REQUEST" username={safeDecode(rawUsername)} />;
@@ -118,7 +119,7 @@ async function Profile({ params, searchParams }: Pick<PageProps<"/[lang]/u/[user
   const year = yearNumber !== null && years.includes(yearNumber) ? yearNumber : null;
   const history = month ?? (year !== null ? String(year) : null);
   // O ano mais recente da lista é o corrente: ele ainda está "até agora".
-  const historyLabel = month ? monthLabel(month) : year !== null ? yearLabel(year, year === years[0]) : "";
+  const historyLabel = month ? monthLabel(month, lang) : year !== null ? yearLabel(year, year === years[0], lang) : "";
   const current = history ?? period;
   // Só repassamos o período para a outra aba se a pessoa escolheu um (cada aba tem seu padrão).
   const chosenPeriod = history ?? (UI_PERIODS.some((p) => p.value === rawPeriod) ? period : undefined);
@@ -161,6 +162,8 @@ type TopListsProps = {
 };
 
 async function TopLists({ username, period, tab, registeredAt, lifetimeTotal }: TopListsProps) {
+  const { lang, t } = await getI18n();
+  const label = periodLabel(period, lang);
   // O intervalo depende da hora atual: `connection()` diz ao Next que isto roda a cada pedido.
   await connection();
   const range = currentPeriodRange(period, registeredAt);
@@ -184,10 +187,8 @@ async function TopLists({ username, period, tab, registeredAt, lifetimeTotal }: 
   if (artists.items.length === 0 && tracks.items.length === 0 && albums.items.length === 0) {
     return (
       <div className="rounded-2xl bg-card p-5">
-        <h2 className="text-lg font-semibold">Nenhuma música neste período</h2>
-        <p className="mt-1 text-ink-soft">
-          Não há scrobbles em “{periodLabel(period).toLowerCase()}”. Tente um período maior.
-        </p>
+        <h2 className="text-lg font-semibold">{t.profile.noMusicTitle}</h2>
+        <p className="mt-1 text-ink-soft">{t.profile.noMusicBody(label)}</p>
       </div>
     );
   }
@@ -210,7 +211,7 @@ async function TopLists({ username, period, tab, registeredAt, lifetimeTotal }: 
         <AlbumGrid
           username={username}
           period={period}
-          periodLabel={periodLabel(period)}
+          periodLabel={label}
           albums={albumItems.map((a) => ({
             name: a.name,
             artist: a.artist,
@@ -222,7 +223,7 @@ async function TopLists({ username, period, tab, registeredAt, lifetimeTotal }: 
         <RecapImage
           username={username}
           period={period}
-          periodLabel={periodLabel(period)}
+          periodLabel={label}
           from={range.from}
           to={range.to}
           total={period === "overall" ? lifetimeTotal : (total ?? 0)}
@@ -246,7 +247,7 @@ async function TopLists({ username, period, tab, registeredAt, lifetimeTotal }: 
       )}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <TopList
-          title="Artistas"
+          title={t.lists.artists}
           icon="artists"
           shape="round"
           items={artistItems.slice(0, LIST_LIMIT).map((a, i) => ({
@@ -259,7 +260,7 @@ async function TopLists({ username, period, tab, registeredAt, lifetimeTotal }: 
           }))}
         />
         <TopList
-          title="Músicas"
+          title={t.lists.tracks}
           icon="tracks"
           items={(tracks.items as TopTrack[]).map((t) => ({
             rank: t.rank,
@@ -272,7 +273,7 @@ async function TopLists({ username, period, tab, registeredAt, lifetimeTotal }: 
           }))}
         />
         <TopList
-          title="Álbuns"
+          title={t.lists.albums}
           icon="albums"
           items={albumItems.slice(0, LIST_LIMIT).map((a) => ({
             rank: a.rank,

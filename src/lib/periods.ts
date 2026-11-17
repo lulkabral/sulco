@@ -1,3 +1,5 @@
+import type { Locale } from "@/i18n/config";
+import { DICTS } from "@/i18n";
 import type { Period } from "@/lib/lastfm/types";
 
 /** Períodos que aparecem no seletor da tela, na ordem em que aparecem. */
@@ -27,8 +29,9 @@ export function parseUiPeriod(
   return found ? found.value : fallback;
 }
 
-export function periodLabel(period: UiPeriod): string {
-  return UI_PERIODS.find((p) => p.value === period)?.label ?? "";
+/** Nome do período na língua: "Últimos 30 dias", "Last 30 days". */
+export function periodLabel(period: UiPeriod, lang: Locale = "pt"): string {
+  return DICTS[lang].periods.long[period] ?? "";
 }
 
 /**

@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { PERIOD_SHORT, shortPeriodLabel } from "@/lib/period-label";
+import { getI18n } from "@/i18n/server";
+import { shortPeriodLabel } from "@/lib/period-label";
 import { UI_PERIODS } from "@/lib/periods";
 import { userPageHref, type Tab } from "@/lib/tabs";
 import { MonthYearPicker } from "./MonthYearPicker";
@@ -21,24 +22,25 @@ type Props = {
  * a gaveta (celular) ou a janela (computador) com os períodos do Last.fm e o calendário
  * (MonthYearPicker). Tudo leva a /u/USERNAME?tab=...&period=...
  */
-export function PeriodSelector({ username, current, tab, months, years }: Props) {
-  const label = shortPeriodLabel(current, years[0] ?? new Date().getFullYear());
+export async function PeriodSelector({ username, current, tab, months, years }: Props) {
+  const { lang, t } = await getI18n();
+  const label = shortPeriodLabel(current, years[0] ?? new Date().getFullYear(), lang);
   const pills = (
     <ul className="flex flex-wrap gap-2">
       {UI_PERIODS.map((p) => (
         <Pill
           key={p.value}
-          href={userPageHref(username, tab, p.value)}
+          href={userPageHref(username, tab, p.value, lang)}
           active={p.value === current}
-          label={PERIOD_SHORT[p.value]}
-          title={p.label}
+          label={t.periods.short[p.value]}
+          title={t.periods.long[p.value]}
         />
       ))}
     </ul>
   );
 
   return (
-    <nav aria-label="Período" className="ml-auto">
+    <nav aria-label={t.profile.periodNav} className="ml-auto">
       <PeriodPicker label={label}>
         {pills}
         {years.length > 0 && (

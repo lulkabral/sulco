@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getI18n } from "@/i18n/server";
 import { formatNumber, yearOf } from "@/lib/format";
 import type { UserInfo } from "@/lib/lastfm/types";
 import { LogoLink } from "./Logo";
@@ -15,7 +16,8 @@ type Props = {
  * Topo da página do usuário: as capas do ano dela passando (com cara de colagem), o avatar
  * como selo de um vinil girando, o username grande e os números em etiquetas.
  */
-export function UserHeader({ user, covers }: Props) {
+export async function UserHeader({ user, covers }: Props) {
+  const { lang, t, href } = await getI18n();
   const since = yearOf(user.registeredAt);
   return (
     <header className="relative -mx-4 sm:mx-0">
@@ -23,10 +25,10 @@ export function UserHeader({ user, covers }: Props) {
         <LogoLink />
         {/* Não há login: "trocar" é só voltar ao início e digitar outro username. */}
         <Link
-          href="/"
+          href={href("/")}
           className="inline-flex items-center gap-1.5 rounded-full border border-line px-3 py-1.5 text-sm font-medium text-ink-soft transition hover:border-ink-faint hover:text-ink active:scale-95"
         >
-          <span aria-hidden>↺</span> Trocar usuário
+          <span aria-hidden>↺</span> {t.profile.switchUser}
         </Link>
       </div>
       {covers.length > 0 ? (
@@ -48,9 +50,9 @@ export function UserHeader({ user, covers }: Props) {
           </h1>
           <ul className="mt-1.5 flex flex-wrap gap-1.5 font-mono text-xs text-ink-soft">
             <li className="rounded-full border border-line bg-room/70 px-2.5 py-1">
-              <span className="font-bold text-ink">{formatNumber(user.playcount)}</span> scrobbles
+              <span className="font-bold text-ink">{formatNumber(user.playcount, lang)}</span> {t.units.scrobbles}
             </li>
-            {since && <li className="rounded-full border border-line bg-room/70 px-2.5 py-1">desde {since}</li>}
+            {since && <li className="rounded-full border border-line bg-room/70 px-2.5 py-1">{t.profile.sinceYear(since)}</li>}
           </ul>
         </div>
       </div>

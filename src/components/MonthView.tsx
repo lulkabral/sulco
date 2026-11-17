@@ -7,6 +7,7 @@ import { ErrorState } from "@/components/ErrorState";
 import { GenreItems, GenreListView } from "@/components/GenreListView";
 import { RecapImage } from "@/components/RecapImage";
 import { TopList } from "@/components/TopList";
+import { useI18n } from "@/i18n/client";
 import { aggregateScrobbles, type MonthTops } from "@/lib/aggregate";
 import { formatNumber } from "@/lib/format";
 import type { Genre } from "@/lib/genres";
@@ -52,6 +53,7 @@ const GRID_LIMIT = 25;
  * O servidor não guarda nem soma nada. Depois, mostra recap, grade e listas.
  */
 export function MonthView({ username, period, label, tab }: Props) {
+  const { lang, t } = useI18n();
   const [state, setState] = useState<State>({ status: "loading", progress: null });
   const [genreList, setGenreList] = useState<Genre[] | null | undefined>(undefined);
   const [attempt, setAttempt] = useState(0);
@@ -141,10 +143,8 @@ export function MonthView({ username, period, label, tab }: Props) {
   if (tops.total === 0 || !recapData) {
     return (
       <div className="rounded-2xl bg-card p-5">
-        <h2 className="text-lg font-semibold">Nenhuma música em {label.toLowerCase()}</h2>
-        <p className="mt-1 text-ink-soft">
-          Não há scrobbles neste período. Tente outro mês, outro ano ou um dos períodos acima.
-        </p>
+        <h2 className="text-lg font-semibold">{t.month.noMusicTitle(label)}</h2>
+        <p className="mt-1 text-ink-soft">{t.month.noMusicBody}</p>
       </div>
     );
   }
@@ -153,8 +153,7 @@ export function MonthView({ username, period, label, tab }: Props) {
     <>
       {truncated && (
         <p role="note" className="rounded-2xl border border-amber/40 bg-amber/10 p-4 text-sm text-ink">
-          Este mês tem mais de {formatNumber(MAX_SCROBBLE_PAGES * 200)} scrobbles. Para não
-          sobrecarregar o Last.fm, a conta usa só os {formatNumber(tops.total)} mais recentes do mês.
+          {t.month.truncated(formatNumber(MAX_SCROBBLE_PAGES * 200, lang), formatNumber(tops.total, lang))}
         </p>
       )}
 
@@ -178,7 +177,7 @@ export function MonthView({ username, period, label, tab }: Props) {
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <TopList
-          title="Artistas"
+          title={t.lists.artists}
           icon="artists"
           shape="round"
           items={tops.artists.slice(0, LIST_LIMIT).map((a, i) => ({
@@ -191,7 +190,7 @@ export function MonthView({ username, period, label, tab }: Props) {
           }))}
         />
         <TopList
-          title="Músicas"
+          title={t.lists.tracks}
           icon="tracks"
           items={tops.tracks.slice(0, LIST_LIMIT).map((t) => ({
             rank: t.rank,
@@ -204,7 +203,7 @@ export function MonthView({ username, period, label, tab }: Props) {
           }))}
         />
         <TopList
-          title="Álbuns"
+          title={t.lists.albums}
           icon="albums"
           items={tops.albums.slice(0, LIST_LIMIT).map((a) => ({
             rank: a.rank,
@@ -225,12 +224,12 @@ export function MonthView({ username, period, label, tab }: Props) {
 }
 
 function MonthProgressBar({ label, progress }: { label: string; progress: MonthProgress | null }) {
-  const what = label.toLowerCase();
+  const { t } = useI18n();
   const text = !progress
-    ? `Buscando seus scrobbles de ${what}…`
+    ? t.month.fetching(label)
     : progress.unit === "capa"
-      ? `Buscando as capas de ${what}: ${progress.pagesDone} de ${progress.totalPages}`
-      : `Lendo seus scrobbles de ${what}: página ${progress.pagesDone} de ${progress.totalPages}`;
+      ? t.month.fetchingCovers(label, progress.pagesDone, progress.totalPages)
+      : t.month.readingPages(label, progress.pagesDone, progress.totalPages);
   return (
     <div className="flex flex-col gap-2 rounded-2xl bg-card p-5">
       <p role="status" className="text-ink">
@@ -238,7 +237,7 @@ function MonthProgressBar({ label, progress }: { label: string; progress: MonthP
       </p>
       <div
         role="progressbar"
-        aria-label="Progresso da leitura dos scrobbles"
+        aria-label={t.month.progressLabel}
         aria-valuemin={0}
         aria-valuemax={progress?.totalPages}
         aria-valuenow={progress?.pagesDone}

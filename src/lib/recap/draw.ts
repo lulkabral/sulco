@@ -1,3 +1,4 @@
+import type { Locale } from "@/i18n/config";
 // Imagem do recap no formato story (1080 x 1920). Cada formato fica num arquivo em
 // ./layouts; este arquivo só define os dados comuns e escolhe qual desenhar.
 
@@ -64,6 +65,8 @@ export type RecapOptions = {
   showNumbers: boolean;
   /** Família da fonte (Geist), já carregada. */
   font: string;
+  /** Língua do texto desenhado ("Na sua cabeça" / "In your head"...). */
+  lang: Locale;
 };
 
 const DRAW: Record<RecapLayoutId, (ctx: CanvasRenderingContext2D, d: RecapData, o: RecapOptions) => void> = {

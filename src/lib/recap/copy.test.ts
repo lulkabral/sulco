@@ -33,3 +33,12 @@ describe("dateText", () => {
     expect(dateText("7day", to - 7 * 86_400, to, tz)).toBe("8 – 15 nov 2026");
   });
 });
+
+describe("em outras línguas", () => {
+  it("título do álbum e rótulo curto", () => {
+    expect(albumHeading("overall", "en")).toBe("Album of your life");
+    expect(albumHeading("2026-10", "es")).toBe("El álbum del mes");
+    expect(shortTag("2026-10", "en")).toBe("OCT 26");
+    expect(shortTag("7day", "es")).toBe("7 DÍAS");
+  });
+});

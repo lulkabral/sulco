@@ -41,8 +41,11 @@ Depois abra http://localhost:3000.
 src/
   app/                   páginas e rotas (Next.js App Router)
     api/lastfm/          rotas que conversam com o Last.fm (só leitura): user, top, tags, tag, artist, scrobbles, chart, album, track
-    u/[username]/        página do usuário
-    privacidade/         página de privacidade
+    [lang]/              páginas, uma vez por língua (pt sem prefixo; /en e /es)
+      u/[username]/      página do usuário
+      privacidade/       página de privacidade
+  i18n/                  textos em português, inglês e espanhol, e a escolha da língua
+  proxy.ts               escolhe a língua pelo endereço, pelo cookie ou pelo navegador
   components/            partes da tela (listas, grade, recap, seletores)
   lib/
     lastfm/              cliente do Last.fm (só no servidor), validação e normalização

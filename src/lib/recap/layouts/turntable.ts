@@ -1,6 +1,7 @@
 // Formato "Toca-discos": a capa do álbum nº 1 na frente, as capas 2 e 3 inclinadas
 // atrás, e um vinil saindo da capa com ela mesma como selo. Embaixo, nomes sem números.
 
+import { DICTS } from "@/i18n";
 import { formatPlays } from "@/lib/format";
 import type { RecapData, RecapOptions } from "../draw";
 import { cover, eyebrow, fitFontSize, footer, INNER, lines, M, text, type Ctx } from "../helpers";
@@ -45,14 +46,14 @@ export function drawTurntable(ctx: Ctx, d: RecapData, o: RecapOptions) {
   if (album) {
     eyebrow(ctx, f, d.albumHeading, M, 1070, p.inkSoft, INNER);
     const y = lines(ctx, album.name, M, 1134, { font: `800 56px ${f}`, color: p.ink, maxWidth: INNER, maxLines: 2, lineHeight: 62 });
-    const sub = [album.artist, o.showNumbers ? formatPlays(album.playcount) : null].filter(Boolean).join(" · ");
+    const sub = [album.artist, o.showNumbers ? formatPlays(album.playcount, o.lang) : null].filter(Boolean).join(" · ");
     if (sub) text(ctx, sub, M, y + 2, { font: `500 34px ${f}`, color: p.inkSoft, maxWidth: INNER });
   }
 
   // Duas colunas de nomes.
   const colW = (INNER - 40) / 2;
-  nameColumn(ctx, o, "Na sua cabeça", d.artists.slice(0, 5), M, 1340, colW, 34);
-  nameColumn(ctx, o, "No repeat", d.tracks.slice(0, 5), M + colW + 40, 1340, colW, 30);
+  nameColumn(ctx, o, DICTS[o.lang].canvas.inYourHead, d.artists.slice(0, 5), M, 1340, colW, 34);
+  nameColumn(ctx, o, DICTS[o.lang].canvas.onRepeat, d.tracks.slice(0, 5), M + colW + 40, 1340, colW, 30);
 
   genresLine(ctx, d, o, M, 1770, INNER);
   footer(ctx, p, f, d.siteHost);

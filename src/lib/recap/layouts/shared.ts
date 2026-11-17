@@ -1,5 +1,6 @@
 // Blocos usados por mais de um formato.
 
+import { DICTS } from "@/i18n";
 import { formatNumber, formatPlays } from "@/lib/format";
 import type { RecapData, RecapListItem, RecapOptions } from "../draw";
 import { eyebrow, INNER, measureWith, text, type Ctx } from "../helpers";
@@ -8,9 +9,10 @@ import { eyebrow, INNER, measureWith, text, type Ctx } from "../helpers";
 export const ACCENT_ROOM = 22;
 
 /** "564 scrobbles · 1.950 minutos" (os minutos só quando já foram estimados). */
-export function totalsText(d: RecapData): string {
-  const scrobbles = `${formatNumber(d.total)} scrobbles`;
-  return d.minutes ? `${scrobbles}  ·  ${formatNumber(d.minutes)} minutos` : scrobbles;
+export function totalsText(d: RecapData, o: Pick<RecapOptions, "lang">): string {
+  const u = DICTS[o.lang].units;
+  const scrobbles = `${formatNumber(d.total, o.lang)} ${u.scrobbles}`;
+  return d.minutes ? `${scrobbles}  ·  ${formatNumber(d.minutes, o.lang)} ${u.minutes}` : scrobbles;
 }
 
 /**
@@ -34,7 +36,7 @@ export function dateLine(
     return;
   }
   const date = `${d.dateText}  ·  `;
-  const total = totalsText(d);
+  const total = totalsText(d, o);
   let size = 32;
   let dateW = 0;
   let totalW = 0;
@@ -52,8 +54,8 @@ export function dateLine(
 }
 
 /** Linha de baixo de um item: artista e/ou reproduções, conforme o caso. */
-function subLine(item: RecapListItem, showNumbers: boolean): string | null {
-  const plays = showNumbers ? formatPlays(item.playcount) : null;
+function subLine(item: RecapListItem, o: RecapOptions): string | null {
+  const plays = o.showNumbers ? formatPlays(item.playcount, o.lang) : null;
   if (item.artist) return plays ? `${item.artist} · ${plays}` : item.artist;
   return plays;
 }
@@ -78,7 +80,7 @@ export function nameColumn(
   let base = y + size + 22;
   items.forEach((item) => {
     text(ctx, item.name, x, base, { font: `700 ${size}px ${f}`, color: p.ink, maxWidth: width });
-    const sub = subLine(item, o.showNumbers);
+    const sub = subLine(item, o);
     if (sub) {
       text(ctx, sub, x, base + size * 0.8, { font: `500 ${Math.round(size * 0.66)}px ${f}`, color: p.inkSoft, maxWidth: width });
       base += size * 1.9;
@@ -94,7 +96,7 @@ export function genresLine(ctx: Ctx, d: RecapData, o: RecapOptions, x: number, y
   if (!d.genres || d.genres.length === 0) return;
   const f = o.font;
   const p = o.palette;
-  const label = "GÊNEROS   ";
+  const label = `${DICTS[o.lang].canvas.genresLine}   `;
   ctx.font = `700 24px ${f}`;
   ctx.letterSpacing = "4px";
   const labelW = ctx.measureText(label).width;
