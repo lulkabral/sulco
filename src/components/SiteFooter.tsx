@@ -1,5 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { getI18n } from "@/i18n/server";
+import { LanguageSwitcher } from "./LanguageSwitcher";
 import { LogoLink } from "./Logo";
 
 /** Perfis no X: o oficial do sulco e o de quem fez o site. */
@@ -11,32 +13,36 @@ const REPO_URL = "https://github.com/lulkabral/sulco";
  * Rodapé de todas as páginas: logo e frase, perfis no X em botões com ícone e,
  * numa linha discreta, crédito ao Last.fm (exigido pelos termos), código e privacidade.
  */
-export function SiteFooter() {
+export async function SiteFooter() {
+  const { t, href } = await getI18n();
   return (
     <footer className="border-t border-line px-4 pb-8 pt-8 text-sm text-ink-soft">
       <div className="mx-auto max-w-5xl">
         <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <LogoLink />
-            <p className="mt-1.5 text-ink-faint">seu mês em música · sem cadastro, gerado no seu aparelho</p>
+            <p className="mt-1.5 text-ink-faint">{t.footer.line}</p>
           </div>
 
           <div className="flex flex-wrap gap-2">
-            <XPill handle={X_SITE} highlight />
-            <XPill handle={X_AUTHOR} label="feito por" />
+            <XPill handle={X_SITE} highlight ariaLabel={t.footer.onX(X_SITE)} />
+            <XPill handle={X_AUTHOR} label={t.footer.madeBy} ariaLabel={t.footer.onX(X_AUTHOR, t.footer.madeBy)} />
           </div>
         </div>
 
         <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-line/60 pt-4 text-xs">
           <FooterLink href="https://www.last.fm" external icon={<NoteIcon />}>
-            Dados do Last.fm
+            {t.footer.lastfm}
           </FooterLink>
           <FooterLink href={REPO_URL} external icon={<GitHubIcon />}>
-            Código aberto
+            {t.footer.code}
           </FooterLink>
-          <FooterLink href="/privacidade" icon={<LockIcon />}>
-            Privacidade
+          <FooterLink href={href("/privacidade")} icon={<LockIcon />}>
+            {t.footer.privacy}
           </FooterLink>
+          <div className="ml-auto">
+            <LanguageSwitcher />
+          </div>
         </div>
       </div>
     </footer>
@@ -44,13 +50,23 @@ export function SiteFooter() {
 }
 
 /** Botão arredondado com o ícone do X e o @ do perfil. */
-function XPill({ handle, label, highlight = false }: { handle: string; label?: string; highlight?: boolean }) {
+function XPill({
+  handle,
+  label,
+  ariaLabel,
+  highlight = false,
+}: {
+  handle: string;
+  label?: string;
+  ariaLabel: string;
+  highlight?: boolean;
+}) {
   return (
     <a
       href={`https://x.com/${handle}`}
       target="_blank"
       rel="noopener noreferrer"
-      aria-label={`${label ? `${label} ` : ""}@${handle} no X (abre em outra aba)`}
+      aria-label={ariaLabel}
       className={
         "inline-flex items-center gap-2 rounded-full border px-3.5 py-2 font-medium transition active:scale-95 " +
         (highlight

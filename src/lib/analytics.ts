@@ -1,7 +1,7 @@
 /**
  * Filtro do que vai para o Vercel Web Analytics (contagem de visitas, sem cookies).
  * Regra do projeto: nada de username guardado. Então, antes de cada envio:
- * - `/u/NOME` (e qualquer coisa abaixo) vira `/u/[perfil]`;
+ * - `/u/NOME` (e qualquer coisa abaixo) vira `/u/[perfil]`, também com língua (`/en/u/[perfil]`);
  * - parâmetros (`?period=...`, `?username=...`) e `#...` são descartados;
  * - quem pediu "não rastrear" ao navegador (Do Not Track ou Global Privacy Control)
  *   não é contado.
@@ -16,7 +16,8 @@ export function sanitizeUrl(url: string): string | null {
   } catch {
     return null;
   }
-  const path = /^\/u\/./.test(parsed.pathname) ? "/u/[perfil]" : parsed.pathname;
+  const profile = /^(\/(?:pt|en|es))?\/u\/./.exec(parsed.pathname);
+  const path = profile ? `${profile[1] ?? ""}/u/[perfil]` : parsed.pathname;
   return `${parsed.origin}${path}`;
 }
 

@@ -9,6 +9,12 @@ describe("sanitizeUrl", () => {
     expect(sanitizeUrl(`${site}/u/Fulano_123/qualquer`)).toBe(`${site}/u/[perfil]`);
   });
 
+  it("troca o username também com língua no endereço", () => {
+    expect(sanitizeUrl("https://sulcofm.vercel.app/en/u/ana")).toBe("https://sulcofm.vercel.app/en/u/[perfil]");
+    expect(sanitizeUrl("https://sulcofm.vercel.app/es/u/ana?period=2026")).toBe("https://sulcofm.vercel.app/es/u/[perfil]");
+    expect(sanitizeUrl("https://sulcofm.vercel.app/en")).toBe("https://sulcofm.vercel.app/en");
+  });
+
   it("descarta parâmetros e âncora", () => {
     expect(sanitizeUrl(`${site}/u/luaulp?tab=grid&period=2026-10`)).toBe(`${site}/u/[perfil]`);
     expect(sanitizeUrl(`${site}/u?username=luaulp`)).toBe(`${site}/u`);

@@ -416,11 +416,15 @@ export async function getTrendingCovers(): Promise<{ covers: TrendingCover[]; up
  */
 export async function getShowcaseCovers(): Promise<{
   covers: TrendingCover[];
-  caption: string;
+  /** "vitrine": os escolhidos em vitrine.json; "trending": os em alta (faltou capa da vitrine). */
+  source: "vitrine" | "trending";
+  /** Legendas escritas em vitrine.json (vazias = usar a padrão de cada língua). */
+  captions: { pt: string; en: string; es: string };
   updatedAt: number;
 }> {
   "use cache";
-  const { caption, items } = parseShowcase(vitrine);
+  const { caption, captionEn, captionEs, items } = parseShowcase(vitrine);
+  const captions = { pt: caption, en: captionEn, es: captionEs };
   const images = await mapWithLimit(items, TAGS_CONCURRENCY, async (it) => {
     try {
       return await getAlbumCover(it.artist, it.album);
@@ -434,10 +438,10 @@ export async function getShowcaseCovers(): Promise<{
   });
   if (covers.length >= 4) {
     cacheLife(CACHE_PROFILES.day);
-    return { covers, caption: caption || "em evidência", updatedAt: Date.now() };
+    return { covers, source: "vitrine", captions, updatedAt: Date.now() };
   }
   // Faltou capa (nome errado ou Last.fm fora do ar): mostra os em alta e tenta de novo logo.
   cacheLife({ revalidate: 300, expire: 900 });
   const trending = await getTrendingCovers();
-  return { ...trending, caption: "álbuns em alta no mundo hoje" };
+  return { ...trending, source: "trending", captions };
 }

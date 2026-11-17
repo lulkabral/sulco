@@ -2,6 +2,8 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { cacheLife } from "next/cache";
 import { ImageResponse } from "next/og";
+import { DEFAULT_LOCALE, isLocale } from "@/i18n/config";
+import { DICTS } from "@/i18n";
 import { getShowcaseCovers } from "@/lib/lastfm/client";
 import { coverUrl } from "@/lib/grid/layout";
 import { THEME, TILE_COLORS } from "@/lib/theme";
@@ -11,9 +13,17 @@ import { THEME, TILE_COLORS } from "@/lib/theme";
 // da vitrine (src/data/vitrine.json). Não depende de usuário.
 // O canto de baixo à esquerda fica vazio: o X põe ali a etiqueta com o nome do site.
 
-export const alt = "sulco: o que tocou no seu mês? Colagem de capas de álbuns e o convite para gerar o seu recap a partir do Last.fm.";
-export const size = { width: 1200, height: 630 };
-export const contentType = "image/png";
+const size = { width: 1200, height: 630 };
+
+function dictFor(lang: string) {
+  return DICTS[isLocale(lang) ? lang : DEFAULT_LOCALE];
+}
+
+/** Uma prévia por língua, com o texto alternativo naquela língua. */
+export async function generateImageMetadata({ params }: { params: Promise<{ lang: string }> }) {
+  const { lang } = await params;
+  return [{ id: "card", alt: dictFor(lang).meta.ogAlt, size, contentType: "image/png" }];
+}
 
 /** Mesma colagem da página inicial (CoverCollage): [esquerda, topo, largura, giro, fita?] em %. */
 const SLOTS: [number, number, number, number, boolean][] = [
@@ -66,7 +76,8 @@ function Tile({ index, side }: { index: number; side: number }) {
   );
 }
 
-export default async function Image() {
+export default async function Image({ params }: { params: Promise<{ lang: string }> }) {
+  const t = dictFor((await params).lang);
   // Geist em TTF estático (licença OFL) e o símbolo da marca em PNG.
   const [medium, extraBold, symbol, covers] = await Promise.all([
     readFile(join(process.cwd(), "assets/Geist-500.ttf")),
@@ -99,9 +110,9 @@ export default async function Image() {
           </div>
 
           <div style={{ display: "flex", flexDirection: "column", marginTop: 72, fontSize: 86, fontWeight: 800, letterSpacing: -4, lineHeight: 0.98 }}>
-            <span>o que tocou</span>
+            <span>{t.home.titleLine1}</span>
             <div style={{ display: "flex", alignItems: "center" }}>
-              <span>no</span>
+              <span>{t.home.titleLine2}</span>
               {/* Marca-texto âmbar torto atrás de "seu mês?", como na página. */}
               <div style={{ display: "flex", position: "relative", marginLeft: 34 }}>
                 <div
@@ -117,13 +128,13 @@ export default async function Image() {
                     display: "flex",
                   }}
                 />
-                <span style={{ color: THEME.amberInk, paddingBottom: 4 }}>seu mês?</span>
+                <span style={{ color: THEME.amberInk, paddingBottom: 4 }}>{t.home.titleHighlight}</span>
               </div>
             </div>
           </div>
 
           <div style={{ marginTop: 30, fontSize: 28, fontWeight: 500, lineHeight: 1.35, color: THEME.inkSoft, display: "flex" }}>
-            Seus artistas, músicas, álbuns e gêneros mais ouvidos, numa imagem para postar.
+            {t.home.intro}
           </div>
         </div>
 

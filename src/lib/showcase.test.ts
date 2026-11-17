@@ -6,6 +6,8 @@ describe("parseShowcase", () => {
   it("lê legenda e itens, limpando espaços", () => {
     expect(parseShowcase({ legenda: " em evidência ", itens: [{ artista: " Iza ", album: "ZAZA " }] })).toEqual({
       caption: "em evidência",
+      captionEn: "",
+      captionEs: "",
       items: [{ artist: "Iza", album: "ZAZA" }],
     });
   });
@@ -17,7 +19,7 @@ describe("parseShowcase", () => {
   });
 
   it("JSON estranho não quebra", () => {
-    expect(parseShowcase(null)).toEqual({ caption: "", items: [] });
+    expect(parseShowcase(null)).toEqual({ caption: "", captionEn: "", captionEs: "", items: [] });
   });
 
   it("o arquivo de verdade (src/data/vitrine.json) é válido e tem pelo menos 4 álbuns", () => {

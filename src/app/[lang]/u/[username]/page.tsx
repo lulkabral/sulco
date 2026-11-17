@@ -41,7 +41,7 @@ const RECAP_ALBUMS = 9;
 /** Capas na faixa do topo da página. */
 const HEADER_COVERS = 20;
 
-export async function generateMetadata({ params }: PageProps<"/u/[username]">): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps<"/[lang]/u/[username]">): Promise<Metadata> {
   const username = validateUsername(safeDecode((await params).username));
   return {
     title: username.ok ? username.value : "Usuário",
@@ -55,7 +55,7 @@ export async function generateMetadata({ params }: PageProps<"/u/[username]">): 
 
 // O username e o período só são conhecidos na hora do pedido,
 // então tudo que depende deles fica dentro de <Suspense>.
-export default function UserPage({ params, searchParams }: PageProps<"/u/[username]">) {
+export default function UserPage({ params, searchParams }: PageProps<"/[lang]/u/[username]">) {
   return (
     <main id="conteudo" className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-6 px-4 pb-10 sm:pt-6">
       <Suspense fallback={<ProfileSkeleton />}>
@@ -77,7 +77,7 @@ function safeDecode(value: string): string {
   }
 }
 
-async function Profile({ params, searchParams }: Pick<PageProps<"/u/[username]">, "params" | "searchParams">) {
+async function Profile({ params, searchParams }: Pick<PageProps<"/[lang]/u/[username]">, "params" | "searchParams">) {
   const { username: rawUsername } = await params;
   const query = await searchParams;
   const tab = parseTab(query.tab);

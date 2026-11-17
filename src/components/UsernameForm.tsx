@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useI18n } from "@/i18n/client";
 import { validateUsername } from "@/lib/lastfm/validate";
 
 type Props = {
@@ -13,6 +14,7 @@ type Props = {
 /** Campo de username. Valida no navegador e leva para /u/USERNAME. */
 export function UsernameForm({ defaultValue = "", sticker = false }: Props) {
   const router = useRouter();
+  const { t, href } = useI18n();
   const [value, setValue] = useState(defaultValue);
   const [error, setError] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
@@ -21,19 +23,19 @@ export function UsernameForm({ defaultValue = "", sticker = false }: Props) {
     event.preventDefault();
     const result = validateUsername(value);
     if (!result.ok) {
-      setError("Digite um username do Last.fm válido (2 a 15 letras, números, _ ou -).");
+      setError(t.form.invalid);
       return;
     }
     setError(null);
     setSending(true);
-    router.push(`/u/${encodeURIComponent(result.value)}`);
+    router.push(href(`/u/${encodeURIComponent(result.value)}`));
   }
 
   return (
     // action="/u": sem JavaScript, o navegador envia para /u?username=..., que redireciona.
-    <form action="/u" method="get" onSubmit={handleSubmit} noValidate className="flex w-full flex-col gap-2">
+    <form action={href("/u")} method="get" onSubmit={handleSubmit} noValidate className="flex w-full flex-col gap-2">
       <label htmlFor="username" className="text-sm font-semibold text-ink-soft">
-        Username do Last.fm
+        {t.form.label}
       </label>
       <div
         className={
@@ -49,7 +51,7 @@ export function UsernameForm({ defaultValue = "", sticker = false }: Props) {
           autoComplete="off"
           autoCapitalize="none"
           spellCheck={false}
-          placeholder="seu_usuario"
+          placeholder={t.form.placeholder}
           value={value}
           onChange={(e) => setValue(e.target.value)}
           aria-invalid={error !== null}
@@ -64,7 +66,7 @@ export function UsernameForm({ defaultValue = "", sticker = false }: Props) {
             "bg-amber text-amber-ink transition hover:bg-amber-hover active:scale-95 disabled:opacity-60"
           }
         >
-          {sending ? "Abrindo…" : "Gerar"}
+          {sending ? t.form.sending : t.form.submit}
         </button>
       </div>
       {error && (

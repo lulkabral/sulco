@@ -7,8 +7,9 @@ const nextConfig: NextConfig = {
   // O log de pedidos do `next dev` mostra a URL inteira, com o username.
   // Ignoramos as rotas que carregam username (regra: nada de log com username).
   logging: {
-    // /u(\/|\?|$): pega /u/NOME e também /u?username=NOME (formulário sem JavaScript).
-    incomingRequests: { ignore: [/^\/api\/lastfm\//, /^\/u(\/|\?|$)/] },
+    // /u(\/|\?|$): pega /u/NOME e também /u?username=NOME (formulário sem JavaScript),
+    // com ou sem língua na frente (/en/u/NOME).
+    incomingRequests: { ignore: [/^\/api\/lastfm\//, /^(\/(pt|en|es))?\/u(\/|\?|$)/] },
   },
   images: {
     // Imagens vão direto do servidor do Last.fm (já em miniatura, ver `thumbUrl`), sem

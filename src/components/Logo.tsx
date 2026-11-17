@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { getI18n } from "@/i18n/server";
 
 type Props = {
   /** "sm" para cabeçalhos, "lg" para a página inicial. */
@@ -39,9 +40,10 @@ export function Logo({ size = "sm" }: Props) {
 }
 
 /** Logo pequeno que leva à página inicial (cabeçalho das outras páginas). */
-export function LogoLink() {
+export async function LogoLink() {
+  const { t, href } = await getI18n();
   return (
-    <Link href="/" aria-label="sulco, página inicial" className="inline-block rounded-md transition hover:opacity-80">
+    <Link href={href("/")} aria-label={t.common.homeLabel} className="inline-block rounded-md transition hover:opacity-80">
       <Logo size="sm" />
     </Link>
   );
