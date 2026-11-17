@@ -15,6 +15,7 @@ import {
   normalizeUserInfo,
   pickImage,
   toArray,
+  normalizeTagInfo,
 } from "./normalize";
 import type { TopAlbum, TopTrack } from "./types";
 
@@ -344,5 +345,19 @@ describe("sumChartPlays", () => {
     const all = normalizeChart("artists", weeklyArtistsRaw, 50).reduce((s, a) => s + a.playcount, 0);
     expect(sumChartPlays("artists", weeklyArtistsRaw)).toBe(all);
     expect(sumChartPlays("artists", {})).toBe(0);
+  });
+});
+
+describe("normalizeTagInfo", () => {
+  it("tag com descrição", () => {
+    const raw = { tag: { name: "plugg", reach: 788, wiki: { summary: 'Plugg is a subgenre of trap. <a href="x">Read more on Last.fm</a>.' } } };
+    expect(normalizeTagInfo(raw)).toEqual({ reach: 788, hasWiki: true });
+  });
+  it("tag sem descrição (só o link)", () => {
+    const raw = { tag: { name: "martin", reach: "309", wiki: { summary: ' <a href="https://www.last.fm/tag/martin">Read more on Last.fm</a>.' } } };
+    expect(normalizeTagInfo(raw)).toEqual({ reach: 309, hasWiki: false });
+  });
+  it("resposta estranha vira zero e sem descrição", () => {
+    expect(normalizeTagInfo(null)).toEqual({ reach: 0, hasWiki: false });
   });
 });

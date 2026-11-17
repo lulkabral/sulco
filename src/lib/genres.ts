@@ -191,6 +191,37 @@ export function isNotGenre(key: string, artistKey: string): boolean {
   return key.includes(" ") && artistKey.includes(key);
 }
 
+/** Quantas tags candidatas por artista passam pela conferência no Last.fm (`tag.getInfo`). */
+export const TAGS_TO_CHECK = 8;
+/** Tag sem descrição só conta como gênero se tanta gente a usa. */
+export const MIN_TAG_REACH = 1000;
+
+/**
+ * A tag parece gênero de verdade? Gênero tem descrição no Last.fm ou é muito usado.
+ * Apelido de fã ("martin", "james": integrantes do CORTIS) não tem descrição e é pouco usado.
+ */
+export function looksLikeGenre(info: { reach: number; hasWiki: boolean }): boolean {
+  return info.hasWiki || info.reach >= MIN_TAG_REACH;
+}
+
+/**
+ * Candidatas a gênero de um artista: tira o que já se sabe que não é gênero e fica com as
+ * `max` mais fortes (uma por grafia). São estas que vão para a conferência no Last.fm.
+ */
+export function genreCandidates(artist: string, tags: ArtistTag[], max = TAGS_TO_CHECK): ArtistTag[] {
+  const artistKey = genreKey(artist);
+  const seen = new Set<string>();
+  const out: ArtistTag[] = [];
+  for (const tag of [...tags].sort((a, b) => b.count - a.count)) {
+    const key = genreKey(tag.name);
+    if (tag.count <= 0 || seen.has(key) || isNotGenre(key, artistKey)) continue;
+    seen.add(key);
+    out.push(tag);
+    if (out.length >= max) break;
+  }
+  return out;
+}
+
 export type GenreInput = {
   name: string;
   playcount: number;

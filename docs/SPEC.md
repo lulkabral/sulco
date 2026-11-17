@@ -103,7 +103,7 @@ A paleta padrão (Âmbar) é a identidade visual do site (ver "Identidade visual
 - Tamanhos: 3x3, 4x4, 5x5.
 - Períodos: os mesmos do seletor (padrão: últimos 7 dias, a "semaninha").
 - Opções: mostrar ou não o nome do álbum e artista; mostrar ou não a contagem de plays. A grade não leva assinatura nem selo (só as capas); o recap continua com a assinatura e o crédito ao Last.fm.
-- Álbum sem capa: quadrado neutro com o nome do álbum.
+- Álbum que vem sem capa no top do usuário: a grade (e o recap) pergunta à página do álbum (`album.getInfo` pela rota `/api/lastfm/album`), que às vezes tem. Se nem ela tiver, quadrado neutro com o nome do álbum.
 - Exportar em PNG, mesmos botões e mesma prévia segurável do recap.
 
 ## Gêneros
@@ -114,8 +114,9 @@ O Last.fm não tem campo de gênero. O cálculo usa as tags dos artistas:
 2. buscar as tags de cada um (`artist.getTopTags`);
 3. normalizar nomes (minúsculas, juntar variações óbvias como "hip hop" e "hip-hop");
 4. descartar tags que não são gênero (lista configurável: "seen live", "favorites", "favourites", "albums i own", anos e décadas, nacionalidades, "female vocalists", o próprio nome do artista etc.);
-5. para cada artista, usar as 5 tags mais fortes que sobraram; peso = plays do artista x (força da tag / 100);
-6. somar e mostrar o top 5.
+5. conferir no Last.fm (`tag.getInfo`) as 8 candidatas mais fortes de cada artista: fica só a tag que tem descrição ou que mais de 1.000 pessoas usam. Isso tira apelido de fã e nome de integrante ("martin", "james" no CORTIS), que nenhuma lista pega. A conferência fica 30 dias em cache e vale para todos os usuários;
+6. para cada artista, usar as 5 tags mais fortes que sobraram; peso = plays do artista x (força da tag / 100);
+7. somar e mostrar o top 5.
 
 Descartar antes de escolher as 5 mais fortes evita que lixo forte ("the voice": 100) tome a vaga de um gênero de verdade. Implementação: `src/lib/genres.ts`.
 

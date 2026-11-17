@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { computeTopGenres, genreKey, genreLabel, isNotGenre, mapWithLimit } from "./genres";
+import {
+  computeTopGenres,
+  genreCandidates,
+  genreKey,
+  genreLabel,
+  isNotGenre,
+  looksLikeGenre,
+  mapWithLimit,
+} from "./genres";
 
 describe("genreKey", () => {
   it("junta grafias do mesmo gênero", () => {
@@ -162,5 +170,35 @@ describe("mapWithLimit", () => {
 
   it("lista vazia", async () => {
     expect(await mapWithLimit([], 3, async (n: number) => n)).toEqual([]);
+  });
+});
+
+describe("looksLikeGenre", () => {
+  it("aceita tag com descrição, mesmo pouco usada", () => {
+    expect(looksLikeGenre({ reach: 37, hasWiki: true })).toBe(true); // pagode baiano
+  });
+  it("aceita tag sem descrição se muita gente usa", () => {
+    expect(looksLikeGenre({ reach: 5000, hasWiki: false })).toBe(true);
+  });
+  it("recusa apelido de fã: sem descrição e pouco usado", () => {
+    expect(looksLikeGenre({ reach: 309, hasWiki: false })).toBe(false); // martin (CORTIS)
+  });
+});
+
+describe("genreCandidates", () => {
+  const tags = [
+    { name: "Korean", count: 100 },
+    { name: "Martin", count: 100 },
+    { name: "Cortis", count: 66 },
+    { name: "k-pop", count: 29 },
+    { name: "kpop", count: 20 },
+    { name: "seen live", count: 10 },
+    { name: "zero", count: 0 },
+  ];
+  it("tira descarte conhecido, nome do artista, repetidas e força zero", () => {
+    expect(genreCandidates("CORTIS", tags).map((t) => t.name)).toEqual(["Martin", "k-pop"]);
+  });
+  it("respeita o máximo", () => {
+    expect(genreCandidates("CORTIS", tags, 1)).toHaveLength(1);
   });
 });

@@ -59,3 +59,13 @@ export function findCover(lookup: CoverLookup): Promise<string | null> {
     return data?.imageUrl ?? null;
   });
 }
+
+/**
+ * Endereço da capa de um álbum da lista do usuário. Às vezes o Last.fm manda o álbum sem
+ * imagem na lista (user.getTopAlbums), mas a página do álbum tem: aí pergunta a ela.
+ */
+export function albumCover(album: { name: string; artist: string; imageUrl?: string | null }): Promise<string | null> {
+  if (album.imageUrl) return Promise.resolve(album.imageUrl);
+  if (!album.artist) return Promise.resolve(null);
+  return findCover({ type: "album", artist: album.artist, name: album.name });
+}

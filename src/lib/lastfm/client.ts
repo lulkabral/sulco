@@ -3,7 +3,7 @@
 import "server-only";
 
 import { cacheLife } from "next/cache";
-import { computeTopGenres, mapWithLimit, type Genre } from "@/lib/genres";
+import { computeTopGenres, genreCandidates, looksLikeGenre, mapWithLimit, type Genre } from "@/lib/genres";
 import vitrine from "@/data/vitrine.json";
 import { parseShowcase } from "@/lib/showcase";
 import { rankTrendingAlbums, type TrendingCover } from "@/lib/trending";
@@ -16,6 +16,7 @@ import {
   normalizeTrackAlbum,
   normalizeChartTracks,
   normalizeArtistTags,
+  normalizeTagInfo,
   normalizeChart,
   sumChartPlays,
   normalizeRecentTotal,
@@ -46,6 +47,7 @@ const ALLOWED_METHODS = [
   "user.getTopTracks",
   "user.getRecentTracks",
   "artist.getTopTags",
+  "tag.getInfo",
   "user.getWeeklyArtistChart",
   "user.getWeeklyAlbumChart",
   "user.getWeeklyTrackChart",
@@ -216,12 +218,32 @@ export async function getScrobbleTotal(username: string, from: number, to: numbe
  * (erro 6, que viraria USER_NOT_FOUND) devolve lista vazia em vez de erro.
  */
 export async function getArtistTags(artist: string): Promise<ArtistTagsResponse> {
+  let res: ArtistTagsResponse;
   try {
-    const raw = await callLastfm("artist.getTopTags", { artist }, "week");
-    return normalizeArtistTags(raw, artist);
+    res = normalizeArtistTags(await callLastfm("artist.getTopTags", { artist }, "week"), artist);
   } catch (err) {
     if (err instanceof LastfmError && err.code === "USER_NOT_FOUND") return { artist, tags: [] };
     throw err;
+  }
+  // Só as candidatas mais fortes, e só as que parecem gênero de verdade (some "martin").
+  // Uma por vez: quem chama já roda 3 artistas ao mesmo tempo (regra 7).
+  const tags = [];
+  for (const tag of genreCandidates(res.artist, res.tags)) {
+    if (await isGenreTag(tag.name)) tags.push(tag);
+  }
+  return { artist: res.artist, tags };
+}
+
+/**
+ * A tag parece gênero (`tag.getInfo`: tem descrição ou é muito usada)? Cache de 30 dias,
+ * compartilhado entre todos os usuários. Se o Last.fm falhar, a tag fica (melhor um gênero
+ * estranho do que sumir com todos); tag que o Last.fm não conhece sai.
+ */
+async function isGenreTag(tag: string): Promise<boolean> {
+  try {
+    return looksLikeGenre(normalizeTagInfo(await callLastfm("tag.getInfo", { tag: tag.toLowerCase() }, "month")));
+  } catch (err) {
+    return !(err instanceof LastfmError && err.code === "USER_NOT_FOUND");
   }
 }
 

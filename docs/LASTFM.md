@@ -29,6 +29,7 @@ GET https://ws.audioscrobbler.com/2.0/?method=user.gettopalbums&user=USERNAME&pe
 | `user.getWeeklyArtistChart`, `user.getWeeklyAlbumChart`, `user.getWeeklyTrackChart` | tops de um ano inteiro (com `from`/`to` livres) | `user`, `from`, `to` |
 | `album.getInfo` | só a capa dos álbuns do ano (o gráfico não traz imagem) | `artist`, `album` |
 | `chart.getTopTracks` | top músicas global, para montar os álbuns em alta da página inicial (só nome e artista; as imagens são a estrela) | `limit=50` |
+| `tag.getInfo` | conferir se uma tag é gênero (tem descrição ou é muito usada) | `tag` |
 | `track.getInfo` | só a capa do álbum de cada música da lista "Músicas" (o top de músicas só traz a estrela) | `artist`, `track`, `autocorrect=1` |
 
 Qualquer outro método deve ser recusado pela rota.
@@ -113,6 +114,8 @@ Fora do site, a ferramenta local `npm run banner` (só para a conta oficial) tam
   - Artista inexistente responde HTTP 200 com `{"error": 6, "message": "The artist you supplied could not be found"}`. Na nossa rota de tags isso vira lista vazia, e não `USER_NOT_FOUND`.
   - Lixo comum entre as tags mais fortes: nacionalidade ("british", "american", "United States"), "female vocalists", nome de programa ("the voice", "X factor") e o nome do próprio artista ou de um pedaço dele. A lista de descarte fica em `src/lib/genres.ts`; `npm run genres -- USERNAME` mostra o que foi usado e o que foi descartado.
   - Com um perfil real (15/11/2026) apareceram ainda: nomes de país ("Belgium", "spain", "argentina"), números soltos ("11"), tags de piada ("Better than Nicki Minaj") e nomes de pessoas usados como tag ("NandaTsunami", "DJ Caio Santos"). Os três primeiros entram por lista e regra. Nomes de pessoas não têm como ser listados; como só aparecem em artistas pouco marcados, o peso deles fica baixo e não chega ao top 5.
+- **`tag.getInfo` (testado em 17/11/2026):** traz `reach` (quantas pessoas usam a tag) e `wiki.summary`. Tag sem descrição vem com o resumo só com o link "Read more on Last.fm". Gênero de verdade tem descrição, até os pequenos ("pagode baiano": 37 pessoas; "tecnobrega": 289). Nome de integrante usado por fã não tem ("martin": 309; "james": 677; "cortis": 9). O alcance sozinho não separa ("jersey club" tem 460). Regra: fica a tag com descrição ou com 1.000+ pessoas. Perde-se pouca coisa: "sertanejo universitario" (382, sem descrição); o artista quase sempre tem também "sertanejo".
+- **Álbum sem imagem no `user.getTopAlbums` (testado em 17/11/2026):** às vezes o álbum vem sem imagem no top do usuário, mas o `album.getInfo` tem ("Edge Of Thorns (Bonus Track Edition)", "I can't do this"). Em outros o Last.fm não tem capa em lugar nenhum (álbum, primeira faixa e busca vazios): lançamentos pequenos e discos ao vivo cadastrados por usuários.
 - Placeholder de artista: confirmado, hash `2a96cbd8b46e442fc41c2b86b821562f`, em todos os tamanhos (`34s`, `64s`, `174s`, `300x300`).
 - Erro para perfil privado: ainda não testado (falta um perfil com histórico privado).
 - Tamanhos maiores de capa: funcionam trocando `300x300` por `600x600`, ou tirando o trecho (original). Ver armadilha 9.

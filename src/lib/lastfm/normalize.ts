@@ -163,6 +163,22 @@ export function normalizeArtistTags(raw: unknown, artist: string): ArtistTagsRes
   return { artist: str(obj(root["@attr"]).artist) || artist, tags };
 }
 
+/** O que interessa de `tag.getInfo`: quantas pessoas usam a tag e se ela tem descrição. */
+export type TagInfo = { reach: number; hasWiki: boolean };
+
+/**
+ * `tag.getInfo`. Tag sem descrição vem com o resumo só com o link "Read more on Last.fm":
+ * tirando o HTML e esse link, não sobra texto.
+ */
+export function normalizeTagInfo(raw: unknown): TagInfo {
+  const tag = obj(obj(raw).tag);
+  const summary = str(obj(tag.wiki).summary)
+    .replace(/<[^>]*>/g, " ")
+    .replace(/read more on last\.fm/gi, "");
+  // Sobrou alguma letra (de qualquer língua)? Pontuação e espaço solto não contam.
+  return { reach: num(tag.reach), hasWiki: /\p{L}/u.test(summary) };
+}
+
 /**
  * Uma página de `user.getRecentTracks` com `from`/`to`.
  * Descarta a faixa "tocando agora" (vem sem `date`, até em meses passados: armadilha 3).

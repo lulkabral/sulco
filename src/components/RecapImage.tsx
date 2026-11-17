@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "reac
 import { ExportButtons } from "@/components/ExportButtons";
 import { loadImage, pageFontFamily, waitForFonts } from "@/lib/canvas/image";
 import { useCanvasSnapshot } from "@/lib/canvas/use-snapshot";
-import { trackInfo } from "@/lib/lookups";
+import { albumCover, trackInfo } from "@/lib/lookups";
 import { estimateMinutes } from "@/lib/minutes";
 import { formatNumber } from "@/lib/format";
 import type { Genre } from "@/lib/genres";
@@ -120,7 +120,7 @@ export function RecapImage(props: Props) {
     };
     if (list.length === 0) Promise.resolve().then(() => !cancelled && setCoversDone(true));
     list.forEach((a, i) => {
-      const load = a.imageUrl ? loadImage(coverUrl(a.imageUrl, 600)) : Promise.resolve(null);
+      const load = albumCover({ ...a, artist: a.artist ?? "" }).then((url) => (url ? loadImage(coverUrl(url, 600)) : null));
       load.then((img) => {
         if (cancelled) return;
         if (img) {

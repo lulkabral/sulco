@@ -6,6 +6,7 @@ import { loadImage, pageFontFamily, waitForFonts } from "@/lib/canvas/image";
 import { useCanvasSnapshot } from "@/lib/canvas/use-snapshot";
 import { SaveHint } from "./RecapImage";
 import { drawGrid } from "@/lib/grid/draw";
+import { albumCover } from "@/lib/lookups";
 import {
   coverPxFor,
   coverUrl,
@@ -95,7 +96,8 @@ export function AlbumGrid({ username, period, periodLabel, albums }: Props) {
       // cada uma entra na grade quando chega, sem esperar as outras.
       if (pending === 0) schedule();
       needed.forEach((a, i) => {
-        const load = a.imageUrl ? getCover(coverUrl(a.imageUrl, px)) : Promise.resolve(null);
+        // Sem capa na lista: pergunta à página do álbum (às vezes ela tem).
+        const load = albumCover(a).then((url) => (url ? getCover(coverUrl(url, px)) : null));
         load.then((img) => {
           if (cancelled) return;
           covers[i] = img;
