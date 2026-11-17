@@ -219,7 +219,7 @@ const NOT_GENRE = new Set([
  * uma cantora grega. Use pouco: só para artista conhecido com tag claramente trocada.
  */
 const WRONG_TAGS: Record<string, string[]> = {
-  "marina sena": ["greek", "greek pop", "ethnic", "laiko", "entechno", "greek folk", "pop folk"],
+  "marina sena": ["greek", "greek pop", "greek eclectics", "edexno", "entexno", "entechno", "laiko", "greek folk", "pop folk", "ethnic"],
 };
 
 /** Anos, décadas e números soltos: "80s", "00s", "1990s", "2010", "11". */
