@@ -221,18 +221,22 @@ export function RecapImage(props: Props) {
       </div>
 
       <div className="flex flex-col gap-5 rounded-2xl bg-card p-5 md:min-w-80">
-        <div>
-          <p className="text-sm font-bold uppercase tracking-widest text-soft">{periodLabel}</p>
-          <p className="mt-1 text-soft">
-            <span className="font-bold text-ink">{formatNumber(total, lang)}</span> {t.units.scrobbles}
+        {/* Ficha técnica: período e números em mono, alinhados, com linhas finas (docs/MARCA.md). */}
+        <div className="font-mono text-sm tabular-nums">
+          <p className="border-b border-line pb-2 text-xs font-semibold uppercase tracking-widest text-soft">{periodLabel}</p>
+          <dl className="divide-y divide-line border-b border-line">
+            <div className="flex items-baseline justify-between gap-3 py-2">
+              <dt className="text-soft">{t.units.scrobbles}</dt>
+              <dd className="font-semibold text-ink">{formatNumber(total, lang)}</dd>
+            </div>
             {minutesValue !== null && (
-              <>
-                {" · "}
-                <span className="font-bold text-ink">{formatNumber(minutesValue, lang)}</span> {t.units.minutes}
-                <span className="block text-xs text-ink-faint">{t.recap.minutesNote}</span>
-              </>
+              <div className="flex items-baseline justify-between gap-3 py-2">
+                <dt className="text-soft">{t.units.minutes}</dt>
+                <dd className="font-semibold text-ink">{formatNumber(minutesValue, lang)}</dd>
+              </div>
             )}
-          </p>
+          </dl>
+          {minutesValue !== null && <p className="mt-2 font-sans text-xs text-ink-faint">{t.recap.minutesNote}</p>}
         </div>
 
         <fieldset>

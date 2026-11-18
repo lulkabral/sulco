@@ -48,11 +48,12 @@ export async function UserHeader({ user, covers }: Props) {
               {user.username}
             </a>
           </h1>
-          <ul className="mt-1.5 flex flex-wrap gap-1.5 font-mono text-xs text-soft">
-            <li className="rounded-full border border-line bg-room/70 px-2.5 py-1">
-              <span className="font-bold text-ink">{formatNumber(user.playcount, lang)}</span> {t.units.scrobbles}
+          {/* Ficha técnica em mono: números alinhados e linhas finas (docs/MARCA.md). */}
+          <ul className="mt-1.5 flex w-fit flex-col divide-y divide-line rounded-md sm:flex-row sm:divide-x sm:divide-y-0 border border-line bg-room/70 font-mono text-xs tabular-nums text-soft">
+            <li className="px-2.5 py-1">
+              <span className="font-semibold text-ink">{formatNumber(user.playcount, lang)}</span> {t.units.scrobbles}
             </li>
-            {since && <li className="rounded-full border border-line bg-room/70 px-2.5 py-1">{t.profile.sinceYear(since)}</li>}
+            {since && <li className="px-2.5 py-1">{t.profile.sinceYear(since)}</li>}
           </ul>
         </div>
       </div>
