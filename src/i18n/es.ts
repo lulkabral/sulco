@@ -39,7 +39,6 @@ export const es: Dict = {
     madeBy: "hecho por",
     onX: (handle: string, label?: string) => `${label ? `${label} ` : ""}@${handle} en X (se abre en otra pestaña)`,
     lastfm: "Datos de Last.fm",
-    code: "Código abierto",
     privacy: "Privacidad",
     language: "Idioma",
   },

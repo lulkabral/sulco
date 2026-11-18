@@ -38,7 +38,6 @@ export const pt = {
     madeBy: "feito por",
     onX: (handle: string, label?: string) => `${label ? `${label} ` : ""}@${handle} no X (abre em outra aba)`,
     lastfm: "Dados do Last.fm",
-    code: "Código aberto",
     privacy: "Privacidade",
     language: "Língua",
   },

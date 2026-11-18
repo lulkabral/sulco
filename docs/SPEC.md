@@ -17,7 +17,7 @@ Quem usa Spotify, Deezer, YouTube Music etc. só precisa ter o scrobbling ligado
 - No topo, ao lado do logo, a "edição" do dia (nº N · data), contada desde o lançamento (16/11/2026).
 - Nada dos cartões "1, 2, 3" (repetiam o óbvio).
 - Link "Não tem Last.fm?" explicando em duas linhas como criar conta e ligar o scrobbling.
-- Rodapé: nota de privacidade, crédito ao Last.fm com link, link do repositório.
+- Rodapé: nota de privacidade, crédito ao Last.fm com link, perfis no X e seletor de língua. Sem link do repositório (pedido do dono em 17/11/2026).
 
 ### 2. Página do usuário (`/u/[username]`)
 
