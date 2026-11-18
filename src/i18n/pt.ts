@@ -20,9 +20,13 @@ export const pt = {
     titleHighlight: "seu mês?",
     intro: "Seus artistas, músicas, álbuns e gêneros mais ouvidos, numa imagem para postar.",
     noLastfm: "Não tem Last.fm?",
-    noLastfmBefore: "Crie uma conta grátis em",
-    noLastfmAfter:
-      "e ligue o scrobbling no seu app de música (Spotify, Deezer, YouTube Music e outros) nas configurações do Last.fm. A partir daí, tudo que você ouvir passa a contar.",
+    noLastfmJoin: "Crie a conta grátis em",
+    noLastfmJoinAfter: ". O nome de usuário que você escolher lá é o que se digita aqui.",
+    noLastfmSteps: [
+      "Para ligar o seu app de música: no site do Last.fm, toque na foto do perfil → Configurações → Aplicativos e conecte o serviço que você usa.",
+      "YouTube Music (Android): instale o Pano Scrobbler na Play Store, entre com a conta do Last.fm, libere o acesso às notificações e deixe o YouTube Music ligado.",
+    ],
+    noLastfmNote: "O Last.fm só conta a partir da conexão: o que você ouviu antes não entra.",
     showcaseCaption: "em evidência este mês",
     trendingCaption: "em alta no mundo hoje",
   },

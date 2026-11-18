@@ -21,9 +21,13 @@ export const en: Dict = {
     titleHighlight: "your month?",
     intro: "Your most played artists, tracks, albums and genres, in one image ready to post.",
     noLastfm: "Don't have Last.fm?",
-    noLastfmBefore: "Create a free account at",
-    noLastfmAfter:
-      "and turn on scrobbling for your music app (Spotify, Deezer, YouTube Music and others) in the Last.fm settings. From then on, everything you listen to counts.",
+    noLastfmJoin: "Create a free account at",
+    noLastfmJoinAfter: ". The username you pick there is what you type here.",
+    noLastfmSteps: [
+      "To connect your music app: on the Last.fm website, tap your profile picture → Settings → Applications and connect the service you use.",
+      "YouTube Music (Android): install Pano Scrobbler from the Play Store, sign in with Last.fm, allow notification access and keep YouTube Music turned on.",
+    ],
+    noLastfmNote: "Last.fm only counts from the moment you connect: what you listened to before is not included.",
     showcaseCaption: "in the spotlight this month",
     trendingCaption: "albums trending worldwide today",
   },

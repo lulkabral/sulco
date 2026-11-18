@@ -21,9 +21,13 @@ export const es: Dict = {
     titleHighlight: "tu mes?",
     intro: "Tus artistas, canciones, álbumes y géneros más escuchados, en una imagen para publicar.",
     noLastfm: "¿No tienes Last.fm?",
-    noLastfmBefore: "Crea una cuenta gratis en",
-    noLastfmAfter:
-      "y activa el scrobbling de tu app de música (Spotify, Deezer, YouTube Music y otras) en la configuración de Last.fm. Desde entonces, todo lo que escuches cuenta.",
+    noLastfmJoin: "Crea una cuenta gratis en",
+    noLastfmJoinAfter: ". El nombre de usuario que elijas ahí es el que escribes aquí.",
+    noLastfmSteps: [
+      "Para conectar tu app de música: en el sitio de Last.fm, toca tu foto de perfil → Configuración → Aplicaciones y conecta el servicio que usas.",
+      "YouTube Music (Android): instala Pano Scrobbler desde Play Store, entra con tu cuenta de Last.fm, permite el acceso a las notificaciones y deja YouTube Music activado.",
+    ],
+    noLastfmNote: "Last.fm cuenta solo desde que te conectas: lo que escuchaste antes no entra.",
     showcaseCaption: "destacados este mes",
     trendingCaption: "en tendencia hoy",
   },

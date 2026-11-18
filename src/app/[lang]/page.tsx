@@ -60,20 +60,27 @@ export default async function Home() {
           <UsernameForm sticker />
 
 
+          {/* Mini tutorial para quem ainda não usa o Last.fm (o mesmo que foi postado no X). */}
           <details className="text-sm text-soft">
             <summary className="cursor-pointer font-semibold text-ink">{t.home.noLastfm}</summary>
-            <p className="mt-2">
-              {t.home.noLastfmBefore}{" "}
-              <a
-                href="https://www.last.fm/join"
-                className="text-amber underline underline-offset-2"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                last.fm
-              </a>{" "}
-              {t.home.noLastfmAfter}
-            </p>
+            <ol className="mt-3 flex list-decimal flex-col gap-2 pl-5 marker:font-mono marker:text-ink-faint">
+              <li>
+                {t.home.noLastfmJoin}{" "}
+                <a
+                  href="https://www.last.fm/join"
+                  className="text-amber underline underline-offset-2"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  last.fm/join
+                </a>
+                {t.home.noLastfmJoinAfter}
+              </li>
+              {t.home.noLastfmSteps.map((step) => (
+                <li key={step}>{step}</li>
+              ))}
+            </ol>
+            <p className="mt-3 border-t border-line pt-3">{t.home.noLastfmNote}</p>
           </details>
         </div>
       </div>
