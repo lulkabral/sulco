@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { artistPictures } from "@/lib/artist-image";
 import { connection } from "next/server";
 import { Suspense } from "react";
+import { AccentScope } from "@/components/AccentScope";
 import { AlbumGrid } from "@/components/AlbumGrid";
 import { ErrorState } from "@/components/ErrorState";
 import { GenreList } from "@/components/GenreList";
@@ -125,7 +126,8 @@ async function Profile({ params, searchParams }: Pick<PageProps<"/[lang]/u/[user
   const chosenPeriod = history ?? (UI_PERIODS.some((p) => p.value === rawPeriod) ? period : undefined);
 
   return (
-    <>
+    // O destaque da página segue a paleta escolhida para a imagem (quando passa no contraste).
+    <AccentScope>
       <UserHeader user={user} covers={covers} />
       {/* Abas e período numa linha só (o calendário fica guardado na gaveta do botão de período). */}
       <div className="flex items-center gap-2">
@@ -147,7 +149,7 @@ async function Profile({ params, searchParams }: Pick<PageProps<"/[lang]/u/[user
           />
         </Suspense>
       )}
-    </>
+    </AccentScope>
   );
 }
 

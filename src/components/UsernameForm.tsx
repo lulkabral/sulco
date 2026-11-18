@@ -40,7 +40,7 @@ export function UsernameForm({ defaultValue = "", sticker = false }: Props) {
       <div
         className={
           sticker
-            ? "flex overflow-hidden rounded-xl border-2 border-ink bg-card shadow-[4px_4px_0_var(--color-amber)] focus-within:shadow-[6px_6px_0_var(--color-amber)] transition-shadow"
+            ? "flex overflow-hidden rounded-xl border-2 border-ink bg-card shadow-[4px_4px_0_var(--accent)] focus-within:shadow-[6px_6px_0_var(--accent)] transition-shadow"
             : "flex gap-1.5 rounded-2xl border border-line bg-card p-1.5 focus-within:border-amber focus-within:ring-1 focus-within:ring-amber"
         }
       >

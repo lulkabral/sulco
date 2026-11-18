@@ -31,7 +31,7 @@ export function PeriodPicker({ label, children }: Props) {
         type="button"
         onClick={() => dialog.current?.showModal()}
         aria-haspopup="dialog"
-        className="inline-flex shrink-0 items-center gap-1.5 rounded-xl border-2 border-ink bg-card px-3.5 py-2 font-bold whitespace-nowrap shadow-[3px_3px_0_var(--color-amber)] transition hover:shadow-[4px_4px_0_var(--color-amber)] active:translate-x-px active:translate-y-px active:shadow-[1px_1px_0_var(--color-amber)]"
+        className="inline-flex shrink-0 items-center gap-1.5 rounded-xl border-2 border-ink bg-card px-3.5 py-2 font-bold whitespace-nowrap shadow-[3px_3px_0_var(--accent)] transition hover:shadow-[4px_4px_0_var(--accent)] active:translate-x-px active:translate-y-px active:shadow-[1px_1px_0_var(--accent)]"
       >
         <span className="sr-only">{t.profile.periodButton}</span>
         {label}

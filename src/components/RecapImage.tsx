@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { useReportCoverPalette } from "@/components/AccentScope";
 import { ExportButtons } from "@/components/ExportButtons";
 import { useI18n } from "@/i18n/client";
 import { loadImage, pageFontFamily, waitForFonts } from "@/lib/canvas/image";
@@ -67,6 +68,9 @@ export function RecapImage(props: Props) {
   const [genreNames, setGenreNames] = useState<string[] | null | undefined>(undefined);
   /** Paleta tirada da capa nº 1 (null se não der). */
   const [coverPalette, setCoverPalette] = useState<Palette | null>(null);
+  // Avisa a página: com "Cor da capa", o destaque da interface usa esta paleta.
+  const reportCoverPalette = useReportCoverPalette();
+  useEffect(() => reportCoverPalette(coverPalette), [coverPalette, reportCoverPalette]);
 
   // Escolhas guardadas no navegador. No servidor (e no 1º desenho) valem as padrão.
   const prefsRaw = useSyncExternalStore(subscribePrefs, readPrefsRaw, () => null);
