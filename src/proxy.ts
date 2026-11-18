@@ -32,6 +32,7 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  // Só páginas: fora as rotas da API, os arquivos do Next e tudo com extensão (ícones, imagens).
-  matcher: ["/((?!api/|_next/|.*\\.[a-zA-Z0-9]+$).*)"],
+  // Só páginas: fora as rotas da API, a prévia do link (/og), os arquivos do Next e tudo
+  // com extensão (ícones, imagens).
+  matcher: ["/((?!api/|og/|_next/|.*\\.[a-zA-Z0-9]+$).*)"],
 };

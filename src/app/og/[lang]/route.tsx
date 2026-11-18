@@ -8,21 +8,18 @@ import { getShowcaseCovers } from "@/lib/lastfm/client";
 import { coverUrl } from "@/lib/grid/layout";
 import { THEME, TILE_COLORS } from "@/lib/theme";
 
-// Imagem que aparece quando o link do site é colado no X, WhatsApp etc.
+// GET /og/pt, /og/en, /og/es: imagem que aparece quando o link do site é colado no X, WhatsApp etc.
+// (apontada nos metadados de src/app/[lang]/layout.tsx). É uma rota comum, gerada a cada pedido:
+// como arquivo opengraph-image dentro de [lang], o Next tentava pré-gerá-la e dava erro 500.
 // É um pedaço da página inicial: título com o marca-texto âmbar e a colagem com as capas
 // da vitrine (src/data/vitrine.json). Não depende de usuário.
 // O canto de baixo à esquerda fica vazio: o X põe ali a etiqueta com o nome do site.
 
+/** Tamanho da prévia (o mesmo nos metadados do layout). */
 const size = { width: 1200, height: 630 };
 
 function dictFor(lang: string) {
   return DICTS[isLocale(lang) ? lang : DEFAULT_LOCALE];
-}
-
-/** Uma prévia por língua, com o texto alternativo naquela língua. */
-export async function generateImageMetadata({ params }: { params: Promise<{ lang: string }> }) {
-  const { lang } = await params;
-  return [{ id: "card", alt: dictFor(lang).meta.ogAlt, size, contentType: "image/png" }];
 }
 
 /** Mesma colagem da página inicial (CoverCollage): [esquerda, topo, largura, giro, fita?] em %. */
@@ -65,6 +62,22 @@ async function showcaseImages(): Promise<string[]> {
   return ok;
 }
 
+/**
+ * Geist em TTF estático (licença OFL) e o símbolo da marca em PNG, em base64.
+ * Em cache (nunca mudam entre publicações): com Cache Components, ler arquivo sem cache
+ * impede o Next de pré-gerar a imagem (dava erro 500 em produção).
+ */
+async function loadAssets(): Promise<{ medium: string; extraBold: string; symbol: string }> {
+  "use cache";
+  cacheLife("max");
+  const [medium, extraBold, symbol] = await Promise.all([
+    readFile(join(process.cwd(), "assets/Geist-500.ttf")),
+    readFile(join(process.cwd(), "assets/Geist-800.ttf")),
+    readFile(join(process.cwd(), "brand/simbolo-800.png")),
+  ]);
+  return { medium: medium.toString("base64"), extraBold: extraBold.toString("base64"), symbol: symbol.toString("base64") };
+}
+
 /** Peça abstrata (quadrado com círculo), para quando as capas não vierem. */
 function Tile({ index, side }: { index: number; side: number }) {
   const color = TILE_COLORS[(index * 5) % TILE_COLORS.length];
@@ -76,16 +89,12 @@ function Tile({ index, side }: { index: number; side: number }) {
   );
 }
 
-export default async function Image({ params }: { params: Promise<{ lang: string }> }) {
+export async function GET(_request: Request, { params }: RouteContext<"/og/[lang]">) {
   const t = dictFor((await params).lang);
-  // Geist em TTF estático (licença OFL) e o símbolo da marca em PNG.
-  const [medium, extraBold, symbol, covers] = await Promise.all([
-    readFile(join(process.cwd(), "assets/Geist-500.ttf")),
-    readFile(join(process.cwd(), "assets/Geist-800.ttf")),
-    readFile(join(process.cwd(), "brand/simbolo-800.png")),
-    showcaseImages().catch(() => [] as string[]),
-  ]);
-  const symbolSrc = `data:image/png;base64,${symbol.toString("base64")}`;
+  const [assets, covers] = await Promise.all([loadAssets(), showcaseImages().catch(() => [] as string[])]);
+  const medium = Buffer.from(assets.medium, "base64");
+  const extraBold = Buffer.from(assets.extraBold, "base64");
+  const symbolSrc = `data:image/png;base64,${assets.symbol}`;
   const useCovers = covers.length >= 4;
   const pieces = useCovers ? covers : [0, 1, 2, 3, 4, 5];
 
@@ -184,6 +193,8 @@ export default async function Image({ params }: { params: Promise<{ lang: string
     ),
     {
       ...size,
+      // A CDN guarda por 1 dia (a vitrine muda pouco); os robôs do X e do WhatsApp guardam também.
+      headers: { "Cache-Control": "public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800" },
       fonts: [
         { name: "Geist", data: medium, style: "normal", weight: 500 },
         { name: "Geist", data: extraBold, style: "normal", weight: 800 },

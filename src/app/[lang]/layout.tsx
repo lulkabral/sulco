@@ -44,10 +44,13 @@ export async function generateMetadata(): Promise<Metadata> {
       description: t.meta.description,
       locale: OG_LOCALE[lang],
       type: "website",
+      // Prévia do link na língua da página (src/app/og/[lang]/route.tsx).
+      images: [{ url: `/og/${lang}`, width: 1200, height: 630, alt: t.meta.ogAlt }],
     },
     // Cartão do link no X: mostra a imagem grande e credita os perfis.
     twitter: {
       card: "summary_large_image",
+      images: [{ url: `/og/${lang}`, alt: t.meta.ogAlt }],
       site: `@${X_SITE}`,
       creator: `@${X_AUTHOR}`,
     },

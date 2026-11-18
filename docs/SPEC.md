@@ -149,7 +149,7 @@ O site existe em português, inglês e espanhol.
 - Seletor "PT · EN · ES" no rodapé: abre a mesma página na outra língua e guarda a escolha no cookie `lang` (só "pt", "en" ou "es", 1 ano). A escolha vence a língua do navegador.
 - Textos em `src/i18n/` (`pt.ts` é a origem; `en.ts` e `es.ts` têm as mesmas chaves, conferidas pelo TypeScript e por teste). Servidor: `getI18n()`; navegador: `useI18n()`.
 - As imagens (recap e grade) saem na língua da página, inclusive datas, números ("1.950" / "1,950") e "reproduções" / "plays" / "reproducciones". Os gêneros continuam como o Last.fm escreve.
-- A prévia do link existe nas três línguas (`/[lang]/opengraph-image`).
+- A prévia do link existe nas três línguas: rota `/og/pt`, `/og/en`, `/og/es` (`src/app/og/[lang]/route.tsx`), apontada nos metadados do layout. Não é um arquivo `opengraph-image` dentro de `[lang]`: assim o Next tentava pré-gerá-la e dava erro 500 em produção.
 - A legenda da vitrine pode ter versão em inglês e espanhol (`legenda_en`, `legenda_es` em `vitrine.json`); sem elas, vale a legenda padrão de cada língua.
 
 ## Privacidade
