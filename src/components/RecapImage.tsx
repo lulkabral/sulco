@@ -193,7 +193,7 @@ export function RecapImage(props: Props) {
         {t.recap.heading}
       </h2>
 
-      <div className="above-grain w-full max-w-xs self-center transition-transform duration-300 hover:-translate-y-1 md:self-start">
+      <div className="relative w-full max-w-xs self-center transition-transform duration-300 hover:-translate-y-1 md:self-start">
         <canvas
           ref={canvasRef}
           width={RECAP_WIDTH}

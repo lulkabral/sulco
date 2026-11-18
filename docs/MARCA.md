@@ -46,14 +46,13 @@ O logo (`public/brand/simbolo.svg`) é sempre âmbar.
 
 Todas carregadas com `next/font/google` (subset latin, `display: swap`), sem CDN externo. A legenda da vitrine é conferida no teste (`showcase.test.ts`) e no `npm run vitrine`.
 
-Não usar serif no site.
+Não usar serif no site. Sem textura de grão: a página fica lisa, para ninguém achar que a imagem baixada vai sair granulada.
 
-## Textura e movimento
+## Movimento
 
-- **Grão:** uma camada leve na página toda (SVG `feTurbulence` embutido no CSS, opacidade 0,07, sem pegar cliques). Ele nunca entra nas imagens geradas: o canvas não o desenha, e as prévias do recap e da grade (`.above-grain`) ficam acima dele.
 - **Carregamento:** um disco de vinil girando a 33⅓ rpm (`VinylLoader`, CSS puro: sulcos com `repeating-radial-gradient`, reflexo e selo âmbar). Com "reduzir movimento", fica parado e aparece "carregando…". Quando se sabe quanto falta (páginas do mês), a barra de progresso aparece junto.
 - Nada de animação nova espalhada: o disco do carregamento é o único movimento automático acrescentado nesta fase. Todo movimento usa `motion-safe:` e para com "reduzir movimento".
 
 ## Sem vínculo
 
-Não usar "Wrapped" nem nome, logo ou cores do Spotify (regra de marca do projeto). O tutorial do "Não tem Last.fm?" fala em "o serviço que você usa", sem citar o Spotify. Creditar o Last.fm com link.
+Não usar "Wrapped" nem nome, logo ou cores do Spotify (regra de marca do projeto). O nome do Spotify pode aparecer só como instrução (o passo do "Não tem Last.fm?"), sem logo nem cores dele. Creditar o Last.fm com link.

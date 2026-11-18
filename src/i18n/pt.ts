@@ -23,7 +23,7 @@ export const pt = {
     noLastfmJoin: "Crie a conta grátis em",
     noLastfmJoinAfter: ". O nome de usuário que você escolher lá é o que se digita aqui.",
     noLastfmSteps: [
-      "Para ligar o seu app de música: no site do Last.fm, toque na foto do perfil → Configurações → Aplicativos e conecte o serviço que você usa.",
+      "Spotify: no site do Last.fm, toque na foto do perfil → Configurações → Aplicativos → “Em scrobble no Spotify” → Conectar. Funciona no plano grátis, em qualquer aparelho.",
       "YouTube Music (Android): instale o Pano Scrobbler na Play Store, entre com a conta do Last.fm, libere o acesso às notificações e deixe o YouTube Music ligado.",
     ],
     noLastfmNote: "O Last.fm só conta a partir da conexão: o que você ouviu antes não entra.",

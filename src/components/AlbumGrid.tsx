@@ -129,7 +129,7 @@ export function AlbumGrid({ username, period, periodLabel, albums }: Props) {
         {t.grid.heading}
       </h2>
 
-      <div className="above-grain w-full max-w-md self-center transition-transform duration-300 hover:-translate-y-1 md:self-start">
+      <div className="relative w-full max-w-md self-center transition-transform duration-300 hover:-translate-y-1 md:self-start">
         <canvas
           ref={canvasRef}
           width={GRID_CANVAS_SIDE}

@@ -24,7 +24,7 @@ export const en: Dict = {
     noLastfmJoin: "Create a free account at",
     noLastfmJoinAfter: ". The username you pick there is what you type here.",
     noLastfmSteps: [
-      "To connect your music app: on the Last.fm website, tap your profile picture → Settings → Applications and connect the service you use.",
+      "Spotify: on the Last.fm website, tap your profile picture → Settings → Applications → “Spotify Scrobbling” → Connect. Works on the free plan, on any device.",
       "YouTube Music (Android): install Pano Scrobbler from the Play Store, sign in with Last.fm, allow notification access and keep YouTube Music turned on.",
     ],
     noLastfmNote: "Last.fm only counts from the moment you connect: what you listened to before is not included.",
