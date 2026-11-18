@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { ExportButtons } from "@/components/ExportButtons";
+import { VinylLoader } from "@/components/VinylLoader";
 import { useI18n } from "@/i18n/client";
 import { loadImage, pageFontFamily, waitForFonts } from "@/lib/canvas/image";
 import { useCanvasSnapshot } from "@/lib/canvas/use-snapshot";
@@ -150,12 +151,9 @@ export function AlbumGrid({ username, period, periodLabel, albums }: Props) {
           </p>
         )}
         {loading && (
-          <p
-            role="status"
-            className="absolute left-0 top-0 flex aspect-square w-full items-center justify-center rounded-2xl bg-room/70 text-sm font-semibold text-ink"
-          >
-            {t.grid.building}
-          </p>
+          <div className="absolute left-0 top-0 flex aspect-square w-full items-center justify-center rounded-2xl bg-room/70">
+            <VinylLoader label={t.grid.building} />
+          </div>
         )}
         {snapshot && <SaveHint />}
       </div>

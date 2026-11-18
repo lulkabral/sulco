@@ -12,6 +12,7 @@ export const pt = {
     skipToContent: "Pular para o conteúdo",
     homeLabel: "sulco, página inicial",
     backHome: "Voltar ao início",
+    loading: "carregando…",
   },
   home: {
     titleLine1: "o que tocou",
@@ -88,7 +89,6 @@ export const pt = {
     metaDescription: (user: string) => `Recap e grade de álbuns de ${user}, a partir do Last.fm.`,
     switchUser: "Trocar usuário",
     sinceYear: (year: number) => `desde ${year}`,
-    loading: "Carregando…",
     tabsLabel: "Abas",
     tabs: { recap: "Recap", grade: "Grade" } as Record<string, string>,
     periodNav: "Período",

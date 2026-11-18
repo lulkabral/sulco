@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { useReportCoverPalette } from "@/components/AccentScope";
 import { ExportButtons } from "@/components/ExportButtons";
+import { VinylLoader } from "@/components/VinylLoader";
 import { useI18n } from "@/i18n/client";
 import { loadImage, pageFontFamily, waitForFonts } from "@/lib/canvas/image";
 import { useCanvasSnapshot } from "@/lib/canvas/use-snapshot";
@@ -209,12 +210,9 @@ export function RecapImage(props: Props) {
           <img src={snapshot} alt={altText} className="absolute left-0 top-0 aspect-[9/16] w-full rounded-2xl" />
         )}
         {!drawn && (
-          <p
-            role="status"
-            className="absolute inset-0 flex items-center justify-center rounded-2xl text-sm font-semibold text-soft"
-          >
-            {t.recap.building}
-          </p>
+          <div className="absolute inset-0 flex items-center justify-center rounded-2xl">
+            <VinylLoader label={t.recap.building} />
+          </div>
         )}
         {drawn && !complete && (
           <p role="status" className="mt-2 text-center text-xs text-ink-faint">

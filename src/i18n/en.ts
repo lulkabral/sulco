@@ -13,6 +13,7 @@ export const en: Dict = {
     skipToContent: "Skip to content",
     homeLabel: "sulco, home page",
     backHome: "Back to home",
+    loading: "loading…",
   },
   home: {
     titleLine1: "what played",
@@ -88,7 +89,6 @@ export const en: Dict = {
     metaDescription: (user: string) => `Recap and album grid for ${user}, from Last.fm.`,
     switchUser: "Change user",
     sinceYear: (year: number) => `since ${year}`,
-    loading: "Loading…",
     tabsLabel: "Tabs",
     tabs: { recap: "Recap", grade: "Grid" },
     periodNav: "Period",

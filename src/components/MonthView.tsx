@@ -8,6 +8,7 @@ import { GenreItems, GenreListView } from "@/components/GenreListView";
 import { RecapImage } from "@/components/RecapImage";
 import { TopList } from "@/components/TopList";
 import { useI18n } from "@/i18n/client";
+import { VinylLoader } from "./VinylLoader";
 import { aggregateScrobbles, type MonthTops } from "@/lib/aggregate";
 import { formatNumber } from "@/lib/format";
 import type { Genre } from "@/lib/genres";
@@ -231,28 +232,24 @@ function MonthProgressBar({ label, progress }: { label: string; progress: MonthP
       ? t.month.fetchingCovers(label, progress.pagesDone, progress.totalPages)
       : t.month.readingPages(label, progress.pagesDone, progress.totalPages);
   return (
-    <div className="flex flex-col gap-2 rounded-2xl bg-card p-5">
-      <p role="status" className="text-ink">
-        {text}
-      </p>
-      <div
-        role="progressbar"
-        aria-label={t.month.progressLabel}
-        aria-valuemin={0}
-        aria-valuemax={progress?.totalPages}
-        aria-valuenow={progress?.pagesDone}
-        className="h-2 w-full overflow-hidden rounded-full bg-line"
-      >
-        {progress ? (
+    <div className="flex flex-col items-center gap-4 rounded-2xl bg-card p-5">
+      <VinylLoader label={text} />
+      {/* Quando já se sabe quantas páginas são, a barra mostra quanto falta. */}
+      {progress && (
+        <div
+          role="progressbar"
+          aria-label={t.month.progressLabel}
+          aria-valuemin={0}
+          aria-valuemax={progress.totalPages}
+          aria-valuenow={progress.pagesDone}
+          className="h-2 w-full max-w-md overflow-hidden rounded-full bg-line"
+        >
           <div
             className="h-full rounded-full bg-amber transition-[width] duration-500 ease-out"
             style={{ width: `${Math.round((progress.pagesDone / (progress.totalPages || 1)) * 100)}%` }}
           />
-        ) : (
-          // Ainda sem saber quantas páginas: um trecho âmbar indo e voltando.
-          <div className="h-full w-1/3 rounded-full bg-amber motion-safe:animate-scan" />
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
