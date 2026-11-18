@@ -34,7 +34,7 @@ export function UsernameForm({ defaultValue = "", sticker = false }: Props) {
   return (
     // action="/u": sem JavaScript, o navegador envia para /u?username=..., que redireciona.
     <form action={href("/u")} method="get" onSubmit={handleSubmit} noValidate className="flex w-full flex-col gap-2">
-      <label htmlFor="username" className="text-sm font-semibold text-ink-soft">
+      <label htmlFor="username" className="text-sm font-semibold text-soft">
         {t.form.label}
       </label>
       <div
@@ -70,7 +70,7 @@ export function UsernameForm({ defaultValue = "", sticker = false }: Props) {
         </button>
       </div>
       {error && (
-        <p id="username-error" role="alert" className="text-sm text-[#ff9b85]">
+        <p id="username-error" role="alert" className="text-sm text-danger">
           {error}
         </p>
       )}

@@ -36,12 +36,12 @@ export function TopList({ title, icon, items, shape = "square" }: Props) {
   const top = items[0]?.playcount || 1;
   return (
     <section aria-labelledby={`top-${title}`} className="min-w-0 rounded-2xl bg-card p-4 motion-safe:animate-rise">
-      <h2 id={`top-${title}`} className="mb-3 flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-ink-soft">
+      <h2 id={`top-${title}`} className="mb-3 flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-soft">
         <ListIcon name={icon} />
         {title}
       </h2>
       {items.length === 0 ? (
-        <p className="text-sm text-ink-soft">{t.lists.empty}</p>
+        <p className="text-sm text-soft">{t.lists.empty}</p>
       ) : (
         <ol className="flex flex-col gap-2.5">
           {items.map((item, i) => (
@@ -64,7 +64,7 @@ export function TopList({ title, icon, items, shape = "square" }: Props) {
                 >
                   {item.name}
                 </a>
-                <p className="truncate text-sm text-ink-soft">
+                <p className="truncate text-sm text-soft">
                   {item.detail ? `${item.detail} · ` : ""}
                   {formatPlays(item.playcount, lang)}
                 </p>

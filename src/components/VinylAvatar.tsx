@@ -18,7 +18,7 @@ export function VinylAvatar({ avatarUrl, username }: Props) {
       {/* Disco: sulcos + brilho + marquinha na borda, tudo girando junto. */}
       <div
         className="absolute inset-0 rounded-full shadow-xl shadow-black/60 ring-1 ring-white/10 motion-safe:animate-spin-slow"
-        style={{ background: "repeating-radial-gradient(circle, #0b0a09 0 2px, #1b1714 2px 4px)" }}
+        style={{ background: "repeating-radial-gradient(circle, var(--color-vinyl) 0 2px, var(--color-vinyl-groove) 2px 4px)" }}
       >
         <div
           className="absolute inset-0 rounded-full"

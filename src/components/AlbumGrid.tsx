@@ -116,7 +116,7 @@ export function AlbumGrid({ username, period, periodLabel, albums }: Props) {
   }, [albums, size, showCaption, showPlays, takeSnapshot, lang]);
 
   if (albums.length === 0) {
-    return <p className="text-ink-soft">{t.grid.empty}</p>;
+    return <p className="text-soft">{t.grid.empty}</p>;
   }
 
   return (
@@ -162,7 +162,7 @@ export function AlbumGrid({ username, period, periodLabel, albums }: Props) {
 
       <div className="flex flex-col gap-5 rounded-2xl bg-card p-5 md:min-w-72">
         <fieldset>
-          <legend className="mb-2 text-sm font-bold uppercase tracking-widest text-ink-soft">{t.grid.size}</legend>
+          <legend className="mb-2 text-sm font-bold uppercase tracking-widest text-soft">{t.grid.size}</legend>
           <div className="flex gap-2">
             {GRID_SIZES.map((s) => (
               <label key={s} className="cursor-pointer">
@@ -174,19 +174,19 @@ export function AlbumGrid({ username, period, periodLabel, albums }: Props) {
                   onChange={() => setSize(s)}
                   className="peer sr-only"
                 />
-                <span className="inline-block rounded-full border border-line px-4 py-1.5 text-sm font-medium text-ink-soft transition hover:text-ink peer-checked:border-amber peer-checked:bg-amber peer-checked:font-bold peer-checked:text-amber-ink peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-amber">
+                <span className="inline-block rounded-full border border-line px-4 py-1.5 text-sm font-medium text-soft transition hover:text-ink peer-checked:border-amber peer-checked:bg-amber peer-checked:font-bold peer-checked:text-amber-ink peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-amber">
                   {s}x{s}
                 </span>
               </label>
             ))}
           </div>
           {albums.length < size * size && (
-            <p className="mt-2 text-sm text-ink-soft">{t.grid.fewAlbums(albums.length)}</p>
+            <p className="mt-2 text-sm text-soft">{t.grid.fewAlbums(albums.length)}</p>
           )}
         </fieldset>
 
         <fieldset className="flex flex-col gap-2">
-          <legend className="mb-2 text-sm font-bold uppercase tracking-widest text-ink-soft">{t.grid.show}</legend>
+          <legend className="mb-2 text-sm font-bold uppercase tracking-widest text-soft">{t.grid.show}</legend>
           <label className="flex items-center gap-2">
             <input
               type="checkbox"

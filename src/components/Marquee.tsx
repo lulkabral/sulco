@@ -106,7 +106,7 @@ function Tile({ index, size }: { index: number; size: number }) {
           height: size,
           ...delay,
           // Sulcos do disco.
-          background: "repeating-radial-gradient(circle, #0b0a09 0 2px, #1b1714 2px 4px)",
+          background: "repeating-radial-gradient(circle, var(--color-vinyl) 0 2px, var(--color-vinyl-groove) 2px 4px)",
           // Borda clara bem sutil, para o disco não sumir no fundo escuro.
           boxShadow: "inset 0 0 0 2px rgba(255,255,255,0.12)",
         }}

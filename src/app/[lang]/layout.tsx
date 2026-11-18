@@ -6,6 +6,7 @@ import { SiteFooter, X_AUTHOR, X_SITE } from "@/components/SiteFooter";
 import { LocaleProvider } from "@/i18n/client";
 import { HTML_LANG, LOCALES, OG_LOCALE } from "@/i18n/config";
 import { getI18n } from "@/i18n/server";
+import { THEME } from "@/lib/theme";
 import "../globals.css";
 
 const geistSans = Geist({
@@ -59,7 +60,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 /** Cor da barra do navegador no celular, igual ao fundo do site. */
 export const viewport: Viewport = {
-  themeColor: "#15120f",
+  themeColor: THEME.room,
   colorScheme: "dark",
 };
 

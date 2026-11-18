@@ -34,11 +34,11 @@ export function MonthYearPicker({ username, tab, current, months, years }: Props
   const available = new Set(months);
 
   const arrow =
-    "flex size-9 items-center justify-center rounded-full text-xl text-ink-soft transition hover:bg-card-2 hover:text-ink disabled:pointer-events-none disabled:opacity-25";
+    "flex size-9 items-center justify-center rounded-full text-xl text-soft transition hover:bg-card-2 hover:text-ink disabled:pointer-events-none disabled:opacity-25";
 
   return (
     <section aria-labelledby="escolher-mes-ano" className="rounded-2xl bg-card p-4 sm:max-w-md">
-      <h2 id="escolher-mes-ano" className="text-xs font-bold uppercase tracking-widest text-ink-soft">
+      <h2 id="escolher-mes-ano" className="text-xs font-bold uppercase tracking-widest text-soft">
         {t.profile.pickerHeading}
       </h2>
 
@@ -94,7 +94,7 @@ export function MonthYearPicker({ username, tab, current, months, years }: Props
                   "block rounded-xl border py-2 text-center text-sm capitalize transition active:scale-95 " +
                   (active
                     ? "border-amber bg-amber font-bold text-amber-ink"
-                    : "border-line text-ink-soft hover:border-ink-faint hover:text-ink")
+                    : "border-line text-soft hover:border-ink-faint hover:text-ink")
                 }
               >
                 {name}

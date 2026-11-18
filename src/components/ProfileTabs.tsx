@@ -58,7 +58,7 @@ export function ProfileTabs({ username, current, period }: Props) {
                 scroll={false}
                 className={
                   "flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 font-bold transition-colors duration-300 " +
-                  (active ? "text-amber-ink" : "text-ink-soft hover:text-ink")
+                  (active ? "text-amber-ink" : "text-soft hover:text-ink")
                 }
               >
                 {t.value === "recap" ? <StoryIcon /> : <GridIcon />}

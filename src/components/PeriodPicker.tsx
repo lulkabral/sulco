@@ -49,11 +49,11 @@ export function PeriodPicker({ label, children }: Props) {
         <div className="flex flex-col gap-4 p-5">
           <div aria-hidden className="mx-auto -mt-2 h-1 w-10 rounded-full bg-line sm:hidden" />
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-bold tracking-widest text-ink-soft uppercase">{t.profile.periodHeading}</h2>
+            <h2 className="text-sm font-bold tracking-widest text-soft uppercase">{t.profile.periodHeading}</h2>
             <button
               type="button"
               onClick={() => dialog.current?.close()}
-              className="rounded-full px-2 py-1 text-ink-soft hover:text-ink"
+              className="rounded-full px-2 py-1 text-soft hover:text-ink"
               aria-label={t.profile.close}
             >
               ✕

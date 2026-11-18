@@ -26,7 +26,7 @@ export async function UserHeader({ user, covers }: Props) {
         {/* Não há login: "trocar" é só voltar ao início e digitar outro username. */}
         <Link
           href={href("/")}
-          className="inline-flex items-center gap-1.5 rounded-full border border-line px-3 py-1.5 text-sm font-medium text-ink-soft transition hover:border-ink-faint hover:text-ink active:scale-95"
+          className="inline-flex items-center gap-1.5 rounded-full border border-line px-3 py-1.5 text-sm font-medium text-soft transition hover:border-ink-faint hover:text-ink active:scale-95"
         >
           <span aria-hidden>↺</span> {t.profile.switchUser}
         </Link>
@@ -48,7 +48,7 @@ export async function UserHeader({ user, covers }: Props) {
               {user.username}
             </a>
           </h1>
-          <ul className="mt-1.5 flex flex-wrap gap-1.5 font-mono text-xs text-ink-soft">
+          <ul className="mt-1.5 flex flex-wrap gap-1.5 font-mono text-xs text-soft">
             <li className="rounded-full border border-line bg-room/70 px-2.5 py-1">
               <span className="font-bold text-ink">{formatNumber(user.playcount, lang)}</span> {t.units.scrobbles}
             </li>

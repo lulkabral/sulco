@@ -1,8 +1,9 @@
 @import "tailwindcss";
 
 /*
- * Identidade "Sala escura": tema escuro sempre, preto quente, cartões um pouco mais claros
- * e um único destaque âmbar. As mesmas cores, para o canvas, ficam em src/lib/theme.ts
+ * Identidade "Sala escura" (docs/MARCA.md): tema escuro sempre, preto quente, cartões um
+ * pouco mais claros e um único destaque âmbar. Use sempre estes nomes (bg-room, text-soft...)
+ * em vez de cores soltas. As mesmas cores, para o canvas, ficam em src/lib/theme.ts
  * (se mudar aqui, mude lá também).
  */
 @theme inline {
@@ -11,11 +12,14 @@
   --color-card-2: #2c2621; /* cartão em destaque / hover */
   --color-line: #3a322c; /* bordas e divisórias */
   --color-ink: #f4eee6; /* texto principal */
-  --color-ink-soft: #b5aba0; /* texto de apoio */
+  --color-soft: #b5aba0; /* texto de apoio */
   --color-ink-faint: #958b7f; /* detalhes pequenos (datas, contagens) */
   --color-amber: #e8a13a; /* destaque */
   --color-amber-hover: #f0b257;
   --color-amber-ink: #2a1a05; /* texto sobre o âmbar */
+  --color-danger: #ff9b85; /* mensagem de erro do formulário */
+  --color-vinyl: #0b0a09; /* sulco escuro dos discos */
+  --color-vinyl-groove: #1b1714; /* sulco claro dos discos */
 
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);

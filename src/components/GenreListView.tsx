@@ -13,7 +13,7 @@ export function GenreListView({ children }: { children: ReactNode }) {
   const { t } = useI18n();
   return (
     <section aria-labelledby="top-generos" className="min-w-0 rounded-2xl bg-card p-4 motion-safe:animate-rise">
-      <h2 id="top-generos" className="mb-3 flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-ink-soft">
+      <h2 id="top-generos" className="mb-3 flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-soft">
         <ListIcon name="genres" />
         {t.lists.genres}
       </h2>
@@ -38,10 +38,10 @@ export function GenreItems({
   const { t } = useI18n();
   if (genres === undefined) return <GenresSkeleton />;
   if (genres === null) {
-    return <p className="text-sm text-ink-soft">{t.lists.genresError}</p>;
+    return <p className="text-sm text-soft">{t.lists.genresError}</p>;
   }
   if (genres.length === 0) {
-    return <p className="text-sm text-ink-soft">{t.lists.genresNoTags}</p>;
+    return <p className="text-sm text-soft">{t.lists.genresNoTags}</p>;
   }
 
   const top = genres[0].weight;
@@ -73,7 +73,7 @@ export function GenreItems({
                   {genre.name}
                 </a>
                 {artists.length > 0 && (
-                  <p className="truncate text-xs text-ink-soft">{joinNames(artists, t.units.and)}</p>
+                  <p className="truncate text-xs text-soft">{joinNames(artists, t.units.and)}</p>
                 )}
               </div>
               {artists.length > 0 && (

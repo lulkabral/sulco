@@ -16,7 +16,7 @@ export default async function PrivacyPage() {
       <LogoLink />
       <div className="flex flex-col gap-3">
         <h1 className="text-4xl font-extrabold tracking-tight">{t.privacy.title}</h1>
-        <p className="text-lg text-ink-soft">{t.privacy.summary}</p>
+        <p className="text-lg text-soft">{t.privacy.summary}</p>
       </div>
 
       {t.privacy.sections.map((section) => (

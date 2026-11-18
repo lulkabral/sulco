@@ -15,7 +15,7 @@ export const X_AUTHOR = "alcoholicgoatt";
 export async function SiteFooter() {
   const { t, href } = await getI18n();
   return (
-    <footer className="border-t border-line px-4 pb-8 pt-8 text-sm text-ink-soft">
+    <footer className="border-t border-line px-4 pb-8 pt-8 text-sm text-soft">
       <div className="mx-auto max-w-5xl">
         <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
           <div>
@@ -67,7 +67,7 @@ function XPill({
         "inline-flex items-center gap-2 rounded-full border px-3.5 py-2 font-medium transition active:scale-95 " +
         (highlight
           ? "border-amber/60 text-ink hover:border-amber hover:bg-amber/10"
-          : "border-line text-ink-soft hover:border-ink-faint hover:text-ink")
+          : "border-line text-soft hover:border-ink-faint hover:text-ink")
       }
     >
       <XIcon />

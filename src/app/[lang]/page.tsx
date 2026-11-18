@@ -53,14 +53,14 @@ export default async function Home() {
             </span>
           </h1>
 
-          <p className="max-w-md text-lg text-ink-soft">
+          <p className="max-w-md text-lg text-soft">
             {t.home.intro}
           </p>
 
           <UsernameForm sticker />
 
 
-          <details className="text-sm text-ink-soft">
+          <details className="text-sm text-soft">
             <summary className="cursor-pointer font-semibold text-ink">{t.home.noLastfm}</summary>
             <p className="mt-2">
               {t.home.noLastfmBefore}{" "}

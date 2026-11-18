@@ -70,7 +70,7 @@ function Pill({ href, active, label, title }: PillProps) {
           "inline-block whitespace-nowrap rounded-full px-3.5 py-1.5 text-sm font-medium transition active:scale-95 " +
           (active
             ? "bg-amber font-bold text-amber-ink"
-            : "border border-line text-ink-soft hover:border-ink-faint hover:text-ink")
+            : "border border-line text-soft hover:border-ink-faint hover:text-ink")
         }
       >
         {label}

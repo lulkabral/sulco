@@ -144,7 +144,7 @@ export function MonthView({ username, period, label, tab }: Props) {
     return (
       <div className="rounded-2xl bg-card p-5">
         <h2 className="text-lg font-semibold">{t.month.noMusicTitle(label)}</h2>
-        <p className="mt-1 text-ink-soft">{t.month.noMusicBody}</p>
+        <p className="mt-1 text-soft">{t.month.noMusicBody}</p>
       </div>
     );
   }

@@ -207,7 +207,7 @@ export function RecapImage(props: Props) {
         {!drawn && (
           <p
             role="status"
-            className="absolute inset-0 flex items-center justify-center rounded-2xl text-sm font-semibold text-ink-soft"
+            className="absolute inset-0 flex items-center justify-center rounded-2xl text-sm font-semibold text-soft"
           >
             {t.recap.building}
           </p>
@@ -222,8 +222,8 @@ export function RecapImage(props: Props) {
 
       <div className="flex flex-col gap-5 rounded-2xl bg-card p-5 md:min-w-80">
         <div>
-          <p className="text-sm font-bold uppercase tracking-widest text-ink-soft">{periodLabel}</p>
-          <p className="mt-1 text-ink-soft">
+          <p className="text-sm font-bold uppercase tracking-widest text-soft">{periodLabel}</p>
+          <p className="mt-1 text-soft">
             <span className="font-bold text-ink">{formatNumber(total, lang)}</span> {t.units.scrobbles}
             {minutesValue !== null && (
               <>
@@ -236,7 +236,7 @@ export function RecapImage(props: Props) {
         </div>
 
         <fieldset>
-          <legend className="mb-2 text-sm font-bold uppercase tracking-widest text-ink-soft">{t.recap.format}</legend>
+          <legend className="mb-2 text-sm font-bold uppercase tracking-widest text-soft">{t.recap.format}</legend>
           <div className="grid grid-cols-2 gap-2">
             {RECAP_LAYOUTS.map((l) => (
               <button
@@ -248,7 +248,7 @@ export function RecapImage(props: Props) {
                   "rounded-xl border px-3 py-2 text-sm font-semibold transition active:scale-95 " +
                   (prefs.layout === l.id
                     ? "border-amber bg-amber text-amber-ink"
-                    : "border-line text-ink-soft hover:text-ink")
+                    : "border-line text-soft hover:text-ink")
                 }
               >
                 {t.recap.layouts[l.id]}
@@ -258,7 +258,7 @@ export function RecapImage(props: Props) {
         </fieldset>
 
         <fieldset>
-          <legend className="mb-2 text-sm font-bold uppercase tracking-widest text-ink-soft">{t.recap.color}</legend>
+          <legend className="mb-2 text-sm font-bold uppercase tracking-widest text-soft">{t.recap.color}</legend>
           <div className="flex flex-wrap gap-2">
             {PALETTES.map((p) => (
               <Swatch
@@ -276,7 +276,8 @@ export function RecapImage(props: Props) {
               background={
                 coverAccent
                   ? `linear-gradient(135deg, ${coverPalette?.room} 50%, ${coverAccent} 50%)`
-                  : "conic-gradient(#e8a13a, #ff7aa2, #c59bff, #6fc3ff, #e8a13a)"
+                  : // Antes da capa chegar: os destaques das paletas (src/lib/recap/palettes.ts).
+                    "conic-gradient(#e8a13a, #ff7aa2, #c59bff, #6fc3ff, #e8a13a)"
               }
             />
           </div>
@@ -285,7 +286,7 @@ export function RecapImage(props: Props) {
         <label className="flex cursor-pointer items-center justify-between gap-3 rounded-xl border border-line p-3 transition hover:border-ink-faint has-[:checked]:border-amber/60 has-[:checked]:bg-amber/5">
           <span>
             <span className="block font-semibold">{t.recap.showNumbers}</span>
-            <span className="block text-sm text-ink-soft">{t.recap.showNumbersHint}</span>
+            <span className="block text-sm text-soft">{t.recap.showNumbersHint}</span>
           </span>
           <input
             type="checkbox"

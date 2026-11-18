@@ -23,7 +23,7 @@ export function ErrorState({ code, username, onRetry }: Props) {
     <div role="alert" className="flex flex-col items-start gap-4 rounded-2xl bg-card p-5">
       <div>
         <h2 className="text-lg font-semibold">{title}</h2>
-        <p className="mt-1 text-ink-soft">{text}</p>
+        <p className="mt-1 text-soft">{text}</p>
       </div>
       {askUsername && <UsernameForm defaultValue={username} />}
       {canRetry &&

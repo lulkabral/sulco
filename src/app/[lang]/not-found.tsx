@@ -18,7 +18,7 @@ export default async function NotFound() {
       <div className="flex flex-col gap-2">
         <p className="text-sm font-semibold tracking-widest text-amber">{t.notFound.eyebrow}</p>
         <h1 className="text-4xl font-extrabold tracking-tight">{t.notFound.heading}</h1>
-        <p className="text-ink-soft">{t.notFound.body}</p>
+        <p className="text-soft">{t.notFound.body}</p>
       </div>
       <UsernameForm />
       <p>

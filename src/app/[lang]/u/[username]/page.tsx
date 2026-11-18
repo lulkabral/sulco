@@ -188,7 +188,7 @@ async function TopLists({ username, period, tab, registeredAt, lifetimeTotal }: 
     return (
       <div className="rounded-2xl bg-card p-5">
         <h2 className="text-lg font-semibold">{t.profile.noMusicTitle}</h2>
-        <p className="mt-1 text-ink-soft">{t.profile.noMusicBody(label)}</p>
+        <p className="mt-1 text-soft">{t.profile.noMusicBody(label)}</p>
       </div>
     );
   }
