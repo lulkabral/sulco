@@ -24,7 +24,7 @@ export const es: Dict = {
     noLastfmAfter:
       "y activa el scrobbling de tu app de música (Spotify, Deezer, YouTube Music y otras) en la configuración de Last.fm. Desde entonces, todo lo que escuches cuenta.",
     showcaseCaption: "destacados este mes",
-    trendingCaption: "álbumes en tendencia en el mundo hoy",
+    trendingCaption: "en tendencia hoy",
   },
   form: {
     label: "Usuario de Last.fm",

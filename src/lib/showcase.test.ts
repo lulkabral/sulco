@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import vitrine from "@/data/vitrine.json";
-import { parseShowcase, SHOWCASE_MAX } from "./showcase";
+import { DICTS } from "@/i18n";
+import { HAND_MAX_WORDS, parseShowcase, SHOWCASE_MAX, wordCount } from "./showcase";
 
 describe("parseShowcase", () => {
   it("lê legenda e itens, limpando espaços", () => {
@@ -24,5 +25,22 @@ describe("parseShowcase", () => {
 
   it("o arquivo de verdade (src/data/vitrine.json) é válido e tem pelo menos 4 álbuns", () => {
     expect(parseShowcase(vitrine).items.length).toBeGreaterThanOrEqual(4);
+  });
+});
+
+describe("wordCount", () => {
+  it("conta palavras e ignora espaços extras e a setinha", () => {
+    expect(wordCount("em evidência este mês")).toBe(4);
+    expect(wordCount("  ↑ em  alta no mundo hoje ")).toBe(5);
+    expect(wordCount("")).toBe(0);
+  });
+
+  it("as legendas padrão e a da vitrine cabem no bilhete", () => {
+    const v = parseShowcase(vitrine);
+    for (const text of [v.caption, v.captionEn, v.captionEs]) expect(wordCount(text)).toBeLessThanOrEqual(HAND_MAX_WORDS);
+    for (const d of Object.values(DICTS)) {
+      expect(wordCount(d.home.showcaseCaption)).toBeLessThanOrEqual(HAND_MAX_WORDS);
+      expect(wordCount(d.home.trendingCaption)).toBeLessThanOrEqual(HAND_MAX_WORDS);
+    }
   });
 });

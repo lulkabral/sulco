@@ -7,6 +7,14 @@
 /** A colagem tem 6 lugares. */
 export const SHOWCASE_MAX = 6;
 
+/** Bilhete à mão (Caveat): no máximo 5 palavras (docs/MARCA.md). */
+export const HAND_MAX_WORDS = 5;
+
+/** Quantas palavras tem o texto (a setinha "↑" não conta). */
+export function wordCount(text: string): number {
+  return text.replace(/[↑]/g, " ").split(/\s+/).filter(Boolean).length;
+}
+
 export type ShowcaseItem = { artist: string; album: string };
 /** `caption`: legenda em português; `captionEn`/`captionEs`: opcionais (sem elas, vale a padrão de cada língua). */
 export type Showcase = { caption: string; captionEn: string; captionEs: string; items: ShowcaseItem[] };

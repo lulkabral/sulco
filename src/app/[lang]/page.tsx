@@ -1,4 +1,4 @@
-import { Gochi_Hand } from "next/font/google";
+import { Caveat } from "next/font/google";
 import { CoverCollage } from "@/components/CoverCollage";
 import { LogoLink } from "@/components/Logo";
 import { Marquee } from "@/components/Marquee";
@@ -6,8 +6,8 @@ import { UsernameForm } from "@/components/UsernameForm";
 import { getI18n } from "@/i18n/server";
 import { getShowcaseCovers } from "@/lib/lastfm/client";
 
-// Letra de "bilhete escrito à mão", só para as anotações da página inicial.
-const hand = Gochi_Hand({ weight: "400", subsets: ["latin"], display: "swap" });
+// Letra de "bilhete escrito à mão" (Caveat), só para o bilhete da colagem: até 5 palavras (docs/MARCA.md).
+const hand = Caveat({ weight: "600", subsets: ["latin"], display: "swap" });
 
 export default async function Home() {
   // Vitrine escolhida em src/data/vitrine.json (ou, se faltar capa, os em alta no mundo).
@@ -35,12 +35,12 @@ export default async function Home() {
             </div>
           )}
           {hasCollage && (
-            <figcaption className={`${hand.className} mt-3 -rotate-2 text-lg text-ink`}>↑ {caption}</figcaption>
+            <figcaption className={`${hand.className} mt-3 -rotate-2 text-2xl leading-none text-ink`}>↑ {caption}</figcaption>
           )}
         </figure>
 
         <div className="flex flex-col gap-6 md:order-1">
-          <h1 className="text-5xl leading-[0.92] font-extrabold tracking-tighter sm:text-6xl">
+          <h1 className="text-[clamp(3rem,15.5vw,6rem)] leading-[0.9] font-extrabold tracking-[-0.045em] md:text-[clamp(3.25rem,5.4vw,4.5rem)]">
             {t.home.titleLine1}
             <br />
             {t.home.titleLine2}{" "}

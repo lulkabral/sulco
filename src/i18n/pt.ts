@@ -23,7 +23,7 @@ export const pt = {
     noLastfmAfter:
       "e ligue o scrobbling no seu app de música (Spotify, Deezer, YouTube Music e outros) nas configurações do Last.fm. A partir daí, tudo que você ouvir passa a contar.",
     showcaseCaption: "em evidência este mês",
-    trendingCaption: "álbuns em alta no mundo hoje",
+    trendingCaption: "em alta no mundo hoje",
   },
   form: {
     label: "Username do Last.fm",

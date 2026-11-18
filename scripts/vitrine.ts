@@ -9,7 +9,7 @@
 import fs from "node:fs";
 import { mapWithLimit } from "../src/lib/genres.ts";
 import { normalizeAlbumCover } from "../src/lib/lastfm/normalize.ts";
-import { parseShowcase, SHOWCASE_MAX } from "../src/lib/showcase.ts";
+import { HAND_MAX_WORDS, parseShowcase, SHOWCASE_MAX, wordCount } from "../src/lib/showcase.ts";
 
 const FILE = "src/data/vitrine.json";
 
@@ -33,7 +33,11 @@ async function main() {
     fail(`${FILE} não existe ou não é um JSON válido.`);
   }
   const raw = data as { itens?: unknown[] };
-  const { caption, items } = parseShowcase(data);
+  const { caption, captionEn, captionEs, items } = parseShowcase(data);
+  for (const [field, text] of [["legenda", caption], ["legenda_en", captionEn], ["legenda_es", captionEs]]) {
+    if (wordCount(text) > HAND_MAX_WORDS)
+      console.warn(`! "${field}" tem ${wordCount(text)} palavras: o bilhete à mão aceita até ${HAND_MAX_WORDS} (docs/MARCA.md).`);
+  }
   if ((raw.itens?.length ?? 0) > SHOWCASE_MAX) console.warn(`! Mais de ${SHOWCASE_MAX} itens: o site usa só os ${SHOWCASE_MAX} primeiros.`);
   if (items.length === 0) fail(`Nenhum item com "artista" e "album" em ${FILE}.`);
 
