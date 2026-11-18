@@ -14,7 +14,7 @@ Quem usa Spotify, Deezer, YouTube Music etc. só precisa ter o scrobbling ligado
 - **Plano B: álbuns em alta no mundo.** Se menos de 4 capas da vitrine forem achadas, a colagem mostra um ranking montado do top 50 músicas global (`chart.getTopTracks`), o álbum de cada uma (`track.getInfo`) e pontos pela posição (o `playcount` do ranking é de todos os tempos e não serve); sem coletâneas. Guardado 1 dia. Se também falhar, volta para as faixas abstratas.
 - Título "o que tocou no seu mês?" com marca-texto âmbar em "seu mês?", uma frase explicando o que o site faz.
 - Campo para o username com visual de adesivo (borda clara, sombra âmbar dura) e botão "Gerar".
-- No topo, ao lado do logo, a "edição" do dia (nº N · data), contada desde o lançamento (16/11/2026).
+- No topo, só o logo. (Até 18/11/2026 havia uma "edição do dia", nº N · data; saiu porque a página fica em cache e a data atrasava, e a vitrine não muda todo dia.)
 - Nada dos cartões "1, 2, 3" (repetiam o óbvio).
 - Link "Não tem Last.fm?" explicando em duas linhas como criar conta e ligar o scrobbling.
 - Rodapé: nota de privacidade, crédito ao Last.fm com link, perfis no X e seletor de língua. Sem link do repositório (pedido do dono em 17/11/2026).

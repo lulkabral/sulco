@@ -25,7 +25,6 @@ export const en: Dict = {
       "and turn on scrobbling for your music app (Spotify, Deezer, YouTube Music and others) in the Last.fm settings. From then on, everything you listen to counts.",
     showcaseCaption: "in the spotlight this month",
     trendingCaption: "albums trending worldwide today",
-    edition: (n: number, date: string) => `no. ${n} · ${date}`,
   },
   form: {
     label: "Last.fm username",

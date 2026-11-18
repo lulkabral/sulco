@@ -3,40 +3,24 @@ import { CoverCollage } from "@/components/CoverCollage";
 import { LogoLink } from "@/components/Logo";
 import { Marquee } from "@/components/Marquee";
 import { UsernameForm } from "@/components/UsernameForm";
-import { INTL_LOCALE, type Locale } from "@/i18n/config";
 import { getI18n } from "@/i18n/server";
 import { getShowcaseCovers } from "@/lib/lastfm/client";
 
 // Letra de "bilhete escrito à mão", só para as anotações da página inicial.
 const hand = Gochi_Hand({ weight: "400", subsets: ["latin"], display: "swap" });
 
-/** Dia em que o site foi ao ar: a "edição" do dia conta a partir daqui. */
-const LAUNCH_DAY = Date.UTC(2026, 10, 16);
-
-/** Número da edição (um por dia desde o lançamento) e a data curta: "17 nov", "Nov 17". */
-function editionParts(timestamp: number, lang: Locale): { n: number; date: string } {
-  const n = Math.max(1, Math.floor((timestamp - LAUNCH_DAY) / 86_400_000) + 1);
-  const date = new Intl.DateTimeFormat(INTL_LOCALE[lang], { day: "numeric", month: "short", timeZone: "America/Sao_Paulo" })
-    .format(timestamp)
-    .replace(" de ", " ")
-    .replace(".", "");
-  return { n, date };
-}
-
 export default async function Home() {
   // Vitrine escolhida em src/data/vitrine.json (ou, se faltar capa, os em alta no mundo).
-  const { covers, source, captions, updatedAt } = await getShowcaseCovers();
+  const { covers, source, captions } = await getShowcaseCovers();
   const { lang, t } = await getI18n();
   const hasCollage = covers.length >= 4;
   // Legenda escrita em vitrine.json na língua da página; sem ela, a padrão.
   const caption = source === "trending" ? t.home.trendingCaption : captions[lang] || t.home.showcaseCaption;
-  const edition = editionParts(updatedAt, lang);
 
   return (
     <main id="conteudo" className="mx-auto flex w-full max-w-5xl flex-1 flex-col px-4 pb-12">
-      <header className="flex items-center justify-between py-4">
+      <header className="py-4">
         <LogoLink />
-        <span className="font-mono text-xs text-ink-faint">{t.home.edition(edition.n, edition.date)}</span>
       </header>
 
       <div className="flex flex-1 flex-col gap-8 md:grid md:grid-cols-[1fr_1.1fr] md:items-center md:gap-12">
