@@ -31,7 +31,7 @@ Quem usa Spotify, Deezer, YouTube Music etc. só precisa ter o scrobbling ligado
 Escolhida no redesign entre as fases 7 e 8, no lugar da direção "Encarte" da fase 4.
 
 - **Tema escuro sempre.** Fundo preto quente (`#15120F`), cartões `#221D19`, texto `#F4EEE6`, destaque âmbar (`#E8A13A`). Nada de verde nem de degradês coloridos (não lembrar o Spotify).
-- **Tipografia:** Geist, com títulos bem pesados (800). A única exceção é a letra "escrita à mão" (Gochi Hand) do bilhete da página inicial.
+- **Tipografia:** Geist, com títulos bem pesados (800); Geist Mono para números e datas; Caveat (até 5 palavras) só no bilhete da página inicial. Tokens, fontes e regras em `docs/MARCA.md`.
 - **Colagem (desde 17/11/2026):** dentro da Sala escura, a página inicial ganhou a vibe de zine: capas reais coladas tortas com fita e bilhete à mão. A ideia é parecer feito por uma pessoa, não por um gerador de site. Não usar verde neon (lembra o Spotify).
 - **Movimento:**
   - na página inicial, as capas da colagem "caem e colam" uma de cada vez e se endireitam com o mouse em cima (as peças abstratas vivas só aparecem se a colagem não carregar);
@@ -134,7 +134,7 @@ Descartar antes de escolher as 5 mais fortes evita que lixo forte ("the voice": 
 
 ## Estados que toda tela precisa tratar
 
-- Carregando (com indicação de progresso quando houver várias chamadas).
+- Carregando: disco de vinil girando (parado com "reduzir movimento"), com barra de progresso quando houver várias chamadas.
 - Usuário não encontrado.
 - Perfil com histórico privado.
 - Nenhum scrobble no período.

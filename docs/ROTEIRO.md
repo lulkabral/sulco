@@ -181,6 +181,19 @@ Pronto quando:
 - [x] recap e grade funcionam em produção, no celular (conferido em 16/11/2026: baixar PNG e compartilhar funcionaram)
 - [x] a chave está só no painel da Vercel (0 ocorrências no repositório, no histórico e nos 10 arquivos JS publicados)
 
+## Marca no site (depois da fase 8)
+
+Pedido do dono do projeto: alinhar o visual do site ao manual de marca (`docs/MARCA.md`). Sem Instrument Serif e sem citar o Spotify no tutorial (decisão do dono).
+
+- [x] cores com os nomes do manual no tema do Tailwind, sem cores soltas
+- [x] título da página inicial maior (cabe em 360 px nas três línguas) e bilhete em Caveat, até 5 palavras
+- [x] grão leve na página, fora das imagens geradas
+- [x] ficha técnica em mono no painel do recap e no perfil
+- [x] destaque da página do perfil segue a paleta, só com contraste AA (senão, âmbar)
+- [x] disco de vinil girando no carregamento, parado com "reduzir movimento"
+- [x] passo a passo do "Não tem Last.fm?" nas três línguas
+- [x] conferido em 360 px e no computador, sem rolagem lateral
+
 ---
 
 ## Ideias para depois
