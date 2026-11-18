@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element -- imagem desenhada no servidor (next/og), não é página */
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { cacheLife } from "next/cache";
