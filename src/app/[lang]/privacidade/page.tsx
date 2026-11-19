@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { LogoLink } from "@/components/Logo";
 import { getI18n } from "@/i18n/server";
 
@@ -13,7 +14,10 @@ export default async function PrivacyPage() {
   const { t, href } = await getI18n();
   return (
     <main id="conteudo" className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-8 px-4 py-12">
-      <LogoLink />
+      <div className="flex items-center justify-between gap-4">
+        <LogoLink />
+        <LanguageSwitcher />
+      </div>
       <div className="flex flex-col gap-3">
         <h1 className="text-4xl font-extrabold tracking-tight">{t.privacy.title}</h1>
         <p className="text-lg text-soft">{t.privacy.summary}</p>

@@ -12,7 +12,7 @@ function rememberLocale(target: Locale) {
 }
 
 /**
- * "PT · EN · ES" no topo da página inicial e no rodapé. Guarda a escolha num cookie só com a língua (para o site
+ * "PT · EN · ES" no topo das páginas (início, perfil, privacidade e 404). Guarda a escolha num cookie só com a língua (para o site
  * abrir nela da próxima vez: src/proxy.ts) e abre a mesma página na outra língua.
  */
 export function LanguageSwitcher() {

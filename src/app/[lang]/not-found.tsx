@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { LogoLink } from "@/components/Logo";
 import { UsernameForm } from "@/components/UsernameForm";
 import { getI18n } from "@/i18n/server";
@@ -14,7 +15,10 @@ export default async function NotFound() {
   const { t, href } = await getI18n();
   return (
     <main id="conteudo" className="mx-auto flex w-full max-w-xl flex-1 flex-col justify-center gap-6 px-4 py-12">
-      <LogoLink />
+      <div className="flex items-center justify-between gap-4">
+        <LogoLink />
+        <LanguageSwitcher />
+      </div>
       <div className="flex flex-col gap-2">
         <p className="text-sm font-semibold tracking-widest text-amber">{t.notFound.eyebrow}</p>
         <h1 className="text-4xl font-extrabold tracking-tight">{t.notFound.heading}</h1>

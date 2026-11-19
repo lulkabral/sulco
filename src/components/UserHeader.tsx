@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getI18n } from "@/i18n/server";
 import { formatNumber, yearOf } from "@/lib/format";
 import type { UserInfo } from "@/lib/lastfm/types";
+import { LanguageSwitcher } from "./LanguageSwitcher";
 import { LogoLink } from "./Logo";
 import { Marquee } from "./Marquee";
 import { VinylAvatar } from "./VinylAvatar";
@@ -23,13 +24,16 @@ export async function UserHeader({ user, covers }: Props) {
     <header className="relative -mx-4 sm:mx-0">
       <div className="flex items-center justify-between px-4 pb-2 pt-4 sm:px-0 sm:pt-0">
         <LogoLink />
-        {/* Não há login: "trocar" é só voltar ao início e digitar outro username. */}
-        <Link
+        <div className="flex items-center gap-2 sm:gap-4">
+          <LanguageSwitcher />
+          {/* Não há login: "trocar" é só voltar ao início e digitar outro username. */}
+          <Link
           href={href("/")}
           className="inline-flex items-center gap-1.5 rounded-full border border-line px-3 py-1.5 text-sm font-medium text-soft transition hover:border-ink-faint hover:text-ink active:scale-95"
         >
           <span aria-hidden>↺</span> {t.profile.switchUser}
-        </Link>
+          </Link>
+        </div>
       </div>
       {covers.length > 0 ? (
         <Marquee covers={covers} size={84} seconds={Math.max(40, covers.length * 4)} collage />

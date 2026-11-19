@@ -63,9 +63,9 @@ Referência: catálogos de selos e aparelhos de som. Minimalismo escuro, grid ar
 ## Movimento
 
 - **Carregamento:** um disco de vinil girando a 33⅓ rpm (`VinylLoader`, CSS puro: sulcos com `repeating-radial-gradient`, reflexo e selo âmbar). Com "reduzir movimento", fica parado e aparece "carregando…". Quando se sabe quanto falta (páginas do mês), a barra de progresso aparece junto.
-- **Prateleira da vitrine:** no computador, passar o mouse sobre uma capa tira um disco de dentro dela (só ao passar o mouse, nunca sozinho).
+- **Prateleira da vitrine:** atrás de cada capa, um disco com a capa como selo, girando devagar (7 s por volta). No computador, com o mouse em cima, ele sai da capa (por cima da célula vizinha) e gira a 33⅓ rpm. No celular, fica mais para fora, girando. Pedido do dono em 18/11/2026: o site precisava de mais movimento.
 - O disco do palco da página inicial não gira: é o desenho real da imagem, que é estática.
-- Nada de animação automática espalhada: o disco do carregamento é o único movimento automático novo. Todo movimento usa `motion-safe:` e para com "reduzir movimento".
+- Movimento automático só em discos (carregamento, avatar do perfil e prateleira), sempre girando como disco de verdade. Todo movimento usa `motion-safe:` e para com "reduzir movimento".
 
 ## Sem vínculo
 

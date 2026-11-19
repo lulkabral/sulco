@@ -21,7 +21,7 @@ Direção "Hi-Fi / catálogo de vinil" desde 18/11/2026 (regras em `docs/MARCA.m
 - (Até 18/11/2026 havia uma "edição do dia", nº N · data, no topo; saiu porque a página fica em cache e a data atrasava.)
 - Nada dos cartões "1, 2, 3" (repetiam o óbvio).
 - "Não tem Last.fm? guia" abre uma gaveta (`<dialog>`: fecha no botão, tocando fora ou com Esc) com o passo a passo: criar conta, Spotify, Pano Scrobbler e o aviso de que só conta a partir da conexão.
-- Rodapé de todas as páginas, em uma linha (empilhado no celular): "sulco · frase" e links de texto em mono (perfis no X, crédito ao Last.fm, privacidade e língua). Sem pílulas e sem link do repositório (pedido do dono em 17/11/2026).
+- Rodapé de todas as páginas, em uma linha (empilhado no celular): "sulco · frase" e links de texto em mono (perfis no X, crédito ao Last.fm e privacidade). A língua fica só no topo das páginas (início, perfil, privacidade e 404). Sem pílulas e sem link do repositório (pedido do dono em 17/11/2026).
 
 ### 2. Página do usuário (`/u/[username]`)
 
@@ -38,7 +38,7 @@ Escolhida no redesign entre as fases 7 e 8, no lugar da direção "Encarte" da f
 - **Tipografia (desde 18/11/2026):** Plus Jakarta Sans, com títulos bem pesados (800), e IBM Plex Mono para números, datas e rótulos técnicos. O canvas usa a mesma fonte. Tokens, fontes e regras em `docs/MARCA.md`.
 - **Hi-Fi / catálogo (desde 18/11/2026, no lugar da colagem de zine de 17/11):** grid de linhas de 1px, rótulos em mono e o produto real como protagonista. Não usar verde neon (lembra o Spotify).
 - **Movimento:**
-  - na página inicial, um disco sai de dentro da capa da prateleira com o mouse em cima (as peças abstratas vivas só aparecem se a vitrine não carregar);
+  - na página inicial, cada capa da prateleira tem um disco girando atrás (com a capa como selo), que sai dela com o mouse em cima (as peças abstratas vivas só aparecem se a vitrine não carregar);
   - na página do usuário, as capas do ano passam no topo (param com o mouse em cima) e o avatar gira como um disco;
   - entrada suave de cartões e barrinhas.
   - Tudo para com "reduzir movimento" no sistema; as faixas também param com o mouse em cima.

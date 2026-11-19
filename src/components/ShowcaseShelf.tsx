@@ -14,8 +14,8 @@ type Props = {
 /**
  * Vitrine da página inicial em forma de prateleira de catálogo: capas retas com borda fina,
  * número de catálogo, álbum e artista. Linhas de 1px entre os itens (gap de 1px sobre a cor
- * da linha). No computador, passar o mouse tira um disco de dentro da capa (só com movimento
- * liberado). Sem capas suficientes, mostra as faixas abstratas.
+ * da linha). Atrás de cada capa, um disco girando com a capa como selo; com o mouse em cima,
+ * ele sai da capa. Tudo para com "reduzir movimento". Sem capas suficientes, mostra as faixas abstratas.
  */
 export async function ShowcaseShelf({ covers, caption }: Props) {
   const { t } = await getI18n();
@@ -31,18 +31,42 @@ export async function ShowcaseShelf({ covers, caption }: Props) {
       </div>
 
       {items.length >= 4 ? (
-        <ol className="grid grid-cols-2 gap-px bg-rule sm:grid-cols-3 lg:grid-cols-6">
+        <ol className="grid grid-cols-2 gap-px overflow-x-clip bg-rule sm:grid-cols-3 lg:grid-cols-6">
           {items.map((cover, i) => (
-            <li key={cover.imageUrl} className="group overflow-hidden bg-room p-4 sm:p-5">
-              <div className="relative">
-                {/* Disco guardado atrás da capa: sai um pouco pela direita no hover. */}
-                <span
+            <li key={cover.imageUrl} className="group relative bg-room p-4 hover:z-10 sm:p-5">
+              <div className="relative w-[72%]">
+                {/* Disco guardado atrás da capa: já aparece um pouco e gira devagar; com o mouse
+                    em cima, sai da capa (por cima da célula vizinha, mostrando o selo) e gira na
+                    velocidade do toca-discos. No celular (sem mouse), fica mais para fora dentro da
+                    célula. O selo é a própria capa, como na imagem Toca-discos. */}
+                <div
                   aria-hidden
-                  className="absolute inset-[4%] rounded-full shadow-lg shadow-black/60 transition-transform duration-500 ease-out motion-safe:group-hover:translate-x-[16%]"
-                  style={{ background: "repeating-radial-gradient(circle, var(--color-vinyl) 0 2px, var(--color-vinyl-groove) 2px 4px)" }}
+                  className="absolute inset-0 translate-x-[20%] motion-safe:transition-transform motion-safe:duration-700 motion-safe:ease-out group-hover:translate-x-[64%] [@media(pointer:coarse)]:translate-x-[34%]"
                 >
-                  <span className="absolute inset-[36%] rounded-full bg-card-2 ring-1 ring-line" />
-                </span>
+                  <div
+                    className="relative size-full rounded-full shadow-xl shadow-black/70 ring-1 ring-white/20 motion-safe:animate-spin-slow motion-safe:group-hover:animate-record"
+                    style={{ background: "repeating-radial-gradient(circle, var(--color-vinyl) 0 2px, var(--color-vinyl-groove) 2px 4px)" }}
+                  >
+                    {/* Reflexo: é ele que mostra o disco girando. */}
+                    <span
+                      className="absolute inset-0 rounded-full"
+                      style={{
+                        background:
+                          "conic-gradient(from 20deg, transparent 0 8%, rgba(255,255,255,0.16) 12%, transparent 17%, transparent 58%, rgba(255,255,255,0.09) 62%, transparent 67%)",
+                      }}
+                    />
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={cover.imageUrl}
+                      alt=""
+                      width={120}
+                      height={120}
+                      loading="lazy"
+                      className="absolute inset-[31%] size-[38%] rounded-full object-cover ring-2 ring-black/60"
+                    />
+                    <span className="absolute inset-[48%] rounded-full bg-room" />
+                  </div>
+                </div>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={cover.imageUrl}
@@ -50,7 +74,7 @@ export async function ShowcaseShelf({ covers, caption }: Props) {
                   width={300}
                   height={300}
                   loading={i < 2 ? "eager" : "lazy"}
-                  className="relative block aspect-square w-full border border-line bg-card object-cover"
+                  className="relative block aspect-square w-full border border-line bg-card object-cover shadow-lg shadow-black/50"
                 />
               </div>
               <p className="mt-3 font-mono text-[11px] text-ink-faint tabular-nums">{String(i + 1).padStart(2, "0")}</p>

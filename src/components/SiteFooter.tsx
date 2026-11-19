@@ -1,7 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { getI18n } from "@/i18n/server";
-import { LanguageSwitcher } from "./LanguageSwitcher";
 
 /** Perfis no X: o oficial do sulco e o de quem fez o site. */
 export const X_SITE = "sulcofm";
@@ -9,7 +8,7 @@ export const X_AUTHOR = "alcoholicgoatt";
 
 /**
  * Rodapé editorial de todas as páginas, numa linha (empilhada no celular): "sulco · frase"
- * à esquerda e links de texto em mono à direita, sem pílulas para não competir com a ação
+ * à esquerda e links de texto em mono à direita (a língua fica só no topo das páginas), sem pílulas para não competir com a ação
  * principal. Inclui o crédito ao Last.fm (exigido pelos termos) e a privacidade.
  */
 export async function SiteFooter() {
@@ -31,7 +30,6 @@ export async function SiteFooter() {
             {t.footer.lastfm}
           </FooterLink>
           <FooterLink href={href("/privacidade")}>{t.footer.privacy}</FooterLink>
-          <LanguageSwitcher />
         </div>
       </div>
     </footer>
