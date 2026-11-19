@@ -121,25 +121,10 @@ export async function GET(_request: Request, { params }: RouteContext<"/og/[lang
 
           <div style={{ display: "flex", flexDirection: "column", marginTop: 72, fontSize: 86, fontWeight: 800, letterSpacing: -4, lineHeight: 0.98 }}>
             <span>{t.home.titleLine1}</span>
-            <div style={{ display: "flex", alignItems: "center" }}>
+            {/* Segunda linha no tom de apoio, fechada com o ponto âmbar (como na página). */}
+            <div style={{ display: "flex", color: THEME.inkSoft }}>
               <span>{t.home.titleLine2}</span>
-              {/* Marca-texto âmbar torto atrás de "seu mês?", como na página. */}
-              <div style={{ display: "flex", position: "relative", marginLeft: 34 }}>
-                <div
-                  style={{
-                    position: "absolute",
-                    left: -10,
-                    right: -10,
-                    top: 6,
-                    bottom: 0,
-                    background: THEME.amber,
-                    borderRadius: 10,
-                    transform: "rotate(-2deg)",
-                    display: "flex",
-                  }}
-                />
-                <span style={{ color: THEME.amberInk, paddingBottom: 4 }}>{t.home.titleHighlight}</span>
-              </div>
+              <span style={{ color: THEME.amber }}>{t.home.titleEnd}</span>
             </div>
           </div>
 
