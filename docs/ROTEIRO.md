@@ -137,6 +137,19 @@ Pedido do dono do projeto: alinhar o visual do site ao manual de marca (`docs/MA
 - [x] passo a passo do "Não tem Last.fm?" nas três línguas, com o Spotify só como texto de instrução
 - [x] conferido em 360 px e no computador, sem rolagem lateral
 
+## Página inicial Hi-Fi / catálogo (18/11/2026)
+
+Pedido do dono do projeto: tirar a cara de "site genérico de IA" da página inicial, numa direção de catálogo de vinil e aparelho de som (`docs/MARCA.md`).
+
+- [x] Plus Jakarta Sans e IBM Plex Mono no lugar da Geist, também no canvas, no logo e na prévia do link
+- [x] fundo mais profundo e linhas de 1px do grid, com contraste AA conferido
+- [x] campo de username em painel fino e guia do Last.fm em gaveta (Esc, toque fora e botão)
+- [x] barra de catálogo, hero em duas colunas e ficha técnica
+- [x] palco com os formatos reais e as paletas, sem chamada nova à API do Last.fm
+- [x] vitrine em prateleira de catálogo, sem colagem com fita nem letra manuscrita
+- [x] rodapé editorial em uma linha, sem pílulas
+- [x] conferido em 360 px e no computador, sem rolagem lateral
+
 ---
 
 ## Ideias para depois

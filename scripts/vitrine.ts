@@ -36,7 +36,7 @@ async function main() {
   const { caption, captionEn, captionEs, items } = parseShowcase(data);
   for (const [field, text] of [["legenda", caption], ["legenda_en", captionEn], ["legenda_es", captionEs]]) {
     if (wordCount(text) > HAND_MAX_WORDS)
-      console.warn(`! "${field}" tem ${wordCount(text)} palavras: o bilhete à mão aceita até ${HAND_MAX_WORDS} (docs/MARCA.md).`);
+      console.warn(`! "${field}" tem ${wordCount(text)} palavras: a legenda da prateleira aceita até ${HAND_MAX_WORDS} (docs/MARCA.md).`);
   }
   if ((raw.itens?.length ?? 0) > SHOWCASE_MAX) console.warn(`! Mais de ${SHOWCASE_MAX} itens: o site usa só os ${SHOWCASE_MAX} primeiros.`);
   if (items.length === 0) fail(`Nenhum item com "artista" e "album" em ${FILE}.`);

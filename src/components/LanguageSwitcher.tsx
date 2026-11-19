@@ -12,7 +12,7 @@ function rememberLocale(target: Locale) {
 }
 
 /**
- * "PT · EN · ES" no rodapé. Guarda a escolha num cookie só com a língua (para o site
+ * "PT · EN · ES" no topo da página inicial e no rodapé. Guarda a escolha num cookie só com a língua (para o site
  * abrir nela da próxima vez: src/proxy.ts) e abre a mesma página na outra língua.
  */
 export function LanguageSwitcher() {
@@ -29,7 +29,7 @@ export function LanguageSwitcher() {
   }
 
   return (
-    <nav aria-label={t.footer.language} className="flex items-center gap-1 text-xs">
+    <nav aria-label={t.footer.language} className="flex items-center gap-0.5 font-mono text-xs">
       {LOCALES.map((l) => (
         <a
           key={l}
@@ -41,8 +41,8 @@ export function LanguageSwitcher() {
           aria-current={l === lang ? "true" : undefined}
           onClick={(e) => choose(e, l)}
           className={
-            "rounded-full px-2.5 py-1 font-bold uppercase tracking-wider transition " +
-            (l === lang ? "bg-amber text-amber-ink" : "text-ink-faint hover:text-ink")
+            "px-2 py-1 tracking-[0.14em] uppercase transition-colors " +
+            (l === lang ? "text-ink underline decoration-line underline-offset-4" : "text-ink-faint hover:text-ink")
           }
         >
           {l}

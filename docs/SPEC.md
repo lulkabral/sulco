@@ -10,14 +10,18 @@ Quem usa Spotify, Deezer, YouTube Music etc. só precisa ter o scrobbling ligado
 
 ### 1. Início (`/`)
 
-- **Colagem da vitrine.** Até 6 álbuns escolhidos a dedo pelo dono do site em `src/data/vitrine.json` (como o banner do X), com a capa de cada um via `album.getInfo` (cache de 30 dias; a página toda se renova a cada dia ou a cada publicação). Confere-se com `npm run vitrine` (passo a passo em `brand/GUIA.md`). Capas tortas com borda clara e fita crepe; bilhete escrito à mão embaixo com a `legenda` do arquivo.
-- **Plano B: álbuns em alta no mundo.** Se menos de 4 capas da vitrine forem achadas, a colagem mostra um ranking montado do top 50 músicas global (`chart.getTopTracks`), o álbum de cada uma (`track.getInfo`) e pontos pela posição (o `playcount` do ranking é de todos os tempos e não serve); sem coletâneas. Guardado 1 dia. Se também falhar, volta para as faixas abstratas.
-- Título "o que tocou no seu mês?" com marca-texto âmbar em "seu mês?", uma frase explicando o que o site faz.
-- Campo para o username com visual de adesivo (borda clara, sombra âmbar dura) e botão "Gerar".
-- No topo, só o logo. (Até 18/11/2026 havia uma "edição do dia", nº N · data; saiu porque a página fica em cache e a data atrasava, e a vitrine não muda todo dia.)
+Direção "Hi-Fi / catálogo de vinil" desde 18/11/2026 (regras em `docs/MARCA.md`).
+
+- **Barra de catálogo** com linha de 1px embaixo: logo à esquerda, metadados em mono no meio (no computador; sem data, porque a página fica em cache) e PT/EN/ES à direita.
+- **Hero em duas colunas** com divisória de 1px (no celular, a ação primeiro e o palco embaixo):
+  - à esquerda: linha técnica com "LED" âmbar, título "o que tocou / no seu mês." (segunda linha no tom de apoio, ponto final âmbar), uma frase de apoio, o campo de username com prefixo `last.fm/user/` (a partir de `sm`) e botão "Gerar →", as ações "ver outro exemplo" e "Não tem Last.fm? guia", e a ficha técnica (`04` formatos, `5×5` grade, `00` cadastro);
+  - à direita, o **palco**: abas `01 Toca-discos`, `02 Lineup`, `03 Mosaico` e `04 Grade`, o pôster desenhado pelo mesmo código da imagem baixada (com as capas da vitrine, um "@exemplo" e "Últimos 30 dias") e as 5 paletas reais embaixo. Nenhuma chamada nova à API do Last.fm: só as imagens das capas. "Ver outro exemplo" gira a ordem das capas.
+- **Vitrine em prateleira.** Até 6 álbuns escolhidos a dedo pelo dono do site em `src/data/vitrine.json` (como o banner do X), com a capa de cada um via `album.getInfo` (cache de 30 dias; a página toda se renova a cada dia ou a cada publicação). Confere-se com `npm run vitrine` (passo a passo em `brand/GUIA.md`). Capas retas com borda de 1px, número de catálogo, álbum e artista; a `legenda` do arquivo aparece no cabeçalho da prateleira.
+- **Plano B: álbuns em alta no mundo.** Se menos de 4 capas da vitrine forem achadas, a prateleira (e o palco) mostram um ranking montado do top 50 músicas global (`chart.getTopTracks`), o álbum de cada uma (`track.getInfo`) e pontos pela posição (o `playcount` do ranking é de todos os tempos e não serve); sem coletâneas. Guardado 1 dia. Se também falhar, volta para as faixas abstratas.
+- (Até 18/11/2026 havia uma "edição do dia", nº N · data, no topo; saiu porque a página fica em cache e a data atrasava.)
 - Nada dos cartões "1, 2, 3" (repetiam o óbvio).
-- Link "Não tem Last.fm?" explicando em duas linhas como criar conta e ligar o scrobbling.
-- Rodapé: nota de privacidade, crédito ao Last.fm com link, perfis no X e seletor de língua. Sem link do repositório (pedido do dono em 17/11/2026).
+- "Não tem Last.fm? guia" abre uma gaveta (`<dialog>`: fecha no botão, tocando fora ou com Esc) com o passo a passo: criar conta, Spotify, Pano Scrobbler e o aviso de que só conta a partir da conexão.
+- Rodapé de todas as páginas, em uma linha (empilhado no celular): "sulco · frase" e links de texto em mono (perfis no X, crédito ao Last.fm, privacidade e língua). Sem pílulas e sem link do repositório (pedido do dono em 17/11/2026).
 
 ### 2. Página do usuário (`/u/[username]`)
 
@@ -30,11 +34,11 @@ Quem usa Spotify, Deezer, YouTube Music etc. só precisa ter o scrobbling ligado
 
 Escolhida no redesign entre as fases 7 e 8, no lugar da direção "Encarte" da fase 4.
 
-- **Tema escuro sempre.** Fundo preto quente (`#15120F`), cartões `#221D19`, texto `#F4EEE6`, destaque âmbar (`#E8A13A`). Nada de verde nem de degradês coloridos (não lembrar o Spotify).
-- **Tipografia:** Geist, com títulos bem pesados (800); Geist Mono para números e datas; Caveat (até 5 palavras) só no bilhete da página inicial. Tokens, fontes e regras em `docs/MARCA.md`.
-- **Colagem (desde 17/11/2026):** dentro da Sala escura, a página inicial ganhou a vibe de zine: capas reais coladas tortas com fita e bilhete à mão. A ideia é parecer feito por uma pessoa, não por um gerador de site. Não usar verde neon (lembra o Spotify).
+- **Tema escuro sempre.** Fundo preto quente (`#110F0D` desde 18/11/2026), superfícies `#181512`, texto `#F4EEE6`, destaque âmbar (`#E8A13A`). Nada de verde nem de degradês coloridos (não lembrar o Spotify).
+- **Tipografia (desde 18/11/2026):** Plus Jakarta Sans, com títulos bem pesados (800), e IBM Plex Mono para números, datas e rótulos técnicos. O canvas usa a mesma fonte. Tokens, fontes e regras em `docs/MARCA.md`.
+- **Hi-Fi / catálogo (desde 18/11/2026, no lugar da colagem de zine de 17/11):** grid de linhas de 1px, rótulos em mono e o produto real como protagonista. Não usar verde neon (lembra o Spotify).
 - **Movimento:**
-  - na página inicial, as capas da colagem "caem e colam" uma de cada vez e se endireitam com o mouse em cima (as peças abstratas vivas só aparecem se a colagem não carregar);
+  - na página inicial, um disco sai de dentro da capa da prateleira com o mouse em cima (as peças abstratas vivas só aparecem se a vitrine não carregar);
   - na página do usuário, as capas do ano passam no topo (param com o mouse em cima) e o avatar gira como um disco;
   - entrada suave de cartões e barrinhas.
   - Tudo para com "reduzir movimento" no sistema; as faixas também param com o mouse em cima.

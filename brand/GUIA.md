@@ -7,7 +7,7 @@ As cores batem com `src/app/globals.css` e `src/lib/theme.ts`.
 
 O "S" da palavra é um disco de vinil âmbar: sulcos finos, dois feixes de brilho, furo central com pino e um sulco em S cortando o disco.
 Disco + "ulco" formam o nome: a marca é a própria palavra. O disco sozinho (`simbolo.svg`) é o avatar e o favicon; nos tamanhos pequenos o brilho e os sulcos somem e sobra o S limpo.
-Nome sempre em minúsculas, Geist 800, espaçamento apertado.
+Nome sempre em minúsculas, Plus Jakarta Sans 800, espaçamento apertado. (As peças de brand/ feitas antes de 18/11/2026 usam Geist 800.)
 
 ## Cores
 
@@ -24,8 +24,8 @@ Regra: âmbar só em uma coisa por peça (destaque). As capas abstratas usam as 
 
 ## Tipografia
 
-Geist, a mesma do site (arquivos em `assets/`). Nome em Geist 800, minúsculas, espaçamento apertado.
-Textos de apoio em Geist 500.
+Plus Jakarta Sans, a mesma do site (arquivos em `assets/`, licença OFL). Nome em Plus Jakarta Sans 800, minúsculas, espaçamento apertado.
+Textos de apoio em Plus Jakarta Sans 500. Números e rótulos técnicos do site em IBM Plex Mono (`docs/MARCA.md`).
 
 ## Arquivos
 
@@ -58,15 +58,15 @@ Os arquivos foram gerados por script. Para trocar o nome, basta gerar tudo de no
 
 ## Vitrine da página inicial
 
-A colagem de capas da página inicial mostra os álbuns que você escolhe, como no banner.
+A prateleira de capas da página inicial (e o palco do hero) mostra os álbuns que você escolhe, como no banner.
 
-1. Edite `src/data/vitrine.json`: a `legenda` (o bilhete escrito à mão embaixo da colagem, depois da setinha) e até 6 `itens`, cada um com `artista` e `album` (os dois são obrigatórios). Opcional: `legenda_en` e `legenda_es`, a legenda nas páginas em inglês e espanhol (sem elas, aparece "in the spotlight this month" / "destacados este mes").
+1. Edite `src/data/vitrine.json`: a `legenda` (curta, até 5 palavras: aparece no cabeçalho da prateleira) e até 6 `itens`, cada um com `artista` e `album` (os dois são obrigatórios). Opcional: `legenda_en` e `legenda_es`, a legenda nas páginas em inglês e espanhol (sem elas, aparece "in the spotlight this month" / "destacados este mes").
 2. Rode `npm run vitrine`: ele procura cada álbum no Last.fm e diz se achou a capa (✓) ou não (✗). Se não achar, confira a grafia na página do álbum no last.fm.
 3. Publique: `git add src/data/vitrine.json`, `git commit -m "Vitrine: ..."` e `git push`. A Vercel publica sozinha e a página já sai com a lista nova.
 
-Com menos de 4 capas encontradas, o site mostra os álbuns em alta no mundo no lugar da vitrine. A ordem do arquivo é a ordem na colagem (no celular, as 3 primeiras ficam em cima).
+Com menos de 4 capas encontradas, o site mostra os álbuns em alta no mundo no lugar da vitrine. A ordem do arquivo é a ordem na prateleira (números 01 a 06).
 
-A prévia do link (a imagem que aparece ao colar o endereço no X ou no WhatsApp, `src/app/og/[lang]/route.tsx`, uma por língua) usa a mesma colagem e se atualiza uma vez por dia. O canto de baixo à esquerda fica vazio porque o X põe ali o nome do site. O X guarda a prévia de links já postados por um tempo; links novos já saem com a vitrine atual.
+A prévia do link (a imagem que aparece ao colar o endereço no X ou no WhatsApp, `src/app/og/[lang]/route.tsx`, uma por língua) usa as mesmas capas, em prateleira, e se atualiza uma vez por dia. O canto de baixo à esquerda fica vazio porque o X põe ali o nome do site. O X guarda a prévia de links já postados por um tempo; links novos já saem com a vitrine atual.
 
 ## Banner da conta (ferramenta local)
 

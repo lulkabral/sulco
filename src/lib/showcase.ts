@@ -7,7 +7,7 @@
 /** A colagem tem 6 lugares. */
 export const SHOWCASE_MAX = 6;
 
-/** Bilhete à mão (Caveat): no máximo 5 palavras (docs/MARCA.md). */
+/** Legenda da vitrine (cabeçalho da prateleira): no máximo 5 palavras (docs/MARCA.md). */
 export const HAND_MAX_WORDS = 5;
 
 /** Quantas palavras tem o texto (a setinha "↑" não conta). */

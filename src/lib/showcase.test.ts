@@ -35,7 +35,7 @@ describe("wordCount", () => {
     expect(wordCount("")).toBe(0);
   });
 
-  it("as legendas padrão e a da vitrine cabem no bilhete", () => {
+  it("as legendas padrão e a da vitrine cabem na prateleira", () => {
     const v = parseShowcase(vitrine);
     for (const text of [v.caption, v.captionEn, v.captionEs]) expect(wordCount(text)).toBeLessThanOrEqual(HAND_MAX_WORDS);
     for (const d of Object.values(DICTS)) {
