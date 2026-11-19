@@ -1,26 +1,18 @@
 # Roteiro
 
-Cada fase tem o pedido da fase e uma lista de "pronto quando".
+Fases do desenvolvimento, cada uma com o que ela entrega e uma lista de "pronto quando".
 
-Ritmo sugerido para cada fase:
+Ritmo de cada fase:
 
 1. Planejar a fase antes de mexer no código.
-2. Leia o plano, peça ajustes se quiser e aprove.
-3. Teste no navegador o que a fase entregou.
-4. Peça o commit.
-
+2. Implementar e testar no navegador o que a fase entregou.
+3. Rodar lint, test e build e fazer um commit pequeno e descritivo.
 
 ---
 
 ## Fase 0: Base do projeto
 
-```
-Leia docs/SPEC.md e docs/LASTFM.md. Depois execute a Fase 0 de docs/ROTEIRO.md.
-
-Crie a base do projeto Next.js (App Router, TypeScript, Tailwind, ESLint) na raiz deste repositório, na versão estável atual. A pasta já tem arquivos (README.md, docs/, .env.example, .gitignore): gere o projeto numa pasta temporária e mova para a raiz sem apagar nem sobrescrever esses arquivos. No .gitignore, junte as regras.
-
-Configure o Vitest com um teste de exemplo. Deixe a página inicial só com o nome do site. No fim, rode lint, test e build e me explique em poucas linhas a estrutura de pastas criada.
-```
+Base do projeto Next.js (App Router, TypeScript, Tailwind, ESLint) na versão estável atual, com Vitest e um teste de exemplo. Página inicial só com o nome do site.
 
 Pronto quando:
 
@@ -31,17 +23,7 @@ Pronto quando:
 
 ## Fase 1: Conexão com o Last.fm (servidor)
 
-```
-Execute a Fase 1 de docs/ROTEIRO.md, seguindo docs/LASTFM.md.
-
-Crie um módulo de servidor para falar com o Last.fm e as rotas:
-- GET /api/lastfm/user?user=
-- GET /api/lastfm/top?user=&type=artists|albums|tracks&period=&limit=
-
-Requisitos: validar a entrada (username e parâmetros), aceitar só os métodos permitidos, normalizar a resposta para um JSON limpo e tipado, mapear erros para os nossos códigos, enviar Cache-Control conforme o LASTFM.md e nunca expor a chave. Escreva testes das funções de normalização com exemplos de resposta salvos em arquivo.
-
-Antes de testar com chamada real, me pergunte qual username usar. Registre em docs/LASTFM.md o que descobrir de diferente do esperado.
-```
+Módulo de servidor que fala com o Last.fm e as rotas `GET /api/lastfm/user?user=` e `GET /api/lastfm/top?user=&type=artists|albums|tracks&period=&limit=`. Entrada validada, só os métodos permitidos, resposta normalizada em JSON limpo e tipado, erros com os nossos códigos, Cache-Control conforme o `LASTFM.md` e a chave nunca exposta. Testes das funções de normalização com respostas salvas em arquivo; o que for diferente do esperado vai para `docs/LASTFM.md`.
 
 Pronto quando:
 
@@ -52,13 +34,7 @@ Pronto quando:
 
 ## Fase 2: Tela inicial e página do usuário
 
-```
-Execute a Fase 2 de docs/ROTEIRO.md, seguindo a seção "Telas" de docs/SPEC.md.
-
-Crie a tela inicial (campo de username) e a página /u/[username] com cabeçalho do usuário, seletor de período (só os períodos prontos por enquanto) e as três listas de top em texto. Trate todos os estados da seção "Estados que toda tela precisa tratar". Layout pensado primeiro para celular. Rodapé com nota de privacidade e crédito ao Last.fm com link.
-
-Ainda sem imagens geradas: o objetivo é ver os dados certos na tela.
-```
+Tela inicial (campo de username) e página `/u/[username]` com cabeçalho do usuário, seletor de período e as três listas de top em texto, seguindo a seção "Telas" de `docs/SPEC.md`. Todos os estados de "Estados que toda tela precisa tratar", layout pensado primeiro para celular e rodapé com nota de privacidade e crédito ao Last.fm. Ainda sem imagens geradas.
 
 Pronto quando:
 
@@ -69,13 +45,7 @@ Pronto quando:
 
 ## Fase 3: Grade de álbuns
 
-```
-Execute a Fase 3 de docs/ROTEIRO.md, seguindo "Recurso 2: Grade de álbuns" de docs/SPEC.md.
-
-Na aba Grade, gere a colagem em canvas com tamanhos 3x3, 4x4 e 5x5, opções de legenda e de contagem de plays, e botão para baixar em PNG (no celular, compartilhar pelo menu nativo quando houver suporte).
-
-Comece testando se as capas do Last.fm podem ser desenhadas e exportadas no canvas (CORS). Se não puderem, crie uma rota que repassa a imagem aceitando somente o domínio de imagens do Last.fm. Anote o resultado em docs/LASTFM.md.
-```
+Aba Grade com a colagem em canvas (3x3, 4x4 e 5x5), legenda e contagem de plays opcionais e botão para baixar em PNG (no celular, compartilhar pelo menu nativo quando houver suporte), seguindo "Recurso 2: Grade de álbuns" de `docs/SPEC.md`. Primeiro, conferir se as capas do Last.fm podem ser desenhadas e exportadas no canvas (CORS); se não, uma rota que repassa só imagens do domínio do Last.fm.
 
 Pronto quando:
 
@@ -86,13 +56,7 @@ Pronto quando:
 
 ## Fase 4: Recap em imagem
 
-```
-Execute a Fase 4 de docs/ROTEIRO.md, seguindo "Recurso 1: Recap em imagem" de docs/SPEC.md.
-
-Antes de codar, me apresente 2 ou 3 direções visuais em texto (paleta, tipografia, disposição) para eu escolher. Depois gere o recap em canvas no formato story 1080x1920 com: título do período, username, total de scrobbles, top 5 artistas, músicas e álbuns, capa em destaque e crédito. Gêneros entram na fase seguinte; deixe o espaço previsto.
-
-Nomes longos devem ser cortados com reticências. Espere as fontes carregarem antes de desenhar. Mesmo fluxo de baixar ou compartilhar da grade (reaproveite o código).
-```
+Recap em canvas no formato story 1080x1920, seguindo "Recurso 1: Recap em imagem" de `docs/SPEC.md`: título do período, username, total de scrobbles, top 5 de artistas, músicas e álbuns, capa em destaque e crédito, com espaço previsto para os gêneros. Direção visual escolhida entre 2 ou 3 opções. Nomes longos cortados com reticências, fontes carregadas antes de desenhar e o mesmo fluxo de baixar ou compartilhar da grade.
 
 Pronto quando:
 
@@ -102,13 +66,7 @@ Pronto quando:
 
 ## Fase 5: Gêneros
 
-```
-Execute a Fase 5 de docs/ROTEIRO.md, seguindo a seção "Gêneros" de docs/SPEC.md.
-
-Crie a rota de tags de artista (cache de 7 dias) e a função pura que calcula o top 5 de gêneros com os pesos e a lista de descarte. Escreva testes para essa função. Respeite o limite de chamadas simultâneas. Mostre os gêneros na página e no recap.
-
-Depois de pronto, rode com meu username e me mostre o resultado para ajustarmos a lista de descarte.
-```
+Rota de tags de artista (cache de 7 dias) e função pura, com testes, que calcula o top 5 de gêneros com os pesos e a lista de descarte da seção "Gêneros" de `docs/SPEC.md`, respeitando o limite de chamadas simultâneas. Gêneros na página e no recap, conferidos com um perfil real para ajustar a lista de descarte.
 
 Pronto quando:
 
@@ -118,11 +76,7 @@ Pronto quando:
 
 ## Fase 6: Mês fechado
 
-```
-Execute a Fase 6 de docs/ROTEIRO.md, seguindo "Mês fechado" de docs/SPEC.md e as armadilhas de docs/LASTFM.md.
-
-Adicione ao seletor os últimos 12 meses do calendário. Crie a rota paginada de scrobbles por intervalo e a soma no navegador por artista, álbum e música, com barra de progresso, limite de páginas e fuso horário do navegador. Ignore a faixa "tocando agora". Cache longo para meses encerrados. Escreva testes da função de soma. Recap e grade devem funcionar com um mês fechado.
-```
+Últimos 12 meses do calendário no seletor, seguindo "Mês fechado" de `docs/SPEC.md` e as armadilhas de `docs/LASTFM.md`: rota paginada de scrobbles por intervalo e soma no navegador por artista, álbum e música, com barra de progresso, limite de páginas e fuso do navegador. Ignora a faixa "tocando agora", cache longo para meses encerrados e testes da função de soma. Recap e grade funcionam com um mês fechado.
 
 Pronto quando:
 
@@ -133,13 +87,7 @@ Pronto quando:
 
 ## Fase 7: Acabamento
 
-```
-Execute a Fase 7 de docs/ROTEIRO.md.
-
-Crie a página /privacidade conforme a SPEC, título e descrição das páginas, imagem de compartilhamento do site, página 404 e revisão de acessibilidade (contraste, foco, textos alternativos, navegação por teclado). Atualize o README.
-
-Depois faça uma revisão de segurança e me entregue um relatório curto: a chave aparece em algum arquivo enviado ao navegador? Existe alguma variável NEXT_PUBLIC indevida? Alguma rota aceita método ou domínio fora da lista? Algum log grava username?
-```
+Página `/privacidade` conforme a SPEC, título e descrição das páginas, imagem de compartilhamento do site, página 404 e revisão de acessibilidade (contraste, foco, textos alternativos, teclado). README atualizado. Revisão de segurança com relatório curto: a chave aparece em algum arquivo enviado ao navegador? Há variável `NEXT_PUBLIC` indevida? Alguma rota aceita método ou domínio fora da lista? Algum log grava username?
 
 Pronto quando:
 
@@ -169,11 +117,7 @@ Pedido do dono do projeto: imagem mais artística e com escolhas, foco em lembra
 
 ## Fase 8: Publicação
 
-```
-Execute a Fase 8 de docs/ROTEIRO.md.
-
-Me guie passo a passo para publicar: criar o repositório no GitHub, conectar na Vercel, cadastrar a variável LASTFM_API_KEY no painel e conferir o site no ar. Antes, confirme que .env.local não está no histórico do git. Depois do deploy, liste o que devo testar em produção.
-```
+Publicação: repositório no GitHub, projeto conectado na Vercel, variável `LASTFM_API_KEY` cadastrada no painel e site conferido no ar. Antes, confirmar que `.env.local` não está no histórico do git; depois, a lista do que testar em produção.
 
 Pronto quando:
 
