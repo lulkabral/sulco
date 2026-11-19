@@ -131,10 +131,16 @@ body {
   font-weight: 500;
 }
 
-/* Contorno de foco âmbar em tudo que recebe foco pelo teclado. */
-:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
+/*
+ * Contorno de foco âmbar em tudo que recebe foco pelo teclado. Fica na camada "base" para
+ * as classes do Tailwind poderem trocar (ex.: o campo de username, cujo foco é a borda do
+ * painel inteiro; fora da camada, esta regra vencia e o campo ganhava um segundo contorno).
+ */
+@layer base {
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
 }
 
 /* Rolagem horizontal sem barra visível (fileira de períodos no celular). */
