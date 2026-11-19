@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { useReportCoverPalette } from "@/components/AccentScope";
 import { ExportButtons } from "@/components/ExportButtons";
+import { Swatch } from "@/components/Swatch";
 import { VinylLoader } from "@/components/VinylLoader";
 import { useI18n } from "@/i18n/client";
 import { loadImage, pageFontFamily, waitForFonts } from "@/lib/canvas/image";
@@ -315,33 +316,6 @@ export function RecapImage(props: Props) {
         />
       </div>
     </section>
-  );
-}
-
-function Swatch({
-  label,
-  active,
-  onClick,
-  background,
-}: {
-  label: string;
-  active: boolean;
-  onClick: () => void;
-  background: string;
-}) {
-  return (
-    <button
-      type="button"
-      aria-pressed={active}
-      aria-label={label}
-      title={label}
-      onClick={onClick}
-      className={
-        "size-10 rounded-full ring-offset-2 ring-offset-card transition active:scale-90 " +
-        (active ? "ring-2 ring-amber" : "ring-1 ring-line hover:ring-ink-faint")
-      }
-      style={{ background }}
-    />
   );
 }
 

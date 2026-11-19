@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { Swatch } from "@/components/Swatch";
 import { useI18n } from "@/i18n/client";
 import { loadImage, pageFontFamily, waitForFonts } from "@/lib/canvas/image";
 import { drawGrid } from "@/lib/grid/draw";
@@ -151,25 +152,18 @@ export function HomePosterPreview({ covers, offset }: Props) {
 
       {/* Paletas reais da imagem. Na grade não se aplicam (ela usa sempre o fundo escuro). */}
       <div className="flex flex-wrap items-center justify-between gap-3 border-t border-rule px-4 py-3">
-        <div role="group" aria-label={t.home.stagePalettes} className="flex flex-wrap gap-1.5">
+        <div role="group" aria-label={t.home.stagePalettes} className="flex flex-wrap gap-2.5">
           {STAGE_PALETTES.map((id) => {
             const p = paletteById(id);
-            const active = paletteId === id && !isGrid;
             return (
-              <button
+              <Swatch
                 key={id}
-                type="button"
-                aria-pressed={active}
+                label={t.recap.palettes[id] ?? p.name}
+                active={paletteId === id && !isGrid}
                 disabled={isGrid}
                 onClick={() => setPaletteId(id)}
-                className={
-                  "inline-flex items-center gap-2 rounded-[2px] border px-2 py-1 text-xs transition-colors disabled:opacity-35 " +
-                  (active ? "border-ink text-ink" : "border-rule text-soft hover:text-ink")
-                }
-              >
-                <span aria-hidden className="size-3 rounded-full ring-1 ring-white/15" style={{ background: p.accent, boxShadow: `inset 0 0 0 3px ${p.room}` }} />
-                {t.recap.palettes[id] ?? p.name}
-              </button>
+                background={`linear-gradient(135deg, ${p.room} 50%, ${p.accent} 50%)`}
+              />
             );
           })}
         </div>

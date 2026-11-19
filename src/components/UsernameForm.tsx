@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { useI18n } from "@/i18n/client";
 import { validateUsername } from "@/lib/lastfm/validate";
 
@@ -21,7 +21,10 @@ export function UsernameForm({ defaultValue = "" }: Props) {
   const { t, href } = useI18n();
   const [value, setValue] = useState(defaultValue);
   const [error, setError] = useState<string | null>(null);
-  const [sending, setSending] = useState(false);
+  // "Abrindo…" só enquanto a navegação acontece: o React desliga sozinho quando ela termina.
+  // (Um estado comum ficava preso: o Next guarda a página inicial escondida e, ao voltar
+  // para ela, o botão continuava em "Abrindo…".)
+  const [sending, startSending] = useTransition();
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -31,8 +34,7 @@ export function UsernameForm({ defaultValue = "" }: Props) {
       return;
     }
     setError(null);
-    setSending(true);
-    router.push(href(`/u/${encodeURIComponent(result.value)}`));
+    startSending(() => router.push(href(`/u/${encodeURIComponent(result.value)}`)));
   }
 
   return (
