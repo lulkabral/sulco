@@ -2,44 +2,45 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Swatch } from "@/components/Swatch";
+import { VinylLoader } from "@/components/VinylLoader";
 import { useI18n } from "@/i18n/client";
 import { loadImage, pageFontFamily, waitForFonts } from "@/lib/canvas/image";
 import { drawGrid } from "@/lib/grid/draw";
 import { coverUrl } from "@/lib/grid/layout";
 import { periodLabel } from "@/lib/periods";
 import { albumHeading, dateText, shortTag } from "@/lib/recap/copy";
+import { paletteFromCover } from "@/lib/recap/cover-color";
 import { drawRecap, RECAP_HEIGHT, RECAP_WIDTH, type RecapListItem } from "@/lib/recap/draw";
-import { paletteById } from "@/lib/recap/palettes";
+import { COVER_PALETTE_ID, paletteById, type Palette } from "@/lib/recap/palettes";
 import type { TrendingCover } from "@/lib/trending";
 
-/** Abas do palco, na ordem do catálogo. "grade" é a grade de álbuns; o resto, formatos do recap. */
+/** Abas do palco. "grade" é a grade de álbuns; o resto, formatos do recap. */
 const STAGE_TABS = ["toca-discos", "lineup", "mosaico", "grade"] as const;
 type StageTab = (typeof STAGE_TABS)[number];
 
-/** Paletas mostradas no palco (as mesmas da imagem de verdade, sem "Cor da capa"). */
+/** Paletas fixas mostradas no palco (além da opção dinâmica "Cor da capa"). */
 const STAGE_PALETTES = ["ambar", "papel", "meia-noite", "vinho", "lilas"] as const;
 
-/** Período do exemplo: "Últimos 30 dias". */
 const EXAMPLE_PERIOD = "1month";
-/** Reproduções fictícias do exemplo (os números não aparecem: "mostrar números" fica desligado). */
 const EXAMPLE_PLAYS = [48, 41, 36, 30, 27, 22, 19, 15, 12];
-/** Gêneros do exemplo (genéricos: o exemplo não calcula gêneros de verdade). */
 const EXAMPLE_GENRES = ["pop", "indie", "rock"];
 const DAY = 86_400;
 
 type Props = {
   /** Capas já buscadas no servidor para a vitrine (nenhuma chamada nova à API do Last.fm aqui). */
   covers: TrendingCover[];
-  /** Quantas posições girar a ordem das capas ("ver outro exemplo"). */
+  /** Quantas posições girar a ordem das capas (sincronizado com a faixa de discos). */
   offset: number;
+  /** Avança para o próximo disco da vitrine. */
+  onNext: () => void;
 };
 
 /**
  * Palco da página inicial: mostra os formatos reais que o sulco gera, desenhados pelo mesmo
- * código da imagem baixada (drawRecap/drawGrid), com as capas da vitrine como exemplo.
- * O navegador só baixa as imagens das capas, do servidor de imagens do Last.fm.
+ * código da imagem baixada (drawRecap/drawGrid — intactos), dentro de um cartão escuro dedicado
+ * para as imagens saltarem tanto no modo claro quanto no modo escuro.
  */
-export function HomePosterPreview({ covers, offset }: Props) {
+export function HomePosterPreview({ covers, offset, onNext }: Props) {
   const { lang, t } = useI18n();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [tab, setTab] = useState<StageTab>("toca-discos");
@@ -47,13 +48,14 @@ export function HomePosterPreview({ covers, offset }: Props) {
   const [font, setFont] = useState<string | null>(null);
   const [images, setImages] = useState<(HTMLImageElement | null)[]>(() => covers.map(() => null));
 
-  // Fonte e capas: carregadas uma vez. Cada capa redesenha o palco quando chega.
+  // Fonte e capas: carregadas uma vez. Na prévia da página inicial (não baixada), 300 px
+  // já fica nítido e vem rápido da borda do Fastly (600 px no Last.fm pode levar vários segundos).
   useEffect(() => {
     let cancelled = false;
     const family = pageFontFamily();
     waitForFonts(family).then(() => !cancelled && setFont(family));
     covers.forEach((c, i) => {
-      loadImage(coverUrl(c.imageUrl, 600)).then((img) => {
+      loadImage(coverUrl(c.imageUrl, 300)).then((img) => {
         if (!cancelled && img) setImages((prev) => prev.map((x, j) => (j === i ? img : x)));
       });
     });
@@ -62,8 +64,12 @@ export function HomePosterPreview({ covers, offset }: Props) {
     };
   }, [covers]);
 
-  // Ordem do exemplo: as capas giradas por `offset`.
+  // Ordem do exemplo: as capas giradas a partir do disco escolhido na vitrine.
   const order = useMemo(() => covers.map((_, i) => (i + offset) % Math.max(covers.length, 1)), [covers, offset]);
+
+  const leadImage = images[order[0] ?? 0] ?? null;
+  const coverPalette: Palette | null = useMemo(() => (leadImage ? paletteFromCover(leadImage) : null), [leadImage]);
+  const palette = paletteId === COVER_PALETTE_ID ? (coverPalette ?? paletteById("ambar")) : paletteById(paletteId);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -71,7 +77,6 @@ export function HomePosterPreview({ covers, offset }: Props) {
     const items = order.map((i, rank) => ({ cover: covers[i], image: images[i], plays: EXAMPLE_PLAYS[rank] ?? 10 }));
 
     if (tab === "grade") {
-      // 3x3: as capas se repetem para completar as 9 casas do exemplo.
       const nine = Array.from({ length: 9 }, (_, k) => items[k % items.length]);
       drawGrid(
         canvas,
@@ -98,78 +103,135 @@ export function HomePosterPreview({ covers, offset }: Props) {
         minutes: null,
         albumHeading: albumHeading(EXAMPLE_PERIOD, lang),
         artists,
-        // Sem nomes de músicas no exemplo: os álbuns fazem esse papel.
         tracks: albums,
         albums,
         covers: items.map((it) => it.image),
         genres: EXAMPLE_GENRES,
         siteHost: window.location.host,
       },
-      { layout: tab, palette: paletteById(paletteId), showNumbers: false, font, lang },
+      { layout: tab, palette, showNumbers: false, font, lang },
     );
-  }, [font, images, order, covers, tab, paletteId, lang, t]);
+  }, [font, images, order, covers, tab, palette, lang, t]);
 
   const tabName = (id: StageTab) => (id === "grade" ? t.home.gridName : t.recap.layouts[id]);
   const isGrid = tab === "grade";
+  const activePaletteLabel = isGrid
+    ? t.home.gridClean
+    : paletteId === COVER_PALETTE_ID
+      ? t.recap.coverColor
+      : (t.recap.palettes[paletteId] ?? palette.name);
 
   return (
-    <div className="flex h-full flex-col">
-      {/* Abas numeradas: formato da prévia. */}
-      <div role="group" aria-label={t.home.stageFormats} className="grid grid-cols-2 border-b border-rule sm:grid-cols-4">
-        {STAGE_TABS.map((id, i) => (
-          <button
-            key={id}
-            type="button"
-            aria-pressed={tab === id}
-            onClick={() => setTab(id)}
-            className={
-              "flex items-baseline gap-2 border-rule px-4 py-3 text-left text-sm transition-colors max-sm:odd:border-r max-sm:[&:nth-child(-n+2)]:border-b sm:not-last:border-r " +
-              (tab === id ? "bg-card text-ink" : "text-soft hover:text-ink")
-            }
-          >
-            <span className={"font-mono text-xs tabular-nums " + (tab === id ? "text-amber" : "text-ink-faint")}>
-              {String(i + 1).padStart(2, "0")}
-            </span>
-            {tabName(id)}
-          </button>
-        ))}
-      </div>
+    <section id="palco" aria-labelledby="palco-titulo" className="mx-auto w-full max-w-6xl px-4 py-7 sm:px-6 sm:py-9">
+      <div className="overflow-hidden rounded-[28px] border border-stage-line bg-stage p-5 text-stage-ink shadow-xl sm:p-7 lg:p-9">
+        <div className="grid grid-cols-1 items-center gap-7 lg:grid-cols-[0.95fr_1.05fr] lg:gap-10">
+          {/* Controles do palco */}
+          <div className="flex flex-col gap-5">
+            <div>
+              <p className="font-mono text-xs font-medium tracking-[0.14em] text-amber uppercase">
+                {t.home.stageEyebrow}
+              </p>
+              <h2 id="palco-titulo" className="mt-1.5 text-2xl font-extrabold tracking-tight text-stage-ink sm:text-3xl">
+                {t.home.stageHeading}
+              </h2>
+              <p className="mt-2 max-w-md text-sm leading-relaxed text-stage-soft">{t.home.stageBody}</p>
+            </div>
 
-      {/* O pôster, desenhado pelo mesmo código da imagem baixada. */}
-      <div className="flex flex-1 items-center justify-center px-6 py-8">
-        <canvas
-          ref={canvasRef}
-          width={RECAP_WIDTH}
-          height={RECAP_HEIGHT}
-          role="img"
-          aria-label={t.home.stageAlt(tabName(tab))}
-          className={
-            "block bg-card shadow-2xl shadow-black/60 ring-1 ring-line " +
-            (isGrid ? "aspect-square w-full max-w-[22rem]" : "aspect-[9/16] h-[26rem] w-auto sm:h-[30rem]")
-          }
-        />
-      </div>
+            {/* Abas de formato em pílulas táteis */}
+            <div role="group" aria-label={t.home.stageFormats} className="flex flex-wrap gap-2">
+              {STAGE_TABS.map((id) => {
+                const active = tab === id;
+                return (
+                  <button
+                    key={id}
+                    type="button"
+                    aria-pressed={active}
+                    onClick={() => setTab(id)}
+                    className={
+                      "rounded-full px-4 py-2 text-xs font-bold transition duration-200 ease-smooth active:scale-[0.98] sm:text-sm " +
+                      (active
+                        ? "bg-amber text-amber-ink"
+                        : "border border-stage-line text-stage-soft hover:border-stage-faint hover:text-stage-ink")
+                    }
+                  >
+                    {tabName(id)}
+                  </button>
+                );
+              })}
+            </div>
 
-      {/* Paletas reais da imagem. Na grade não se aplicam (ela usa sempre o fundo escuro). */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-t border-rule px-4 py-3">
-        <div role="group" aria-label={t.home.stagePalettes} className="flex flex-wrap gap-2.5">
-          {STAGE_PALETTES.map((id) => {
-            const p = paletteById(id);
-            return (
-              <Swatch
-                key={id}
-                label={t.recap.palettes[id] ?? p.name}
-                active={paletteId === id && !isGrid}
-                disabled={isGrid}
-                onClick={() => setPaletteId(id)}
-                background={`linear-gradient(135deg, ${p.room} 50%, ${p.accent} 50%)`}
+            {/* Paletas em bolinhas + botão trocar disco */}
+            <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-stage-line bg-stage-card p-4">
+              <div className="flex flex-col gap-2.5">
+                <p className="font-mono text-xs tracking-[0.1em] text-stage-faint uppercase">
+                  {t.recap.color}: <span className="font-semibold text-stage-ink">{activePaletteLabel}</span>
+                </p>
+                <div role="group" aria-label={t.home.stagePalettes} className="flex flex-wrap items-center gap-2.5">
+                  {STAGE_PALETTES.map((id) => {
+                    const p = paletteById(id);
+                    return (
+                      <Swatch
+                        key={id}
+                        label={t.recap.palettes[id] ?? p.name}
+                        active={paletteId === id && !isGrid}
+                        disabled={isGrid}
+                        onClick={() => setPaletteId(id)}
+                        background={`linear-gradient(135deg, ${p.room} 50%, ${p.accent} 50%)`}
+                      />
+                    );
+                  })}
+                  <Swatch
+                    label={t.recap.coverColor}
+                    active={paletteId === COVER_PALETTE_ID && !isGrid}
+                    disabled={isGrid}
+                    onClick={() => setPaletteId(COVER_PALETTE_ID)}
+                    background={
+                      coverPalette
+                        ? `linear-gradient(135deg, ${coverPalette.room} 50%, ${coverPalette.accent} 50%)`
+                        : "conic-gradient(#e8a13a, #ff7aa2, #c59bff, #6fc3ff, #e8a13a)"
+                    }
+                  />
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={onNext}
+                className="group inline-flex shrink-0 items-center gap-1.5 rounded-full border border-stage-line px-3.5 py-2 text-xs font-semibold text-stage-ink transition duration-200 ease-smooth hover:border-stage-faint active:scale-[0.98]"
+              >
+                <span aria-hidden className="inline-block transition-transform duration-300 ease-smooth group-hover:rotate-90">
+                  ↻
+                </span>
+                {t.home.swapDisc}
+              </button>
+            </div>
+
+            <p className="font-mono text-xs tracking-[0.08em] text-stage-faint">{t.home.stageNote}</p>
+          </div>
+
+          {/* O pôster real (intacto!) */}
+          <div className="relative flex items-center justify-center">
+            <div className="relative">
+              <canvas
+                ref={canvasRef}
+                width={RECAP_WIDTH}
+                height={RECAP_HEIGHT}
+                role="img"
+                aria-label={t.home.stageAlt(tabName(tab))}
+                className={
+                  "block rounded-2xl bg-stage-card shadow-2xl shadow-black/60 ring-1 ring-white/10 transition-shadow duration-300 ease-smooth " +
+                  (isGrid ? "aspect-square w-full max-w-[21rem]" : "aspect-[9/16] h-[25rem] w-auto sm:h-[29rem]")
+                }
               />
-            );
-          })}
+              {!font && (
+                <div className="absolute inset-0 flex items-center justify-center rounded-2xl bg-stage-card">
+                  <VinylLoader />
+                </div>
+              )}
+            </div>
+          </div>
         </div>
-        <p className="font-mono text-[11px] tracking-[0.12em] text-ink-faint uppercase">{t.home.stageNote}</p>
       </div>
-    </div>
+    </section>
   );
 }
-

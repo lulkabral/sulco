@@ -57,11 +57,11 @@ export function ExportButtons({ canvasRef, filename, shareTitle, disabled }: Pro
   }
 
   const base =
-    "inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-xl px-3 py-3 text-sm font-bold transition sm:text-base active:scale-95 disabled:opacity-50";
+    "inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-full px-4 py-3 text-sm font-bold transition duration-200 ease-smooth active:scale-[0.98] disabled:opacity-50";
   const shareLabel = copied ? t.export.copied : canShare || !canCopy ? t.export.share : t.export.copy;
 
   return (
-    <div className="grid grid-cols-2 gap-2">
+    <div className="grid grid-cols-2 gap-2.5">
       <button
         type="button"
         onClick={() => handle("download")}
@@ -75,7 +75,7 @@ export function ExportButtons({ canvasRef, filename, shareTitle, disabled }: Pro
         type="button"
         onClick={() => handle("share")}
         disabled={disabled || busy}
-        className={`${base} border border-line text-ink hover:border-ink-faint`}
+        className={`${base} border border-stage-line text-stage-ink hover:border-stage-faint`}
       >
         {copied ? <CheckIcon /> : <ShareIcon />}
         <span aria-live="polite">{shareLabel}</span>

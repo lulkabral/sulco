@@ -1,44 +1,61 @@
 @import "tailwindcss";
 
 /*
- * Identidade "Sala escura" (docs/MARCA.md): tema escuro sempre, preto quente, cartões um
- * pouco mais claros e um único destaque âmbar. Use sempre estes nomes (bg-room, text-soft...)
- * em vez de cores soltas. As mesmas cores, para o canvas, ficam em src/lib/theme.ts
- * (se mudar aqui, mude lá também).
+ * Identidade "Loja de discos viva" (docs/MARCA.md): funciona em modo claro (papel creme)
+ * e modo escuro (sala escura), seguindo o aparelho por padrão ou a escolha em data-theme.
+ * Use sempre estes tokens (bg-room, bg-card, bg-terra, bg-stage...) em vez de cores soltas.
+ * As imagens geradas no canvas continuam usando src/lib/theme.ts e src/lib/recap/palettes.ts.
  */
 @theme inline {
-  --color-room: #110f0d; /* fundo da página */
-  --color-card: #181512; /* superfícies */
-  --color-card-2: #211c18; /* superfície em destaque / hover */
-  --color-line: #3a322c; /* bordas de controles e cartões */
-  --color-rule: #2c2621; /* divisórias finas de 1px do grid (sobre o fundo) */
-  --color-ink: #f4eee6; /* texto principal */
-  --color-soft: #aba196; /* texto de apoio */
-  --color-ink-faint: #958b7f; /* detalhes pequenos (datas, contagens) */
-  /* Destaque: o âmbar, por padrão. Na página do perfil, segue a paleta da imagem quando ela
-     passa no contraste (--accent*, definidos em :root e trocados por AccentScope). */
+  --color-room: var(--ui-room); /* fundo da página */
+  --color-card: var(--ui-card); /* cartões principais */
+  --color-card-2: var(--ui-card-2); /* superfície secundária / hover */
+  --color-line: var(--ui-line); /* bordas de controles e cartões */
+  --color-line-strong: var(--ui-line-strong); /* bordas firmes (campo principal, botão de período) */
+  --color-rule: var(--ui-rule); /* divisórias sutis */
+  --color-ink: var(--ui-ink); /* texto principal */
+  --color-soft: var(--ui-soft); /* texto de apoio */
+  --color-ink-faint: var(--ui-ink-faint); /* detalhes pequenos (datas, contagens) */
+  --color-terra: var(--ui-terra); /* blocos vibrantes (faixa de discos, gêneros) */
+  --color-terra-hover: var(--ui-terra-hover);
+  --color-terra-ink: var(--ui-terra-ink); /* texto sobre terracota */
+  --color-terra-text: var(--ui-terra-text); /* destaque terracota em texto sobre room/card */
+  --color-cta: var(--ui-cta); /* botão principal (carvão no claro, âmbar no escuro) */
+  --color-cta-hover: var(--ui-cta-hover);
+  --color-cta-ink: var(--ui-cta-ink);
+  --color-cta-badge: var(--ui-cta-badge); /* círculo da seta dentro do botão Gerar */
+  --color-cta-badge-ink: var(--ui-cta-badge-ink);
+  --color-stage: var(--ui-stage); /* palco escuro dedicado para o pôster/grade */
+  --color-stage-card: var(--ui-stage-card); /* controles dentro do palco */
+  --color-stage-line: var(--ui-stage-line); /* bordas dentro do palco */
+  --color-stage-ink: var(--ui-stage-ink); /* texto principal no palco */
+  --color-stage-soft: var(--ui-stage-soft); /* texto de apoio no palco */
+  --color-stage-faint: var(--ui-stage-faint); /* detalhes no palco */
+  /* Destaque âmbar (e, na página do perfil, segue a paleta do pôster dentro do palco via AccentScope). */
   --color-amber: var(--accent);
   --color-amber-hover: var(--accent-hover);
-  --color-amber-ink: var(--accent-ink); /* texto sobre o destaque */
-  --color-danger: #ff9b85; /* mensagem de erro do formulário */
+  --color-amber-ink: var(--accent-ink);
+  --color-danger: var(--ui-danger); /* mensagem de erro do formulário */
   --color-vinyl: #0b0a09; /* sulco escuro dos discos */
   --color-vinyl-groove: #1b1714; /* sulco claro dos discos */
 
   --font-sans: var(--font-dm-sans);
   --font-mono: var(--font-dm-mono);
 
+  --ease-smooth: cubic-bezier(0.22, 1, 0.36, 1);
+
   /* Faixas de capas passando (metade do conteúdo é repetida, por isso -50%). */
-  --animate-marquee: marquee var(--marquee-duration, 60s) linear infinite;
-  --animate-rise: rise 0.5s ease-out both;
-  --animate-sheet: sheet 0.28s cubic-bezier(0.2, 0.9, 0.3, 1) both;
-  --animate-stick: stick 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
-  --animate-grow: grow 0.8s ease-out both;
-  /* Formas vivas da página inicial: vinil girando, quadrado "respirando", forma orgânica. */
-  --animate-spin-slow: vinyl-spin 7s linear infinite;
-  /* Disco do carregamento: 33⅓ rpm (uma volta a cada 1,8 s). */
-  --animate-record: vinyl-spin 1.8s linear infinite;
-  --animate-breathe: breathe 3.6s ease-in-out infinite;
-  --animate-blob: blob 6s ease-in-out infinite;
+  --animate-marquee: marquee var(--marquee-duration, 80s) linear infinite;
+  --animate-rise: rise 0.48s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-sheet: sheet 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-stick: stick 0.48s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-grow: grow 0.75s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-disc-in: disc-in 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+  /* Discos girando: calmo sem parecer parado (descanso) e cadenciado (carregamento). */
+  --animate-spin-slow: vinyl-spin 17s linear infinite;
+  --animate-record: vinyl-spin 2.1s linear infinite;
+  --animate-breathe: breathe 4.8s ease-in-out infinite;
+  --animate-blob: blob 8s ease-in-out infinite;
 
   @keyframes marquee {
     from {
@@ -48,18 +65,17 @@
       transform: translateX(-50%);
     }
   }
-  /* Gaveta de período: sobe de baixo (no computador, aparece subindo um pouco). */
+  /* Gaveta: sobe suave de baixo (no computador, aparece com leve escala). */
   @keyframes sheet {
     from {
       opacity: 0;
-      transform: translateY(24px);
+      transform: translateY(20px) scale(0.985);
     }
     to {
       opacity: 1;
       transform: none;
     }
   }
-  /* Capa "colada": cai de leve, girando um pouco mais, e assenta no ângulo dela (--r). */
   @keyframes stick {
     from {
       opacity: 0;
@@ -73,7 +89,17 @@
   @keyframes rise {
     from {
       opacity: 0;
-      transform: translateY(10px);
+      transform: translateY(14px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @keyframes disc-in {
+    from {
+      opacity: 0.35;
+      transform: scale(0.975);
     }
     to {
       opacity: 1;
@@ -88,10 +114,10 @@
   @keyframes breathe {
     0%,
     100% {
-      transform: scale(0.8);
+      transform: scale(0.84);
     }
     50% {
-      transform: scale(1.04);
+      transform: scale(1.03);
     }
   }
   @keyframes blob {
@@ -116,11 +142,141 @@
   }
 }
 
+/* Padrão: modo claro (Papel / loja de discos). Contraste AA conferido em todos os pares. */
 :root {
-  color-scheme: dark;
+  color-scheme: light dark;
+  --ui-room: #f4eee3;
+  --ui-card: #faf6ee;
+  --ui-card-2: #ede4d4;
+  --ui-rule: #dfd3be;
+  --ui-line: #cfc0a8;
+  --ui-line-strong: #2c251f;
+  --ui-ink: #191512;
+  --ui-soft: #594f45;
+  --ui-ink-faint: #6b6054;
+  --ui-terra: #b83e16;
+  --ui-terra-hover: #9f3310;
+  --ui-terra-ink: #fff9f2;
+  --ui-terra-text: #b83e16;
+  --ui-cta: #191512;
+  --ui-cta-hover: #2f2822;
+  --ui-cta-ink: #faf6ee;
+  --ui-cta-badge: #b83e16;
+  --ui-cta-badge-ink: #fff9f2;
+  --ui-stage: #181411;
+  --ui-stage-card: #221c18;
+  --ui-stage-line: #342c25;
+  --ui-stage-ink: #f4eee6;
+  --ui-stage-soft: #b5aba0;
+  --ui-stage-faint: #958b7f;
+  --ui-danger: #b8321c;
+  --focus-ring: #b83e16;
   --accent: #e8a13a;
   --accent-hover: #f0b257;
   --accent-ink: #2a1a05;
+}
+
+/* Modo escuro automático quando o aparelho prefere escuro (e a pessoa não travou no claro). */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --ui-room: #14110e;
+    --ui-card: #1d1814;
+    --ui-card-2: #26201b;
+    --ui-rule: #2e2721;
+    --ui-line: #3c332c;
+    --ui-line-strong: #4d4239;
+    --ui-ink: #f4eee6;
+    --ui-soft: #b5aba0;
+    --ui-ink-faint: #9d9286;
+    --ui-terra: #bc421a;
+    --ui-terra-hover: #d34e23;
+    --ui-terra-ink: #fff9f2;
+    --ui-terra-text: #f07d54;
+    --ui-cta: #e8a13a;
+    --ui-cta-hover: #f2b459;
+    --ui-cta-ink: #1d1204;
+    --ui-cta-badge: #1d1204;
+    --ui-cta-badge-ink: #e8a13a;
+    --ui-stage: #1b1613;
+    --ui-stage-card: #241e19;
+    --ui-stage-line: #382f28;
+    --ui-stage-ink: #f4eee6;
+    --ui-stage-soft: #b5aba0;
+    --ui-stage-faint: #9d9286;
+    --ui-danger: #ff9b85;
+    --focus-ring: var(--accent);
+  }
+}
+
+/* Escolha manual pelo botão de tema (valores explícitos nos dois lados para vencer qualquer cascata). */
+:root[data-theme="light"] {
+  color-scheme: light;
+  --ui-room: #f4eee3;
+  --ui-card: #faf6ee;
+  --ui-card-2: #ede4d4;
+  --ui-rule: #dfd3be;
+  --ui-line: #cfc0a8;
+  --ui-line-strong: #2c251f;
+  --ui-ink: #191512;
+  --ui-soft: #594f45;
+  --ui-ink-faint: #6b6054;
+  --ui-terra: #b83e16;
+  --ui-terra-hover: #9f3310;
+  --ui-terra-ink: #fff9f2;
+  --ui-terra-text: #b83e16;
+  --ui-cta: #191512;
+  --ui-cta-hover: #2f2822;
+  --ui-cta-ink: #faf6ee;
+  --ui-cta-badge: #b83e16;
+  --ui-cta-badge-ink: #fff9f2;
+  --ui-stage: #181411;
+  --ui-stage-card: #221c18;
+  --ui-stage-line: #342c25;
+  --ui-stage-ink: #f4eee6;
+  --ui-stage-soft: #b5aba0;
+  --ui-stage-faint: #958b7f;
+  --ui-danger: #b8321c;
+  --focus-ring: #b83e16;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --ui-room: #14110e;
+  --ui-card: #1d1814;
+  --ui-card-2: #26201b;
+  --ui-rule: #2e2721;
+  --ui-line: #3c332c;
+  --ui-line-strong: #4d4239;
+  --ui-ink: #f4eee6;
+  --ui-soft: #b5aba0;
+  --ui-ink-faint: #9d9286;
+  --ui-terra: #bc421a;
+  --ui-terra-hover: #d34e23;
+  --ui-terra-ink: #fff9f2;
+  --ui-terra-text: #f07d54;
+  --ui-cta: #e8a13a;
+  --ui-cta-hover: #f2b459;
+  --ui-cta-ink: #1d1204;
+  --ui-cta-badge: #1d1204;
+  --ui-cta-badge-ink: #e8a13a;
+  --ui-stage: #1b1613;
+  --ui-stage-card: #241e19;
+  --ui-stage-line: #382f28;
+  --ui-stage-ink: #f4eee6;
+  --ui-stage-soft: #b5aba0;
+  --ui-stage-faint: #9d9286;
+  --ui-danger: #ff9b85;
+  --focus-ring: var(--accent);
+}
+
+@keyframes backdrop-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 body {
@@ -131,19 +287,52 @@ body {
   font-weight: 500;
 }
 
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    transition:
+      background-color 240ms cubic-bezier(0.22, 1, 0.36, 1),
+      color 240ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  dialog[open]::backdrop {
+    animation: backdrop-in 0.26s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  /* Ativado por ~280ms só ao alternar claro/escuro: todos os cartões e bordas mudam juntos. */
+  html.theme-transition *,
+  html.theme-transition *::before,
+  html.theme-transition *::after {
+    transition-property: background-color, border-color, color, fill, stroke !important;
+    transition-duration: 240ms !important;
+    transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1) !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 /*
- * Contorno de foco âmbar em tudo que recebe foco pelo teclado. Fica na camada "base" para
- * as classes do Tailwind poderem trocar (ex.: o campo de username, cujo foco é a borda do
- * painel inteiro; fora da camada, esta regra vencia e o campo ganhava um segundo contorno).
+ * Contorno de foco visível em tudo que recebe foco pelo teclado. Na camada "base" para
+ * classes do Tailwind poderem ajustar (ex.: campo de username, cujo foco é a borda do painel).
  */
 @layer base {
   :focus-visible {
-    outline: 2px solid var(--accent);
+    outline: 2px solid var(--focus-ring);
     outline-offset: 2px;
   }
 }
 
-/* Rolagem horizontal sem barra visível (fileira de períodos no celular). */
+/* Rolagem horizontal sem barra visível (faixa de discos e abas no celular). */
 .no-scrollbar {
   scrollbar-width: none;
 }

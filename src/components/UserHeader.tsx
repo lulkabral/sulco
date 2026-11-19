@@ -1,9 +1,6 @@
-import Link from "next/link";
 import { getI18n } from "@/i18n/server";
 import { formatNumber, yearOf } from "@/lib/format";
 import type { UserInfo } from "@/lib/lastfm/types";
-import { LanguageSwitcher } from "./LanguageSwitcher";
-import { LogoLink } from "./Logo";
 import { Marquee } from "./Marquee";
 import { VinylAvatar } from "./VinylAvatar";
 
@@ -14,53 +11,54 @@ type Props = {
 };
 
 /**
- * Topo da página do usuário: as capas do ano dela passando (com cara de colagem), o avatar
- * como selo de um vinil girando, o username grande e os números em etiquetas.
+ * Cartão-topo da página do usuário: faixa limpa de capas do ano (retas, sem fita),
+ * avatar como selo de um disco de vinil girando, username e etiquetas em mono.
  */
 export async function UserHeader({ user, covers }: Props) {
-  const { lang, t, href } = await getI18n();
+  const { lang, t } = await getI18n();
   const since = yearOf(user.registeredAt);
   return (
-    <header className="relative -mx-4 sm:mx-0">
-      <div className="flex items-center justify-between px-4 pb-2 pt-4 sm:px-0 sm:pt-0">
-        <LogoLink />
-        <div className="flex items-center gap-2 sm:gap-4">
-          <LanguageSwitcher />
-          {/* Não há login: "trocar" é só voltar ao início e digitar outro username. */}
-          <Link
-          href={href("/")}
-          className="inline-flex items-center gap-1.5 rounded-full border border-line px-3 py-1.5 text-sm font-medium text-soft transition hover:border-ink-faint hover:text-ink active:scale-95"
-        >
-          <span aria-hidden>↺</span> {t.profile.switchUser}
-          </Link>
-        </div>
+    <section className="overflow-hidden rounded-[26px] border border-line bg-card shadow-sm">
+      <div className="relative overflow-hidden border-b border-rule bg-stage py-3">
+        {covers.length > 0 ? (
+          <Marquee covers={covers} size={68} seconds={Math.max(48, covers.length * 4.5)} />
+        ) : (
+          <Marquee size={68} seconds={90} />
+        )}
+        <div aria-hidden className="pointer-events-none absolute inset-y-0 left-0 w-10 bg-linear-to-r from-stage to-transparent" />
+        <div aria-hidden className="pointer-events-none absolute inset-y-0 right-0 w-10 bg-linear-to-l from-stage to-transparent" />
       </div>
-      {covers.length > 0 ? (
-        <Marquee covers={covers} size={84} seconds={Math.max(40, covers.length * 4)} collage />
-      ) : (
-        <Marquee size={84} seconds={80} />
-      )}
-      {/* Escurece a parte de baixo das capas para o nome ficar legível em cima delas. */}
-      <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-linear-to-b from-room/0 via-room/80 to-room" />
 
-      {/* O disco avança sobre a faixa; o nome fica logo abaixo dela, legível. */}
-      <div className="relative -mt-10 flex items-end gap-3 px-4 sm:px-0">
-        <VinylAvatar avatarUrl={user.avatarUrl} username={user.username} />
-        <div className="min-w-0 pt-10">
-          <h1 className="truncate text-3xl font-extrabold tracking-tighter sm:text-4xl">
-            <a href={user.url} target="_blank" rel="noopener noreferrer" className="hover:text-amber">
-              {user.username}
+      <div className="relative flex flex-wrap items-center gap-4 px-4 pb-4 pt-3 sm:px-6">
+        <div className="-mt-10">
+          <VinylAvatar avatarUrl={user.avatarUrl} username={user.username} />
+        </div>
+        <div className="min-w-0 flex-1">
+          <h1 className="truncate text-2xl font-extrabold tracking-tight text-ink sm:text-3xl">
+            <a
+              href={user.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-baseline gap-1.5 transition-colors duration-200 ease-smooth hover:text-terra-text"
+            >
+              <span className="truncate">{user.username}</span>
+              <span aria-hidden className="font-mono text-xs font-medium text-ink-faint">
+                ↗
+              </span>
             </a>
           </h1>
-          {/* Ficha técnica em mono: números alinhados e linhas finas (docs/MARCA.md). */}
-          <ul className="mt-1.5 flex w-fit flex-col divide-y divide-line rounded-md sm:flex-row sm:divide-x sm:divide-y-0 border border-line bg-room/70 font-mono text-xs tabular-nums text-soft">
-            <li className="px-2.5 py-1">
+          <ul className="mt-1.5 flex flex-wrap items-center gap-2 font-mono text-xs tabular-nums">
+            <li className="rounded-full bg-card-2 px-3 py-1 text-soft">
               <span className="font-semibold text-ink">{formatNumber(user.playcount, lang)}</span> {t.units.scrobbles}
             </li>
-            {since && <li className="px-2.5 py-1">{t.profile.sinceYear(since)}</li>}
+            {since && (
+              <li className="rounded-full border border-line px-3 py-1 text-soft">
+                {t.profile.sinceYear(since)}
+              </li>
+            )}
           </ul>
         </div>
       </div>
-    </header>
+    </section>
   );
 }

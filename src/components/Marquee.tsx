@@ -44,6 +44,8 @@ export function Marquee({ covers, size, seconds, reverse = false, offset = 0, co
                 width={size}
                 height={size}
                 loading="eager"
+                decoding="async"
+                fetchPriority="low"
                 className="block border-[3px] border-ink object-cover shadow-lg shadow-black/50"
                 style={{ width: size, height: size }}
               />
@@ -59,8 +61,10 @@ export function Marquee({ covers, size, seconds, reverse = false, offset = 0, co
             alt=""
             width={size}
             height={size}
-            // Sem "lazy": as cópias que começam fora da tela entram deslizando já carregadas.
+            // Sem "lazy" para a faixa entrar preenchida, mas prioridade baixa para não atrasar o pôster/grade.
             loading="eager"
+            decoding="async"
+            fetchPriority="low"
             className="shrink-0 rounded-lg object-cover"
             style={{ width: size, height: size }}
           />

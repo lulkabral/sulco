@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { AlbumGrid } from "@/components/AlbumGrid";
 import { ErrorState } from "@/components/ErrorState";
 import { GenreItems, GenreListView } from "@/components/GenreListView";
+import { ProfileLists } from "@/components/ProfileLists";
 import { RecapImage } from "@/components/RecapImage";
 import { TopList } from "@/components/TopList";
 import { useI18n } from "@/i18n/client";
@@ -143,8 +144,8 @@ export function MonthView({ username, period, label, tab }: Props) {
   const artistPicsByName = Object.fromEntries(tops.artists.map((a, i) => [a.name, artistPics[i]]));
   if (tops.total === 0 || !recapData) {
     return (
-      <div className="rounded-2xl bg-card p-5">
-        <h2 className="text-lg font-semibold">{t.month.noMusicTitle(label)}</h2>
+      <div className="rounded-[24px] border border-line bg-card p-6">
+        <h2 className="text-lg font-extrabold tracking-tight text-ink">{t.month.noMusicTitle(label)}</h2>
         <p className="mt-1 text-soft">{t.month.noMusicBody}</p>
       </div>
     );
@@ -153,7 +154,7 @@ export function MonthView({ username, period, label, tab }: Props) {
   return (
     <>
       {truncated && (
-        <p role="note" className="rounded-2xl border border-amber/40 bg-amber/10 p-4 text-sm text-ink">
+        <p role="note" className="rounded-2xl border border-terra/40 bg-terra/10 p-4 text-sm text-ink">
           {t.month.truncated(formatNumber(MAX_SCROBBLE_PAGES * 200, lang), formatNumber(tops.total, lang))}
         </p>
       )}
@@ -176,50 +177,58 @@ export function MonthView({ username, period, label, tab }: Props) {
         />
       )}
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <TopList
-          title={t.lists.artists}
-          icon="artists"
-          shape="round"
-          items={tops.artists.slice(0, LIST_LIMIT).map((a, i) => ({
-            rank: a.rank,
-            name: a.name,
-            playcount: a.playcount,
-            url: a.url,
-            image: artistPics[i].image,
-            lookup: artistPics[i].lookup,
-          }))}
-        />
-        <TopList
-          title={t.lists.tracks}
-          icon="tracks"
-          items={tops.tracks.slice(0, LIST_LIMIT).map((t) => ({
-            rank: t.rank,
-            name: t.name,
-            detail: t.artist,
-            playcount: t.playcount,
-            url: t.url,
-            image: t.imageUrl ?? null,
-            lookup: { type: "track", artist: t.artist, name: t.name },
-          }))}
-        />
-        <TopList
-          title={t.lists.albums}
-          icon="albums"
-          items={tops.albums.slice(0, LIST_LIMIT).map((a) => ({
-            rank: a.rank,
-            name: a.name,
-            detail: a.artist,
-            playcount: a.playcount,
-            url: a.url,
-            image: a.imageUrl,
-            lookup: { type: "album", artist: a.artist, name: a.name },
-          }))}
-        />
-        <GenreListView>
-          <GenreItems genres={genreList} images={artistPicsByName} />
-        </GenreListView>
-      </div>
+      <ProfileLists
+        artists={
+          <TopList
+            title={t.lists.artists}
+            icon="artists"
+            shape="round"
+            items={tops.artists.slice(0, LIST_LIMIT).map((a, i) => ({
+              rank: a.rank,
+              name: a.name,
+              playcount: a.playcount,
+              url: a.url,
+              image: artistPics[i].image,
+              lookup: artistPics[i].lookup,
+            }))}
+          />
+        }
+        tracks={
+          <TopList
+            title={t.lists.tracks}
+            icon="tracks"
+            items={tops.tracks.slice(0, LIST_LIMIT).map((t) => ({
+              rank: t.rank,
+              name: t.name,
+              detail: t.artist,
+              playcount: t.playcount,
+              url: t.url,
+              image: t.imageUrl ?? null,
+              lookup: { type: "track", artist: t.artist, name: t.name },
+            }))}
+          />
+        }
+        albums={
+          <TopList
+            title={t.lists.albums}
+            icon="albums"
+            items={tops.albums.slice(0, LIST_LIMIT).map((a) => ({
+              rank: a.rank,
+              name: a.name,
+              detail: a.artist,
+              playcount: a.playcount,
+              url: a.url,
+              image: a.imageUrl,
+              lookup: { type: "album", artist: a.artist, name: a.name },
+            }))}
+          />
+        }
+        genres={
+          <GenreListView>
+            <GenreItems genres={genreList} images={artistPicsByName} />
+          </GenreListView>
+        }
+      />
     </>
   );
 }
@@ -232,7 +241,7 @@ function MonthProgressBar({ label, progress }: { label: string; progress: MonthP
       ? t.month.fetchingCovers(label, progress.pagesDone, progress.totalPages)
       : t.month.readingPages(label, progress.pagesDone, progress.totalPages);
   return (
-    <div className="flex flex-col items-center gap-4 rounded-2xl bg-card p-5">
+    <div className="flex flex-col items-center gap-4 rounded-[28px] border border-stage-line bg-stage p-6 text-stage-ink">
       <VinylLoader label={text} />
       {/* Quando já se sabe quantas páginas são, a barra mostra quanto falta. */}
       {progress && (
@@ -242,10 +251,10 @@ function MonthProgressBar({ label, progress }: { label: string; progress: MonthP
           aria-valuemin={0}
           aria-valuemax={progress.totalPages}
           aria-valuenow={progress.pagesDone}
-          className="h-2 w-full max-w-md overflow-hidden rounded-full bg-line"
+          className="h-2 w-full max-w-md overflow-hidden rounded-full bg-stage-line"
         >
           <div
-            className="h-full rounded-full bg-amber transition-[width] duration-500 ease-out"
+            className="h-full rounded-full bg-amber transition-[width] duration-300 ease-smooth"
             style={{ width: `${Math.round((progress.pagesDone / (progress.totalPages || 1)) * 100)}%` }}
           />
         </div>

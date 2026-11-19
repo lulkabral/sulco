@@ -67,10 +67,10 @@ function Pill({ href, active, label, title }: PillProps) {
         title={title}
         scroll={false}
         className={
-          "inline-block whitespace-nowrap rounded-full px-3.5 py-1.5 text-sm font-medium transition active:scale-95 " +
+          "inline-block whitespace-nowrap rounded-full border px-3.5 py-1.5 text-xs font-semibold transition duration-200 ease-smooth active:scale-[0.98] sm:text-sm " +
           (active
-            ? "bg-amber font-bold text-amber-ink"
-            : "border border-line text-soft hover:border-ink-faint hover:text-ink")
+            ? "border-terra bg-terra font-bold text-terra-ink shadow-sm"
+            : "border-line text-soft hover:border-ink-faint hover:text-ink")
         }
       >
         {label}

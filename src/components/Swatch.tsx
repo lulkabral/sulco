@@ -23,8 +23,8 @@ export function Swatch({
       onClick={onClick}
       disabled={disabled}
       className={
-        "size-10 rounded-full ring-offset-2 ring-offset-card transition active:scale-90 disabled:opacity-35 " +
-        (active ? "ring-2 ring-amber" : "ring-1 ring-line hover:ring-ink-faint")
+        "size-8 rounded-full ring-offset-2 ring-offset-stage-card transition duration-200 ease-smooth hover:scale-[1.06] active:scale-[0.95] disabled:opacity-35 sm:size-9 " +
+        (active ? "ring-2 ring-amber" : "ring-1 ring-white/25 hover:ring-stage-ink")
       }
       style={{ background }}
     />

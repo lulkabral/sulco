@@ -43,7 +43,7 @@ export function Logo({ size = "sm" }: Props) {
 export async function LogoLink() {
   const { t, href } = await getI18n();
   return (
-    <Link href={href("/")} aria-label={t.common.homeLabel} className="inline-block rounded-md transition hover:opacity-80">
+    <Link href={href("/")} aria-label={t.common.homeLabel} className="inline-block rounded-md transition-opacity duration-200 ease-smooth hover:opacity-80">
       <Logo size="sm" />
     </Link>
   );

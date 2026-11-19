@@ -10,7 +10,7 @@ function Bar({ className }: { className: string }) {
 
 export function ListsSkeleton() {
   return (
-    <div className="flex min-h-64 items-center justify-center rounded-2xl bg-card p-8">
+    <div className="flex min-h-64 items-center justify-center rounded-[28px] border border-stage-line bg-stage p-8 text-stage-ink">
       <VinylLoader />
     </div>
   );
@@ -18,13 +18,15 @@ export function ListsSkeleton() {
 
 export function ProfileSkeleton() {
   return (
-    <div className="flex flex-col gap-6">
-      <div aria-hidden className="-mx-4 h-[88px] bg-card sm:mx-0 sm:rounded-2xl" />
-      <div aria-hidden className="-mt-10 flex items-end gap-4">
-        <div className="size-20 rounded-full border-4 border-room bg-card-2" />
-        <div className="flex flex-col gap-2 pb-1">
-          <Bar className="h-7 w-40" />
-          <Bar className="h-4 w-32" />
+    <div className="flex flex-col gap-5">
+      <div aria-hidden className="overflow-hidden rounded-[26px] border border-line bg-card">
+        <div className="h-[92px] bg-stage" />
+        <div className="flex items-center gap-4 px-5 pb-4 pt-3">
+          <div className="-mt-10 size-24 rounded-full border-4 border-card bg-card-2" />
+          <div className="flex flex-col gap-2">
+            <Bar className="h-7 w-40" />
+            <Bar className="h-4 w-32" />
+          </div>
         </div>
       </div>
       <ListsSkeleton />

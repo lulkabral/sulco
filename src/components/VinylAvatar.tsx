@@ -30,7 +30,7 @@ export function VinylAvatar({ avatarUrl, username }: Props) {
         <span className="absolute top-[3%] left-1/2 h-[8%] w-[4%] -translate-x-1/2 rounded-full bg-amber" />
       </div>
       {/* Selo: a foto da pessoa, parada, com aro âmbar. O disco é só um aro fino em volta. */}
-      <div className="absolute inset-[15%] overflow-hidden rounded-full bg-card ring-2 ring-amber">
+      <div className="absolute inset-[15%] overflow-hidden rounded-full bg-stage ring-2 ring-amber">
         {avatarUrl ? (
           <Image
             src={thumbUrl(avatarUrl)}

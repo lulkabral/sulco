@@ -6,11 +6,16 @@ import { AccentScope } from "@/components/AccentScope";
 import { AlbumGrid } from "@/components/AlbumGrid";
 import { ErrorState } from "@/components/ErrorState";
 import { GenreList } from "@/components/GenreList";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { LogoLink } from "@/components/Logo";
 import { MonthView } from "@/components/MonthView";
 import { PeriodSelector } from "@/components/PeriodSelector";
+import { ProfileLists } from "@/components/ProfileLists";
 import { ListsSkeleton, ProfileSkeleton } from "@/components/ProfileSkeleton";
 import { ProfileTabs } from "@/components/ProfileTabs";
+import { QuickUserSwitch } from "@/components/QuickUserSwitch";
 import { RecapImage } from "@/components/RecapImage";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { TopList } from "@/components/TopList";
 import { UserHeader } from "@/components/UserHeader";
 import { getI18n } from "@/i18n/server";
@@ -58,10 +63,23 @@ export async function generateMetadata({ params }: PageProps<"/[lang]/u/[usernam
 // então tudo que depende deles fica dentro de <Suspense>.
 export default function UserPage({ params, searchParams }: PageProps<"/[lang]/u/[username]">) {
   return (
-    <main id="conteudo" className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-6 px-4 pb-10 sm:pt-6">
-      <Suspense fallback={<ProfileSkeleton />}>
-        <Profile params={params} searchParams={searchParams} />
-      </Suspense>
+    <main id="conteudo" className="flex w-full flex-1 flex-col">
+      <header className="border-b border-rule">
+        <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-2 px-4 sm:px-6">
+          <LogoLink />
+          <div className="flex items-center gap-2">
+            <QuickUserSwitch />
+            <ThemeToggle />
+            <LanguageSwitcher />
+          </div>
+        </div>
+      </header>
+
+      <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-5 px-4 pb-10 pt-4 sm:px-6 sm:pt-6">
+        <Suspense fallback={<ProfileSkeleton />}>
+          <Profile params={params} searchParams={searchParams} />
+        </Suspense>
+      </div>
     </main>
   );
 }
@@ -126,11 +144,11 @@ async function Profile({ params, searchParams }: Pick<PageProps<"/[lang]/u/[user
   const chosenPeriod = history ?? (UI_PERIODS.some((p) => p.value === rawPeriod) ? period : undefined);
 
   return (
-    // O destaque da página segue a paleta escolhida para a imagem (quando passa no contraste).
+    // O destaque do palco segue a paleta escolhida para a imagem (quando passa no contraste).
     <AccentScope>
       <UserHeader user={user} covers={covers} />
       {/* Abas e período numa linha só (o calendário fica guardado na gaveta do botão de período). */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2.5">
         <ProfileTabs username={user.username} current={tab} period={chosenPeriod} />
         <PeriodSelector username={user.username} current={current} tab={tab} months={months} years={years} />
       </div>
@@ -188,8 +206,8 @@ async function TopLists({ username, period, tab, registeredAt, lifetimeTotal }: 
 
   if (artists.items.length === 0 && tracks.items.length === 0 && albums.items.length === 0) {
     return (
-      <div className="rounded-2xl bg-card p-5">
-        <h2 className="text-lg font-semibold">{t.profile.noMusicTitle}</h2>
+      <div className="rounded-[24px] border border-line bg-card p-6">
+        <h2 className="text-lg font-extrabold tracking-tight text-ink">{t.profile.noMusicTitle}</h2>
         <p className="mt-1 text-soft">{t.profile.noMusicBody(label)}</p>
       </div>
     );
@@ -197,7 +215,7 @@ async function TopLists({ username, period, tab, registeredAt, lifetimeTotal }: 
 
   const albumItems = albums.items as TopAlbum[];
   const artistItems = artists.items as TopArtist[];
-  const artistPics = artistPictures(artistItems, albumItems, (tracks.items as TopTrack[]));
+  const artistPics = artistPictures(artistItems, albumItems, tracks.items as TopTrack[]);
   // Para as bolinhas dos gêneros: os artistas que entram no cálculo (até 20).
   const artistPicsByName = Object.fromEntries(artistItems.map((a, i) => [a.name, artistPics[i]]));
 
@@ -247,48 +265,54 @@ async function TopLists({ username, period, tab, registeredAt, lifetimeTotal }: 
           }))}
         />
       )}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <TopList
-          title={t.lists.artists}
-          icon="artists"
-          shape="round"
-          items={artistItems.slice(0, LIST_LIMIT).map((a, i) => ({
-            rank: a.rank,
-            name: a.name,
-            playcount: a.playcount,
-            url: a.url,
-            image: artistPics[i].image,
-            lookup: artistPics[i].lookup,
-          }))}
-        />
-        <TopList
-          title={t.lists.tracks}
-          icon="tracks"
-          items={(tracks.items as TopTrack[]).map((t) => ({
-            rank: t.rank,
-            name: t.name,
-            detail: t.artist,
-            playcount: t.playcount,
-            url: t.url,
-            image: t.imageUrl ?? null,
-            lookup: { type: "track", artist: t.artist, name: t.name },
-          }))}
-        />
-        <TopList
-          title={t.lists.albums}
-          icon="albums"
-          items={albumItems.slice(0, LIST_LIMIT).map((a) => ({
-            rank: a.rank,
-            name: a.name,
-            detail: a.artist,
-            playcount: a.playcount,
-            url: a.url,
-            image: a.imageUrl,
-            lookup: { type: "album", artist: a.artist, name: a.name },
-          }))}
-        />
-        <GenreList genres={genres} images={artistPicsByName} />
-      </div>
+      <ProfileLists
+        artists={
+          <TopList
+            title={t.lists.artists}
+            icon="artists"
+            shape="round"
+            items={artistItems.slice(0, LIST_LIMIT).map((a, i) => ({
+              rank: a.rank,
+              name: a.name,
+              playcount: a.playcount,
+              url: a.url,
+              image: artistPics[i].image,
+              lookup: artistPics[i].lookup,
+            }))}
+          />
+        }
+        tracks={
+          <TopList
+            title={t.lists.tracks}
+            icon="tracks"
+            items={(tracks.items as TopTrack[]).map((t) => ({
+              rank: t.rank,
+              name: t.name,
+              detail: t.artist,
+              playcount: t.playcount,
+              url: t.url,
+              image: t.imageUrl ?? null,
+              lookup: { type: "track", artist: t.artist, name: t.name },
+            }))}
+          />
+        }
+        albums={
+          <TopList
+            title={t.lists.albums}
+            icon="albums"
+            items={albumItems.slice(0, LIST_LIMIT).map((a) => ({
+              rank: a.rank,
+              name: a.name,
+              detail: a.artist,
+              playcount: a.playcount,
+              url: a.url,
+              image: a.imageUrl,
+              lookup: { type: "album", artist: a.artist, name: a.name },
+            }))}
+          />
+        }
+        genres={<GenreList genres={genres} images={artistPicsByName} />}
+      />
     </>
   );
 }

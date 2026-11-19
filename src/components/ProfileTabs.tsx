@@ -39,26 +39,26 @@ export function ProfileTabs({ username, current, period }: Props) {
 
   return (
     <nav aria-label={dict.profile.tabsLabel} className="flex-1 sm:flex-none">
-      <ul className="relative grid grid-cols-2 rounded-2xl bg-card p-1 sm:inline-grid sm:w-72">
+      <ul className="relative grid grid-cols-2 rounded-full border border-line bg-card-2 p-1 sm:inline-grid sm:w-68">
         {/* Destaque que desliza para a aba escolhida. */}
         <li
           aria-hidden
-          className="pointer-events-none absolute inset-y-1 left-1 w-[calc(50%-0.25rem)] rounded-xl bg-amber shadow-md shadow-black/30 transition-transform duration-300 ease-out motion-reduce:transition-none"
+          className="pointer-events-none absolute inset-y-1 left-1 z-0 w-[calc(50%-0.25rem)] rounded-full bg-cta shadow-sm transition-transform duration-300 ease-smooth motion-reduce:transition-none"
           style={{ transform: `translateX(${index * 100}%)` }}
         />
         {TABS.map((t) => {
           const active = t.value === shown;
           const href = userPageHref(username, t.value, period, lang);
           return (
-            <li key={t.value} className="relative">
+            <li key={t.value} className="relative z-10">
               <Link
                 href={href}
                 onClick={(e) => go(e, t.value, href)}
                 aria-current={active ? "page" : undefined}
                 scroll={false}
                 className={
-                  "flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 font-bold transition-colors duration-300 " +
-                  (active ? "text-amber-ink" : "text-soft hover:text-ink")
+                  "flex items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-bold transition-colors duration-200 ease-smooth " +
+                  (active ? "text-cta-ink" : "text-soft hover:text-ink")
                 }
               >
                 {t.value === "recap" ? <StoryIcon /> : <GridIcon />}

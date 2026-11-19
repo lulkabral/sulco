@@ -48,7 +48,7 @@ function FooterLink({
   label?: string;
   children: ReactNode;
 }) {
-  const className = "text-soft transition-colors hover:text-ink";
+  const className = "text-soft transition-colors duration-200 ease-smooth hover:text-ink";
   if (external) {
     return (
       <a href={href} target="_blank" rel="noopener noreferrer" aria-label={label} className={className}>

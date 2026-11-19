@@ -36,13 +36,13 @@ export function VinylLoader({ label, size = "md", className = "" }: Props) {
         />
         {/* Selo âmbar com o furo do pino. */}
         <div className="absolute inset-[33%] rounded-full bg-amber">
-          <div className="absolute inset-[40%] rounded-full bg-room" />
+          <div className="absolute inset-[40%] rounded-full bg-vinyl" />
         </div>
       </div>
       {label ? (
-        <span className="text-center text-sm font-semibold text-soft">{label}</span>
+        <span className="text-center text-sm font-semibold opacity-80">{label}</span>
       ) : (
-        <span className="sr-only text-sm text-soft motion-reduce:not-sr-only">{t.common.loading}</span>
+        <span className="sr-only text-sm opacity-80 motion-reduce:not-sr-only">{t.common.loading}</span>
       )}
     </div>
   );

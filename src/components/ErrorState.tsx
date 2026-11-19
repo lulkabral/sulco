@@ -20,9 +20,9 @@ export function ErrorState({ code, username, onRetry }: Props) {
   const canRetry = code === "RATE_LIMITED" || code === "LASTFM_DOWN";
 
   return (
-    <div role="alert" className="flex flex-col items-start gap-4 rounded-2xl bg-card p-5">
+    <div role="alert" className="flex flex-col items-start gap-4 rounded-[24px] border border-line bg-card p-6">
       <div>
-        <h2 className="text-lg font-semibold">{title}</h2>
+        <h2 className="text-lg font-extrabold tracking-tight text-ink">{title}</h2>
         <p className="mt-1 text-soft">{text}</p>
       </div>
       {askUsername && <UsernameForm defaultValue={username} />}
@@ -31,7 +31,7 @@ export function ErrorState({ code, username, onRetry }: Props) {
           <button
             type="button"
             onClick={onRetry}
-            className="rounded-xl bg-amber px-4 py-2 font-bold text-amber-ink transition hover:bg-amber-hover active:scale-95"
+            className="rounded-full bg-cta px-5 py-2.5 text-sm font-bold text-cta-ink transition duration-200 ease-smooth hover:bg-cta-hover active:scale-[0.98]"
           >
             {t.errors.retry}
           </button>

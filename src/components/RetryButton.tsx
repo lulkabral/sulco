@@ -15,7 +15,7 @@ export function RetryButton() {
       type="button"
       onClick={() => startTransition(() => router.refresh())}
       disabled={pending}
-      className="rounded-xl bg-amber px-4 py-2 font-bold text-amber-ink transition hover:bg-amber-hover active:scale-95 disabled:opacity-60"
+      className="rounded-full bg-cta px-5 py-2.5 text-sm font-bold text-cta-ink transition duration-200 ease-smooth hover:bg-cta-hover active:scale-[0.98] disabled:opacity-60"
     >
       {pending ? t.errors.retrying : t.errors.retry}
     </button>

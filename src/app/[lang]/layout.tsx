@@ -6,7 +6,7 @@ import { SiteFooter, X_AUTHOR, X_SITE } from "@/components/SiteFooter";
 import { LocaleProvider } from "@/i18n/client";
 import { HTML_LANG, LOCALES, OG_LOCALE } from "@/i18n/config";
 import { getI18n } from "@/i18n/server";
-import { THEME } from "@/lib/theme";
+import { THEME_INIT_SCRIPT } from "@/lib/theme-mode";
 import "../globals.css";
 
 // Interface e títulos (docs/MARCA.md). O canvas do recap e da grade usa a mesma fonte.
@@ -64,22 +64,30 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-/** Cor da barra do navegador no celular, igual ao fundo do site. */
+/** Cor da barra do navegador no celular, acompanhando o tema claro ou escuro. */
 export const viewport: Viewport = {
-  themeColor: THEME.room,
-  colorScheme: "dark",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#F4EEE3" },
+    { media: "(prefers-color-scheme: dark)", color: "#14110E" },
+  ],
+  colorScheme: "light dark",
 };
 
 export default async function RootLayout({ children }: LayoutProps<"/[lang]">) {
   const { lang, t } = await getI18n();
   return (
-    <html lang={HTML_LANG[lang]} className={`${sans.variable} ${mono.variable} h-full antialiased`}>
+    <html lang={HTML_LANG[lang]} suppressHydrationWarning className={`${sans.variable} ${mono.variable} h-full antialiased`}>
+      <head>
+        <link rel="preconnect" href="https://lastfm-img.freetls.fastly.net" />
+        <link rel="preconnect" href="https://lastfm-img.freetls.fastly.net" crossOrigin="anonymous" />
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+      </head>
       <body className="flex min-h-full flex-col bg-room text-ink">
         <LocaleProvider lang={lang}>
           {/* Primeiro item do Tab: pula direto para o conteúdo (some até receber foco). */}
           <a
             href="#conteudo"
-            className="sr-only rounded-lg bg-amber px-4 py-2 font-semibold text-amber-ink focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50"
+            className="sr-only rounded-full bg-cta px-4 py-2 font-semibold text-cta-ink focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50"
           >
             {t.common.skipToContent}
           </a>

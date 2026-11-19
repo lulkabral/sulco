@@ -5,34 +5,33 @@ Nome sempre em minúsculas: "sulco". Tagline: "seu mês em música".
 
 ## Cores (tokens)
 
-Sala escura, um holofote: preto profundo e quente, contraste refinado e o âmbar usado com cirurgia. Os nomes viram classes do Tailwind (`bg-room`, `text-soft`, `border-line`...), definidas em `src/app/globals.css` (`@theme`). Nada de cor solta em componente: se faltar uma, crie o token lá.
+Identidade **"Loja de discos viva"** (desde 19/11/2026): o site funciona nos **modos claro (Papel) e escuro (Sala escura)**, seguindo automaticamente o tema do aparelho (`prefers-color-scheme`) com botão no topo para trocar (escolha guardada só no `localStorage`, chave `sulco:theme`, sem cookie).
 
-| Token | Cor | Uso |
-|---|---|---|
-| `room` | `#110F0D` | fundo |
-| `card` | `#181512` | superfícies (campo, palco, gaveta) |
-| `card-2` | `#211C18` | superfície em destaque, hover |
-| `rule` | `#2C2621` | divisórias de 1px do grid, sobre o fundo |
-| `line` | `#3A322C` | bordas de controles e cartões (sobre superfícies, onde `rule` quase some) |
-| `ink` | `#F4EEE6` | texto |
-| `soft` | `#ABA196` | texto de apoio |
-| `ink-faint` | `#958B7F` | detalhes pequenos (o `#7E756B` da proposta ficava abaixo de 4,5:1) |
-| `amber` | `#E8A13A` | destaque (ver abaixo) |
-| `amber-ink` | `#2A1A05` | texto sobre o destaque |
-| `danger` | `#FF9B85` | erro do formulário |
-| `vinyl` / `vinyl-groove` | `#0B0A09` / `#1B1714` | sulcos dos discos |
+Os tokens viram classes do Tailwind (`bg-room`, `bg-card`, `bg-terra`, `bg-stage`, `text-soft`...), definidos em `src/app/globals.css` (`@theme`). Nada de cor solta em componente: se faltar uma, crie o token lá.
 
-As mesmas cores, para o canvas e a prévia do link, ficam em `src/lib/theme.ts` (mudou num, mude no outro). As paletas da imagem do recap não mudam com isso.
+| Token | Modo claro (Papel) | Modo escuro (Sala) | Uso |
+|---|---|---|---|
+| `room` | `#F4EEE3` | `#14110E` | fundo da página |
+| `card` | `#FAF6EE` | `#1D1814` | cartões e campos |
+| `card-2` | `#EDE4D4` | `#26201B` | superfície secundária / hover |
+| `rule` | `#DFD3BE` | `#2E2721` | divisórias finas |
+| `line` | `#CFC0A8` | `#3C332C` | bordas de controles e cartões |
+| `ink` | `#191512` | `#F4EEE6` | texto principal |
+| `soft` | `#594F45` | `#B5ABA0` | texto de apoio |
+| `ink-faint` | `#6B6054` | `#9D9286` | detalhes pequenos |
+| `terra` / `terra-ink` | `#B83E16` / `#FFF9F2` | `#BC421A` / `#FFF9F2` | faixas e blocos vibrantes (discos da vitrine, gêneros) |
+| `terra-text` | `#B83E16` | `#F07D54` | destaque terracota em texto sobre `room`/`card` |
+| `cta` / `cta-ink` | `#191512` / `#FAF6EE` | `#E8A13A` / `#1D1204` | botão principal e aba ativa |
+| `stage` / `stage-card` | `#181411` / `#221C18` | `#1B1613` / `#241E19` | palco escuro dedicado ao pôster/grade |
+| `amber` / `amber-ink` | `#E8A13A` / `#2A1A05` | `#E8A13A` / `#2A1A05` | destaque do palco e do vinil |
+| `danger` | `#B8321C` | `#FF9B85` | erro do formulário |
+| `vinyl` / `vinyl-groove` | `#0B0A09` / `#1B1714` | `#0B0A09` / `#1B1714` | sulcos dos discos |
 
-**Regra:** o âmbar aparece em uma coisa por tela, a que mais importa. Na página inicial: o botão "Gerar", o ponto final do título e o "LED" da linha técnica, além do símbolo do logo.
+**Imagens geradas no canvas (intocadas):** o recap (`src/lib/recap/*`), a grade (`src/lib/grid/*`) e a prévia do link (`src/app/og/*`) continuam usando `src/lib/theme.ts` e `src/lib/recap/palettes.ts`, sem alteração.
 
-### Destaque que segue a paleta
+### Destaque do palco no perfil (`AccentScope`)
 
-As paletas da imagem (Âmbar, Meia-noite, Vinho, Papel, Lilás e Cor da capa) moram em `src/lib/recap/palettes.ts`, a fonte da verdade; não invente cores novas.
-
-`amber`, `amber-hover` e `amber-ink` leem as variáveis `--accent`, `--accent-hover` e `--accent-ink`. Por padrão são o âmbar. Na página do perfil, `AccentScope` troca essas variáveis pelo destaque da paleta escolhida (botões principais, item escolhido, aba ativa, anel de foco). O fundo continua escuro.
-
-A troca só acontece se passar no contraste AA (`uiAccentFor`, em `src/lib/recap/ui-accent.ts`, com teste): o destaque precisa de 4,5:1 sobre `room`, `card` e `card-2`, e o texto do botão precisa de 4,5:1 sobre o destaque. Se não passar (Papel, algumas capas), fica o âmbar. Em CSS escrito à mão, use `var(--accent)`, não `var(--color-amber)` (essa é resolvida uma vez na raiz e não acompanha a troca).
+As paletas da imagem (Âmbar, Meia-noite, Vinho, Papel, Lilás e Cor da capa) moram em `src/lib/recap/palettes.ts`. Na página do perfil, `AccentScope` troca `--accent`, `--accent-hover` e `--accent-ink` pelo destaque da paleta escolhida quando ela passa no contraste AA (`uiAccentFor`, em `src/lib/recap/ui-accent.ts`). Como o palco do pôster/grade (`bg-stage`) é sempre escuro nos dois temas, esse destaque mantém contraste AA tanto no modo claro quanto no modo escuro.
 
 O logo (`public/brand/simbolo.svg`) é sempre âmbar.
 
@@ -41,33 +40,27 @@ O logo (`public/brand/simbolo.svg`) é sempre âmbar.
 | Fonte | Uso | Regra |
 |---|---|---|
 | DM Sans 800 | títulos e nomes | espaçamento apertado (-0.045em no título da página inicial) |
-| DM Sans 500 | texto e interface (peso padrão do corpo; 600 e 700 para ênfase) | a 400 ficava fina demais (pedido do dono em 18/11/2026) |
-| DM Mono 500 | números, datas, contagens, metadados, rótulos técnicos em caixa alta | sempre com `tabular-nums`; rótulos com espaçamento aberto (0.14em a 0.18em) |
+| DM Sans 500 | texto e interface (peso padrão do corpo; 600 e 700 para ênfase) | |
+| DM Mono 500 | números, datas, contagens, metadados e rótulos em caixa alta | sempre com `tabular-nums` |
 
-Escolhida em 18/11/2026 entre 4 opções (Plus Jakarta Sans + IBM Plex Mono, Inter Tight + JetBrains Mono, DM Sans + DM Mono e Space Grotesk + Space Mono): a DM é mais redonda e macia.
-
-O canvas do recap e da grade usa a mesma DM Sans (lida do corpo da página). O logo ("ulco") também: o disco tem a altura do "l" dessa fonte (0,734 do tamanho), em `Logo.tsx` e `src/lib/canvas/brandmark.ts`. A prévia do link e o banner usam os TTF estáticos em `assets/` (licença OFL em `assets/DMSans-OFL.txt`).
+O canvas do recap e da grade usa a mesma DM Sans (lida do corpo da página). O logo ("ulco") também (`Logo.tsx` e `src/lib/canvas/brandmark.ts`). A prévia do link e o banner usam os TTF estáticos em `assets/` (licença OFL em `assets/DMSans-OFL.txt`).
 
 Todas carregadas com `next/font/google` (subset latin, `display: swap`), sem CDN externo. A legenda da vitrine é curta (até 5 palavras): conferida no teste (`showcase.test.ts`) e no `npm run vitrine`.
 
 Não usar serif nem letra manuscrita no site. Sem textura de grão: a página fica lisa, para ninguém achar que a imagem baixada vai sair granulada.
 
-## Estética Hi-Fi / catálogo de vinil
+## Estética "Loja de discos viva"
 
-Referência: catálogos de selos e aparelhos de som. Minimalismo escuro, grid arquitetônico, tipografia firme e o produto real como protagonista.
-
-- **Grid de linhas finas:** seções e colunas separadas por linhas de 1px (`border-rule`, `divide-rule`). Na prateleira, `gap-px` sobre `bg-rule` faz as linhas entre os itens.
-- **Rótulos técnicos:** caixa alta em mono, pequenos, com espaçamento aberto ("LADO A · RECAP MENSAL E GRADE", "CATÁLOGO / DADOS: LAST.FM"). Números de catálogo `01`–`06`.
-- **Cantos quase retos:** 2 a 3 px no campo e nos botões; capas retas com borda de 1px.
-- **Produto real:** o palco da página inicial desenha os formatos com o mesmo código da imagem baixada, com as capas da vitrine.
-- **Proibido:** brilhos e degradês difusos, vidro fosco, cartões genéricos de "benefícios" com ícone, capas tortas com fita, letra manuscrita, sombra deslocada de "adesivo". O rigor vem de proporção, espaço vazio e linhas de 1px.
+- **Primeira dobra viva no celular:** título + campo em pílula arredondada + janela escura com leque de capas reais e disco de vinil girando aparecem logo na primeira tela.
+- **Blocos de cor e ritmo:** alternância entre papel/sala, faixa terracota com discos redondos clicáveis (que trocam o disco no topo e no palco), palco escuro dedicado para os pôsteres reais intactos e blocos arredondados (`rounded-[24px]` a `rounded-[28px]`).
+- **Perfil coerente:** topo com faixa limpa de capas retas (sem fita crepe) e `VinylAvatar` girando, pílulas para `Recap | Grade` e período (com gaveta arredondada), troca rápida de usuário em gaveta no topo, palco escuro com switches unificados e listas em abas no celular (`2×2` largo no computador) com o cartão de gêneros em terracota.
+- **Proibido:** fita crepe em CSS, capas tortas decorativas na faixa, sombra deslocada de "adesivo", letra manuscrita, vidro fosco pesado, brilhos difusos de IA.
 
 ## Movimento
 
-- **Carregamento:** um disco de vinil girando a 33⅓ rpm (`VinylLoader`, CSS puro: sulcos com `repeating-radial-gradient`, reflexo e selo âmbar). Com "reduzir movimento", fica parado e aparece "carregando…". Quando se sabe quanto falta (páginas do mês), a barra de progresso aparece junto.
-- **Prateleira da vitrine:** atrás de cada capa, um disco com a capa como selo, girando devagar (7 s por volta). No computador, com o mouse em cima, ele sai da capa (por cima da célula vizinha) e gira a 33⅓ rpm. No celular, fica mais para fora, girando. Pedido do dono em 18/11/2026: o site precisava de mais movimento.
-- O disco do palco da página inicial não gira: é o desenho real da imagem, que é estática.
-- Movimento automático só em discos (carregamento, avatar do perfil e prateleira), sempre girando como disco de verdade. Todo movimento usa `motion-safe:` e para com "reduzir movimento".
+- **Ritmo suave e ágil:** todas as transições usam a curva suave (`--ease-smooth: cubic-bezier(0.22, 1, 0.36, 1)`), com 200 ms em controles táteis, 300 ms em deslocamentos de abas/cartões e troca de tema sincronizada em ~240 ms. A rolagem de âncora (`#palco`) é suave.
+- **Carregamento:** um disco de vinil girando cadenciado (`VinylLoader`, 2,1 s por volta, CSS puro). Com "reduzir movimento", fica parado e aparece "carregando…".
+- **Discos e faixas de capas:** o disco do hero, o avatar do perfil e o disco selecionado na faixa terracota giram em ritmo calmo (17 s por volta); os outros discos da vitrine retomam o giro no mesmo ponto ao passar o mouse, sem tranco. A faixa de capas do topo do perfil desliza suave e pausa no hover. Todo movimento respeita `prefers-reduced-motion`.
 
 ## Sem vínculo
 

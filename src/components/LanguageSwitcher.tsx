@@ -29,7 +29,10 @@ export function LanguageSwitcher() {
   }
 
   return (
-    <nav aria-label={t.footer.language} className="flex items-center gap-0.5 font-mono text-xs">
+    <nav
+      aria-label={t.footer.language}
+      className="inline-flex items-center rounded-full border border-line bg-card p-0.5 font-mono text-xs"
+    >
       {LOCALES.map((l) => (
         <a
           key={l}
@@ -41,8 +44,8 @@ export function LanguageSwitcher() {
           aria-current={l === lang ? "true" : undefined}
           onClick={(e) => choose(e, l)}
           className={
-            "px-2 py-1 tracking-[0.14em] uppercase transition-colors " +
-            (l === lang ? "text-ink underline decoration-line underline-offset-4" : "text-ink-faint hover:text-ink")
+            "rounded-full px-2 py-0.5 tracking-[0.08em] uppercase transition-colors duration-200 ease-smooth " +
+            (l === lang ? "bg-ink font-semibold text-room" : "text-ink-faint hover:text-ink")
           }
         >
           {l}

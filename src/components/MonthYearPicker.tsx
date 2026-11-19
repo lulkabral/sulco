@@ -34,39 +34,40 @@ export function MonthYearPicker({ username, tab, current, months, years }: Props
   const available = new Set(months);
 
   const arrow =
-    "flex size-9 items-center justify-center rounded-full text-xl text-soft transition hover:bg-card-2 hover:text-ink disabled:pointer-events-none disabled:opacity-25";
+    "flex size-9 items-center justify-center rounded-full text-xl text-soft transition duration-200 ease-smooth hover:bg-card-2 hover:text-ink disabled:pointer-events-none disabled:opacity-25";
 
   return (
-    <section aria-labelledby="escolher-mes-ano" className="rounded-2xl bg-card p-4 sm:max-w-md">
-      <h2 id="escolher-mes-ano" className="text-xs font-bold uppercase tracking-widest text-soft">
-        {t.profile.pickerHeading}
-      </h2>
-
-      <div className="mt-2 flex items-center justify-between">
-        <button
-          type="button"
-          className={arrow}
-          onClick={() => setYear(years[index + 1])}
-          disabled={index >= years.length - 1}
-          aria-label={t.profile.prevYear}
-        >
-          ‹
-        </button>
-        <p className="text-lg font-extrabold tabular-nums" aria-live="polite">
-          {year}
-        </p>
-        <button
-          type="button"
-          className={arrow}
-          onClick={() => setYear(years[index - 1])}
-          disabled={index <= 0}
-          aria-label={t.profile.nextYear}
-        >
-          ›
-        </button>
+    <section aria-labelledby="escolher-mes-ano" className="border-t border-rule pt-4 sm:max-w-md">
+      <div className="flex items-center justify-between">
+        <h2 id="escolher-mes-ano" className="font-mono text-xs font-semibold uppercase tracking-[0.12em] text-ink-faint">
+          {t.profile.pickerHeading}
+        </h2>
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            className={arrow}
+            onClick={() => setYear(years[index + 1])}
+            disabled={index >= years.length - 1}
+            aria-label={t.profile.prevYear}
+          >
+            ‹
+          </button>
+          <p className="min-w-12 text-center font-mono text-base font-extrabold text-ink tabular-nums" aria-live="polite">
+            {year}
+          </p>
+          <button
+            type="button"
+            className={arrow}
+            onClick={() => setYear(years[index - 1])}
+            disabled={index <= 0}
+            aria-label={t.profile.nextYear}
+          >
+            ›
+          </button>
+        </div>
       </div>
 
-      <ul className="mt-2 grid grid-cols-4 gap-2" aria-label={t.profile.monthsOf(year)}>
+      <ul className="mt-3 grid grid-cols-4 gap-2" aria-label={t.profile.monthsOf(year)}>
         {t.periods.monthsShort.map((name, i) => {
           const id = `${year}-${String(i + 1).padStart(2, "0")}`;
           const active = current === id;
@@ -76,7 +77,7 @@ export function MonthYearPicker({ username, tab, current, months, years }: Props
                 <span
                   aria-disabled
                   title={t.profile.monthUnavailable}
-                  className="block rounded-xl border border-line/50 py-2 text-center text-sm capitalize text-ink-faint/50"
+                  className="block rounded-xl border border-rule py-2 text-center text-sm capitalize text-ink-faint/45"
                 >
                   {name}
                 </span>
@@ -91,9 +92,9 @@ export function MonthYearPicker({ username, tab, current, months, years }: Props
                 title={monthLabel(id, lang)}
                 scroll={false}
                 className={
-                  "block rounded-xl border py-2 text-center text-sm capitalize transition active:scale-95 " +
+                  "block rounded-xl border py-2 text-center text-sm capitalize transition duration-200 ease-smooth active:scale-[0.98] " +
                   (active
-                    ? "border-amber bg-amber font-bold text-amber-ink"
+                    ? "border-terra bg-terra font-bold text-terra-ink"
                     : "border-line text-soft hover:border-ink-faint hover:text-ink")
                 }
               >
@@ -109,10 +110,10 @@ export function MonthYearPicker({ username, tab, current, months, years }: Props
         aria-current={current === String(year) ? "page" : undefined}
         scroll={false}
         className={
-          "mt-2 block rounded-xl border py-2 text-center text-sm font-semibold transition active:scale-95 " +
+          "mt-2.5 block rounded-full border py-2.5 text-center text-sm font-semibold transition duration-200 ease-smooth active:scale-[0.98] " +
           (current === String(year)
-            ? "border-amber bg-amber font-bold text-amber-ink"
-            : "border-amber/60 text-ink hover:border-amber")
+            ? "border-terra bg-terra font-bold text-terra-ink"
+            : "border-line text-ink hover:border-terra hover:text-terra-text")
         }
       >
         {isCurrentYear ? t.periods.yearOngoing(year) : t.periods.wholeYear(year)}

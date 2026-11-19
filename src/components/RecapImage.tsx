@@ -87,7 +87,7 @@ export function RecapImage(props: Props) {
   useEffect(() => {
     if (!prefs.showNumbers || minutes?.key === minutesKey) return;
     let alive = true;
-    Promise.all(minuteSample.map((t) => trackInfo(t.artist, t.name))).then((infos) => {
+    Promise.all(minuteSample.map((t) => trackInfo(t.artist, t.name, "high"))).then((infos) => {
       if (!alive) return;
       const value = estimateMinutes(
         total,
@@ -114,10 +114,8 @@ export function RecapImage(props: Props) {
     };
   }, []);
 
-  // 2) Capas, cada uma por conta própria: a imagem é redesenhada quando cada uma chega,
-  // então uma capa lenta não segura as outras. Todas em 600 px: alguns formatos desenham
-  // capas além da nº 1 em mais de 500 px (Mosaico, Toca-discos) e a imagem baixada precisa
-  // ficar nítida. Trocar formato ou cor não baixa de novo.
+  // 2) Capas progressivas: 300 px (cache rápido do Fastly) entra logo para a imagem não ficar
+  // vazia; em paralelo baixa 600 px nítido para substituir antes de liberar o download.
   useEffect(() => {
     let cancelled = false;
     const list = albums.slice(0, RECAP_COVERS);
@@ -128,14 +126,31 @@ export function RecapImage(props: Props) {
     };
     if (list.length === 0) Promise.resolve().then(() => !cancelled && setCoversDone(true));
     list.forEach((a, i) => {
-      const load = albumCover({ ...a, artist: a.artist ?? "" }).then((url) => (url ? loadImage(coverUrl(url, 600)) : null));
-      load.then((img) => {
+      albumCover({ ...a, artist: a.artist ?? "" }).then((url) => {
         if (cancelled) return;
-        if (img) {
-          setCovers((prev) => prev.map((c, j) => (j === i ? img : c)));
-          if (i === 0) setCoverPalette(paletteFromCover(img));
+        if (!url) {
+          settle();
+          return;
         }
-        settle();
+        let gotHd = false;
+        const fastUrl = coverUrl(url, 300);
+        const hdUrl = coverUrl(url, 600);
+        if (fastUrl !== hdUrl) {
+          loadImage(fastUrl, 8_000).then((fastImg) => {
+            if (cancelled || gotHd || !fastImg) return;
+            setCovers((prev) => prev.map((c, j) => (j === i ? fastImg : c)));
+            if (i === 0) setCoverPalette(paletteFromCover(fastImg));
+          });
+        }
+        loadImage(hdUrl).then((hdImg) => {
+          if (cancelled) return;
+          gotHd = true;
+          if (hdImg) {
+            setCovers((prev) => prev.map((c, j) => (j === i ? hdImg : c)));
+            if (i === 0) setCoverPalette(paletteFromCover(hdImg));
+          }
+          settle();
+        });
       });
     });
     return () => {
@@ -185,135 +200,148 @@ export function RecapImage(props: Props) {
   const coverAccent = coverPalette?.accent;
   const altText = t.recap.alt(username, periodLabel, t.recap.layouts[prefs.layout]);
 
+  const activePaletteLabel =
+    prefs.paletteId === COVER_PALETTE_ID
+      ? t.recap.coverColor
+      : (t.recap.palettes[prefs.paletteId] ?? palette.name);
+
   return (
     <section
       aria-labelledby="recap-titulo"
-      className="flex flex-col gap-4 motion-safe:animate-rise md:flex-row md:items-start md:gap-6"
+      className="overflow-hidden rounded-[28px] border border-stage-line bg-stage p-4 text-stage-ink shadow-xl motion-safe:animate-rise sm:p-6"
     >
       <h2 id="recap-titulo" className="sr-only">
         {t.recap.heading}
       </h2>
 
-      <div className="relative w-full max-w-xs self-center transition-transform duration-300 hover:-translate-y-1 md:self-start">
-        <canvas
-          ref={canvasRef}
-          width={RECAP_WIDTH}
-          height={RECAP_HEIGHT}
-          // Sem a cópia em <img> (computador), o próprio canvas é a imagem para leitores de tela.
-          role={snapshot ? undefined : "img"}
-          aria-label={snapshot ? undefined : altText}
-          aria-hidden={snapshot ? true : undefined}
-          className="block aspect-[9/16] w-full rounded-2xl bg-card shadow-2xl shadow-black/50 ring-1 ring-line"
-        />
-        {snapshot && (
-          // Cópia em PNG por cima do canvas: no celular, segurar o dedo abre "Salvar imagem".
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={snapshot} alt={altText} className="absolute left-0 top-0 aspect-[9/16] w-full rounded-2xl" />
-        )}
-        {!drawn && (
-          <div className="absolute inset-0 flex items-center justify-center rounded-2xl">
-            <VinylLoader label={t.recap.building} />
-          </div>
-        )}
-        {drawn && !complete && (
-          <p role="status" className="mt-2 text-center text-xs text-ink-faint">
-            {t.recap.completing}
-          </p>
-        )}
-        {complete && <SaveHint />}
-      </div>
-
-      <div className="flex flex-col gap-5 rounded-2xl bg-card p-5 md:min-w-80">
-        {/* Ficha técnica: período e números em mono, alinhados, com linhas finas (docs/MARCA.md). */}
-        <div className="font-mono text-sm tabular-nums">
-          <p className="border-b border-line pb-2 text-xs font-semibold uppercase tracking-widest text-soft">{periodLabel}</p>
-          <dl className="divide-y divide-line border-b border-line">
-            <div className="flex items-baseline justify-between gap-3 py-2">
-              <dt className="text-soft">{t.units.scrobbles}</dt>
-              <dd className="font-semibold text-ink">{formatNumber(total, lang)}</dd>
+      <div className="grid grid-cols-1 items-start gap-6 md:grid-cols-[minmax(0,20rem)_1fr] md:gap-8">
+        <div className="relative mx-auto w-full max-w-xs transition-transform duration-300 ease-smooth hover:-translate-y-0.5">
+          <canvas
+            ref={canvasRef}
+            width={RECAP_WIDTH}
+            height={RECAP_HEIGHT}
+            // Sem a cópia em <img> (computador), o próprio canvas é a imagem para leitores de tela.
+            role={snapshot ? undefined : "img"}
+            aria-label={snapshot ? undefined : altText}
+            aria-hidden={snapshot ? true : undefined}
+            className="block aspect-[9/16] w-full rounded-2xl bg-stage-card shadow-2xl shadow-black/60 ring-1 ring-white/10"
+          />
+          {snapshot && (
+            // Cópia em PNG por cima do canvas: no celular, segurar o dedo abre "Salvar imagem".
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={snapshot} alt={altText} className="absolute left-0 top-0 aspect-[9/16] w-full rounded-2xl" />
+          )}
+          {!drawn && (
+            <div className="absolute inset-0 flex items-center justify-center rounded-2xl bg-stage-card">
+              <VinylLoader label={t.recap.building} />
             </div>
-            {minutesValue !== null && (
-              <div className="flex items-baseline justify-between gap-3 py-2">
-                <dt className="text-soft">{t.units.minutes}</dt>
-                <dd className="font-semibold text-ink">{formatNumber(minutesValue, lang)}</dd>
-              </div>
-            )}
-          </dl>
-          {minutesValue !== null && <p className="mt-2 font-sans text-xs text-ink-faint">{t.recap.minutesNote}</p>}
+          )}
+          {drawn && !complete && (
+            <p role="status" className="mt-2 text-center text-xs text-stage-faint">
+              {t.recap.completing}
+            </p>
+          )}
+          {complete && <SaveHint />}
         </div>
 
-        <fieldset>
-          <legend className="mb-2 text-sm font-bold uppercase tracking-widest text-soft">{t.recap.format}</legend>
-          <div className="grid grid-cols-2 gap-2">
-            {RECAP_LAYOUTS.map((l) => (
-              <button
-                key={l.id}
-                type="button"
-                aria-pressed={prefs.layout === l.id}
-                onClick={() => choose({ layout: l.id })}
-                className={
-                  "rounded-xl border px-3 py-2 text-sm font-semibold transition active:scale-95 " +
-                  (prefs.layout === l.id
-                    ? "border-amber bg-amber text-amber-ink"
-                    : "border-line text-soft hover:text-ink")
-                }
-              >
-                {t.recap.layouts[l.id]}
-              </button>
-            ))}
+        <div className="flex flex-col gap-5 rounded-2xl border border-stage-line bg-stage-card p-4 sm:p-5">
+          {/* Ficha técnica: período e números em mono, alinhados, com linhas finas. */}
+          <div className="font-mono text-sm tabular-nums">
+            <p className="border-b border-stage-line pb-2 text-xs font-semibold uppercase tracking-[0.14em] text-amber">
+              {periodLabel}
+            </p>
+            <dl className="divide-y divide-stage-line border-b border-stage-line">
+              <div className="flex items-baseline justify-between gap-3 py-2">
+                <dt className="text-stage-soft">{t.units.scrobbles}</dt>
+                <dd className="font-semibold text-stage-ink">{formatNumber(total, lang)}</dd>
+              </div>
+              {minutesValue !== null && (
+                <div className="flex items-baseline justify-between gap-3 py-2">
+                  <dt className="text-stage-soft">{t.units.minutes}</dt>
+                  <dd className="font-semibold text-stage-ink">{formatNumber(minutesValue, lang)}</dd>
+                </div>
+              )}
+            </dl>
+            {minutesValue !== null && <p className="mt-2 font-sans text-xs text-stage-faint">{t.recap.minutesNote}</p>}
           </div>
-        </fieldset>
 
-        <fieldset>
-          <legend className="mb-2 text-sm font-bold uppercase tracking-widest text-soft">{t.recap.color}</legend>
-          <div className="flex flex-wrap gap-2">
-            {PALETTES.map((p) => (
+          <fieldset>
+            <legend className="mb-2.5 font-mono text-xs font-semibold uppercase tracking-[0.14em] text-stage-faint">
+              {t.recap.format}
+            </legend>
+            <div className="grid grid-cols-2 gap-2">
+              {RECAP_LAYOUTS.map((l) => (
+                <button
+                  key={l.id}
+                  type="button"
+                  aria-pressed={prefs.layout === l.id}
+                  onClick={() => choose({ layout: l.id })}
+                  className={
+                    "rounded-full border px-3.5 py-2 text-sm font-semibold transition duration-200 ease-smooth active:scale-[0.98] " +
+                    (prefs.layout === l.id
+                      ? "border-amber bg-amber font-bold text-amber-ink"
+                      : "border-stage-line text-stage-soft hover:border-stage-faint hover:text-stage-ink")
+                  }
+                >
+                  {t.recap.layouts[l.id]}
+                </button>
+              ))}
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend className="mb-2.5 flex w-full items-center justify-between font-mono text-xs font-semibold uppercase tracking-[0.14em] text-stage-faint">
+              <span>{t.recap.color}</span>
+              <span className="text-stage-ink">{activePaletteLabel}</span>
+            </legend>
+            <div className="flex flex-wrap gap-2.5">
+              {PALETTES.map((p) => (
+                <Swatch
+                  key={p.id}
+                  label={t.recap.palettes[p.id] ?? p.name}
+                  active={prefs.paletteId === p.id}
+                  onClick={() => choose({ paletteId: p.id })}
+                  background={`linear-gradient(135deg, ${p.room} 50%, ${p.accent} 50%)`}
+                />
+              ))}
               <Swatch
-                key={p.id}
-                label={t.recap.palettes[p.id] ?? p.name}
-                active={prefs.paletteId === p.id}
-                onClick={() => choose({ paletteId: p.id })}
-                background={`linear-gradient(135deg, ${p.room} 50%, ${p.accent} 50%)`}
+                label={t.recap.coverColor}
+                active={prefs.paletteId === COVER_PALETTE_ID}
+                onClick={() => choose({ paletteId: COVER_PALETTE_ID })}
+                background={
+                  coverAccent
+                    ? `linear-gradient(135deg, ${coverPalette?.room} 50%, ${coverAccent} 50%)`
+                    : "conic-gradient(#e8a13a, #ff7aa2, #c59bff, #6fc3ff, #e8a13a)"
+                }
               />
-            ))}
-            <Swatch
-              label={t.recap.coverColor}
-              active={prefs.paletteId === COVER_PALETTE_ID}
-              onClick={() => choose({ paletteId: COVER_PALETTE_ID })}
-              background={
-                coverAccent
-                  ? `linear-gradient(135deg, ${coverPalette?.room} 50%, ${coverAccent} 50%)`
-                  : // Antes da capa chegar: os destaques das paletas (src/lib/recap/palettes.ts).
-                    "conic-gradient(#e8a13a, #ff7aa2, #c59bff, #6fc3ff, #e8a13a)"
-              }
+            </div>
+          </fieldset>
+
+          <label className="flex cursor-pointer items-center justify-between gap-3 rounded-2xl border border-stage-line p-3.5 transition-colors duration-200 ease-smooth hover:border-stage-faint has-[:checked]:border-amber/60 has-[:checked]:bg-amber/10">
+            <span>
+              <span className="block text-sm font-bold text-stage-ink">{t.recap.showNumbers}</span>
+              <span className="block text-xs text-stage-soft">{t.recap.showNumbersHint}</span>
+            </span>
+            <input
+              type="checkbox"
+              role="switch"
+              checked={prefs.showNumbers}
+              onChange={(e) => choose({ showNumbers: e.target.checked })}
+              className="peer sr-only"
             />
-          </div>
-        </fieldset>
+            <span
+              aria-hidden
+              className="relative h-6 w-11 shrink-0 rounded-full bg-white/20 ring-1 ring-white/15 transition-colors duration-200 ease-smooth peer-checked:bg-amber peer-checked:ring-amber peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-amber after:absolute after:left-1 after:top-1 after:size-4 after:rounded-full after:bg-stage-ink after:transition-[transform,background-color] after:duration-200 after:ease-smooth peer-checked:after:translate-x-5 peer-checked:after:bg-amber-ink"
+            />
+          </label>
 
-        <label className="flex cursor-pointer items-center justify-between gap-3 rounded-xl border border-line p-3 transition hover:border-ink-faint has-[:checked]:border-amber/60 has-[:checked]:bg-amber/5">
-          <span>
-            <span className="block font-semibold">{t.recap.showNumbers}</span>
-            <span className="block text-sm text-soft">{t.recap.showNumbersHint}</span>
-          </span>
-          <input
-            type="checkbox"
-            role="switch"
-            checked={prefs.showNumbers}
-            onChange={(e) => choose({ showNumbers: e.target.checked })}
-            className="peer sr-only"
+          <ExportButtons
+            canvasRef={canvasRef}
+            filename={`recap-${username}-${period}-${prefs.layout}.png`}
+            shareTitle={t.recap.shareTitle(periodLabel)}
+            disabled={!complete}
           />
-          <span
-            aria-hidden
-            className="relative h-7 w-12 shrink-0 rounded-full bg-line transition peer-checked:bg-amber peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-amber after:absolute after:left-1 after:top-1 after:size-5 after:rounded-full after:bg-ink after:transition peer-checked:after:translate-x-5 peer-checked:after:bg-amber-ink"
-          />
-        </label>
-
-        <ExportButtons
-          canvasRef={canvasRef}
-          filename={`recap-${username}-${period}-${prefs.layout}.png`}
-          shareTitle={t.recap.shareTitle(periodLabel)}
-          disabled={!complete}
-        />
+        </div>
       </div>
     </section>
   );
@@ -323,7 +351,7 @@ export function RecapImage(props: Props) {
 export function SaveHint() {
   const { t } = useI18n();
   return (
-    <p className="mt-2 hidden text-center text-xs text-ink-faint [@media(pointer:coarse)]:block">
+    <p className="mt-2.5 hidden text-center text-xs text-stage-faint [@media(pointer:coarse)]:block">
       {t.recap.saveHint}
     </p>
   );
