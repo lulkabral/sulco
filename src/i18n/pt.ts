@@ -13,6 +13,7 @@ export const pt = {
     homeLabel: "sulco, página inicial",
     backHome: "Voltar ao início",
     loading: "carregando…",
+    close: "Fechar",
   },
   home: {
     titleLine1: "o que tocou",
@@ -20,6 +21,8 @@ export const pt = {
     titleHighlight: "seu mês?",
     intro: "Seus artistas, músicas, álbuns e gêneros mais ouvidos, numa imagem para postar.",
     noLastfm: "Não tem Last.fm?",
+    guideCta: "guia",
+    guideTitle: "Começar no Last.fm",
     noLastfmJoin: "Crie a conta grátis em",
     noLastfmJoinAfter: ". O nome de usuário que você escolher lá é o que se digita aqui.",
     noLastfmSteps: [

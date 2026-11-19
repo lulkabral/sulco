@@ -14,6 +14,7 @@ export const es: Dict = {
     homeLabel: "sulco, página de inicio",
     backHome: "Volver al inicio",
     loading: "cargando…",
+    close: "Cerrar",
   },
   home: {
     titleLine1: "¿qué sonó",
@@ -21,6 +22,8 @@ export const es: Dict = {
     titleHighlight: "tu mes?",
     intro: "Tus artistas, canciones, álbumes y géneros más escuchados, en una imagen para publicar.",
     noLastfm: "¿No tienes Last.fm?",
+    guideCta: "guía",
+    guideTitle: "Empezar en Last.fm",
     noLastfmJoin: "Crea una cuenta gratis en",
     noLastfmJoinAfter: ". El nombre de usuario que elijas ahí es el que escribes aquí.",
     noLastfmSteps: [

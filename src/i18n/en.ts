@@ -14,6 +14,7 @@ export const en: Dict = {
     homeLabel: "sulco, home page",
     backHome: "Back to home",
     loading: "loading…",
+    close: "Close",
   },
   home: {
     titleLine1: "what played",
@@ -21,6 +22,8 @@ export const en: Dict = {
     titleHighlight: "your month?",
     intro: "Your most played artists, tracks, albums and genres, in one image ready to post.",
     noLastfm: "Don't have Last.fm?",
+    guideCta: "guide",
+    guideTitle: "Getting started on Last.fm",
     noLastfmJoin: "Create a free account at",
     noLastfmJoinAfter: ". The username you pick there is what you type here.",
     noLastfmSteps: [
