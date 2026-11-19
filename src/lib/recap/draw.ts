@@ -63,6 +63,8 @@ export type RecapOptions = {
   palette: Palette;
   /** Mostrar total de scrobbles, minutos e reproduções (desligado por padrão: lembrar, não medir). */
   showNumbers: boolean;
+  /** Cor opcional do vinil no formato Toca-discos (null/ausente = vinil preto clássico). */
+  vinylColor?: string | null;
   /** Família da fonte (DM Sans), já carregada. */
   font: string;
   /** Língua do texto desenhado ("Na sua cabeça" / "In your head"...). */

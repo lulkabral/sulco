@@ -8,12 +8,15 @@ export type RecapPrefs = {
   layout: RecapLayoutId;
   paletteId: string;
   showNumbers: boolean;
+  /** No formato Toca-discos: disco colorido contrastando com a capa nº 1 (desligado = vinil preto clássico). */
+  coloredVinyl: boolean;
 };
 
 export const DEFAULT_PREFS: RecapPrefs = {
   layout: DEFAULT_LAYOUT,
   paletteId: DEFAULT_PALETTE_ID,
   showNumbers: false,
+  coloredVinyl: false,
 };
 
 const KEY = "recap-prefs";
@@ -33,6 +36,7 @@ export function parsePrefs(raw: string | null): RecapPrefs {
       layout: isLayoutId(data.layout) ? data.layout : DEFAULT_PREFS.layout,
       paletteId: validPalette ? (data.paletteId as string) : DEFAULT_PREFS.paletteId,
       showNumbers: typeof data.showNumbers === "boolean" ? data.showNumbers : DEFAULT_PREFS.showNumbers,
+      coloredVinyl: typeof data.coloredVinyl === "boolean" ? data.coloredVinyl : DEFAULT_PREFS.coloredVinyl,
     };
   } catch {
     return DEFAULT_PREFS;

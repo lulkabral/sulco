@@ -19,8 +19,8 @@ export function drawTurntable(ctx: Ctx, d: RecapData, o: RecapOptions) {
   tiltedSleeve(ctx, d.covers[2] ?? null, -13, -50, -24, 2);
   tiltedSleeve(ctx, d.covers[1] ?? null, -6, -22, -10, 1);
 
-  // Vinil saindo pela direita.
-  vinyl(ctx, d.covers[0] ?? null, 700, SLEEVE_Y + SLEEVE / 2, 330, p.accent, p.room);
+  // Vinil saindo pela direita (preto clássico por padrão ou colorido contrastante quando escolhido).
+  vinyl(ctx, d.covers[0] ?? null, 700, SLEEVE_Y + SLEEVE / 2, 330, p.accent, p.room, o.vinylColor ?? null);
 
   // Capa da frente (álbum nº 1).
   ctx.save();
@@ -78,33 +78,65 @@ function tiltedSleeve(ctx: Ctx, img: HTMLImageElement | null, degrees: number, d
   ctx.restore();
 }
 
-/** Disco de vinil: sulcos, brilho, selo com a capa, anel no destaque e furo no meio. */
-function vinyl(ctx: Ctx, label: HTMLImageElement | null, cx: number, cy: number, r: number, accent: string, room: string) {
+/** Disco de vinil: preto clássico (padrão) ou edição colorida lisa com poucos sulcos sutis. */
+function vinyl(
+  ctx: Ctx,
+  label: HTMLImageElement | null,
+  cx: number,
+  cy: number,
+  r: number,
+  accent: string,
+  room: string,
+  vinylColor: string | null,
+) {
   ctx.save();
-  ctx.fillStyle = "#0B0A09";
+  ctx.fillStyle = vinylColor ?? "#0B0A09";
   ctx.beginPath();
   ctx.arc(cx, cy, r, 0, Math.PI * 2);
   ctx.fill();
-  // Borda clara bem sutil, para o disco não sumir no fundo escuro.
-  ctx.strokeStyle = "rgba(255,255,255,0.14)";
-  ctx.lineWidth = 3;
-  ctx.stroke();
 
-  // Sulcos: círculos bem finos e claros.
-  ctx.strokeStyle = "rgba(255,255,255,0.05)";
-  ctx.lineWidth = 1.5;
-  for (let rr = 140; rr < r - 8; rr += 7) {
-    ctx.beginPath();
-    ctx.arc(cx, cy, rr, 0, Math.PI * 2);
+  if (vinylColor) {
+    // Vinil colorido: acabamento liso com borda sutil e poucos sulcos delicados (como na referência).
+    ctx.strokeStyle = "rgba(0,0,0,0.22)";
+    ctx.lineWidth = 4;
     ctx.stroke();
-  }
-  // Brilho: dois arcos largos e translúcidos, um de cada lado.
-  ctx.strokeStyle = "rgba(255,255,255,0.07)";
-  ctx.lineWidth = 60;
-  for (const start of [-Math.PI * 0.35, Math.PI * 0.65]) {
-    ctx.beginPath();
-    ctx.arc(cx, cy, r * 0.7, start, start + Math.PI * 0.22);
+
+    ctx.strokeStyle = "rgba(0,0,0,0.08)";
+    ctx.lineWidth = 1.5;
+    for (const ratio of [0.52, 0.69, 0.85]) {
+      ctx.beginPath();
+      ctx.arc(cx, cy, r * ratio, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+
+    ctx.strokeStyle = "rgba(255,255,255,0.14)";
+    ctx.lineWidth = 48;
+    for (const start of [-Math.PI * 0.34, Math.PI * 0.66]) {
+      ctx.beginPath();
+      ctx.arc(cx, cy, r * 0.72, start, start + Math.PI * 0.2);
+      ctx.stroke();
+    }
+  } else {
+    // Vinil preto clássico (intacto): borda clara sutil, sulcos e brilho.
+    ctx.strokeStyle = "rgba(255,255,255,0.14)";
+    ctx.lineWidth = 3;
     ctx.stroke();
+
+    ctx.strokeStyle = "rgba(255,255,255,0.05)";
+    ctx.lineWidth = 1.5;
+    for (let rr = 140; rr < r - 8; rr += 7) {
+      ctx.beginPath();
+      ctx.arc(cx, cy, rr, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+
+    ctx.strokeStyle = "rgba(255,255,255,0.07)";
+    ctx.lineWidth = 60;
+    for (const start of [-Math.PI * 0.35, Math.PI * 0.65]) {
+      ctx.beginPath();
+      ctx.arc(cx, cy, r * 0.7, start, start + Math.PI * 0.22);
+      ctx.stroke();
+    }
   }
 
   // Selo com a capa.
@@ -115,14 +147,28 @@ function vinyl(ctx: Ctx, label: HTMLImageElement | null, cx: number, cy: number,
   ctx.clip();
   cover(ctx, label, cx - lr, cy - lr, lr * 2, lr * 2, 0, 0);
   ctx.restore();
-  ctx.strokeStyle = accent;
-  ctx.lineWidth = 6;
-  ctx.beginPath();
-  ctx.arc(cx, cy, lr + 3, 0, Math.PI * 2);
-  ctx.stroke();
-  ctx.fillStyle = room;
-  ctx.beginPath();
-  ctx.arc(cx, cy, 11, 0, Math.PI * 2);
-  ctx.fill();
+
+  if (vinylColor) {
+    // No disco colorido, o selo assenta limpo sem anel amarelo brigando com a cor do vinil.
+    ctx.strokeStyle = "rgba(0,0,0,0.2)";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(cx, cy, lr + 1, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.fillStyle = "#120F0D";
+    ctx.beginPath();
+    ctx.arc(cx, cy, 13, 0, Math.PI * 2);
+    ctx.fill();
+  } else {
+    ctx.strokeStyle = accent;
+    ctx.lineWidth = 6;
+    ctx.beginPath();
+    ctx.arc(cx, cy, lr + 3, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.fillStyle = room;
+    ctx.beginPath();
+    ctx.arc(cx, cy, 11, 0, Math.PI * 2);
+    ctx.fill();
+  }
   ctx.restore();
 }

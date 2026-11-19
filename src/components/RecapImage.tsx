@@ -24,6 +24,7 @@ import {
 } from "@/lib/recap/draw";
 import { COVER_PALETTE_ID, PALETTES, paletteById, type Palette } from "@/lib/recap/palettes";
 import { parsePrefs, readPrefsRaw, savePrefs, subscribePrefs, type RecapPrefs } from "@/lib/recap/prefs";
+import { pickVinylFinish, sampleCoverRgb } from "@/lib/vinyl-color";
 
 type Props = {
   username: string;
@@ -103,6 +104,15 @@ export function RecapImage(props: Props) {
 
   const palette =
     prefs.paletteId === COVER_PALETTE_ID ? (coverPalette ?? PALETTES[0]) : paletteById(prefs.paletteId);
+
+  // Cor contrastante do vinil colorido (só usada quando a pessoa liga a opção no formato Toca-discos).
+  const leadCover = covers[0] ?? null;
+  const leadSeed = `${albums[0]?.artist ?? ""}-${albums[0]?.name ?? ""}`;
+  const vinylColor = useMemo(() => {
+    if (!leadCover) return null;
+    const rgb = sampleCoverRgb(leadCover);
+    return rgb ? pickVinylFinish(rgb, leadSeed).base : null;
+  }, [leadCover, leadSeed]);
 
   // 1) Fonte: o único item que segura o 1º desenho (sem ela, o texto sairia na fonte reserva).
   useEffect(() => {
@@ -191,11 +201,18 @@ export function RecapImage(props: Props) {
         genres: genreNames,
         siteHost: window.location.host,
       },
-      { layout: prefs.layout, palette, showNumbers: prefs.showNumbers, font, lang },
+      {
+        layout: prefs.layout,
+        palette,
+        showNumbers: prefs.showNumbers,
+        vinylColor: prefs.coloredVinyl ? vinylColor : null,
+        font,
+        lang,
+      },
     );
     // A cópia "segurável" só serve no celular, e só com a imagem completa.
     if (complete) takeSnapshot(canvasRef.current);
-  }, [font, covers, genreNames, complete, prefs, palette, username, period, periodLabel, from, to, total, minutesValue, artists, tracks, albums, takeSnapshot, lang]);
+  }, [font, covers, genreNames, complete, prefs, palette, vinylColor, username, period, periodLabel, from, to, total, minutesValue, artists, tracks, albums, takeSnapshot, lang]);
 
   const coverAccent = coverPalette?.accent;
   const altText = t.recap.alt(username, periodLabel, t.recap.layouts[prefs.layout]);
@@ -317,23 +334,52 @@ export function RecapImage(props: Props) {
             </div>
           </fieldset>
 
-          <label className="flex cursor-pointer items-center justify-between gap-3 rounded-2xl border border-stage-line p-3.5 transition-colors duration-200 ease-smooth hover:border-stage-faint has-[:checked]:border-amber/60 has-[:checked]:bg-amber/10">
-            <span>
-              <span className="block text-sm font-bold text-stage-ink">{t.recap.showNumbers}</span>
-              <span className="block text-xs text-stage-soft">{t.recap.showNumbersHint}</span>
-            </span>
-            <input
-              type="checkbox"
-              role="switch"
-              checked={prefs.showNumbers}
-              onChange={(e) => choose({ showNumbers: e.target.checked })}
-              className="peer sr-only"
-            />
-            <span
-              aria-hidden
-              className="relative h-6 w-11 shrink-0 rounded-full bg-white/20 ring-1 ring-white/15 transition-colors duration-200 ease-smooth peer-checked:bg-amber peer-checked:ring-amber peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-amber after:absolute after:left-1 after:top-1 after:size-4 after:rounded-full after:bg-stage-ink after:transition-[transform,background-color] after:duration-200 after:ease-smooth peer-checked:after:translate-x-5 peer-checked:after:bg-amber-ink"
-            />
-          </label>
+          <div className="flex flex-col gap-2.5">
+            {prefs.layout === "toca-discos" && (
+              <label className="flex cursor-pointer items-center justify-between gap-3 rounded-2xl border border-stage-line p-3.5 transition-colors duration-200 ease-smooth hover:border-stage-faint has-[:checked]:border-amber/60 has-[:checked]:bg-amber/10">
+                <span>
+                  <span className="flex items-center gap-2 text-sm font-bold text-stage-ink">
+                    <span
+                      aria-hidden
+                      className="size-3 shrink-0 rounded-full ring-1 ring-white/25 transition-colors duration-300 ease-smooth"
+                      style={{ backgroundColor: prefs.coloredVinyl && vinylColor ? vinylColor : "var(--color-vinyl)" }}
+                    />
+                    {t.recap.coloredVinyl}
+                  </span>
+                  <span className="block text-xs text-stage-soft">{t.recap.coloredVinylHint}</span>
+                </span>
+                <input
+                  type="checkbox"
+                  role="switch"
+                  checked={prefs.coloredVinyl}
+                  onChange={(e) => choose({ coloredVinyl: e.target.checked })}
+                  className="peer sr-only"
+                />
+                <span
+                  aria-hidden
+                  className="relative h-6 w-11 shrink-0 rounded-full bg-white/20 ring-1 ring-white/15 transition-colors duration-200 ease-smooth peer-checked:bg-amber peer-checked:ring-amber peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-amber after:absolute after:left-1 after:top-1 after:size-4 after:rounded-full after:bg-stage-ink after:transition-[transform,background-color] after:duration-200 after:ease-smooth peer-checked:after:translate-x-5 peer-checked:after:bg-amber-ink"
+                />
+              </label>
+            )}
+
+            <label className="flex cursor-pointer items-center justify-between gap-3 rounded-2xl border border-stage-line p-3.5 transition-colors duration-200 ease-smooth hover:border-stage-faint has-[:checked]:border-amber/60 has-[:checked]:bg-amber/10">
+              <span>
+                <span className="block text-sm font-bold text-stage-ink">{t.recap.showNumbers}</span>
+                <span className="block text-xs text-stage-soft">{t.recap.showNumbersHint}</span>
+              </span>
+              <input
+                type="checkbox"
+                role="switch"
+                checked={prefs.showNumbers}
+                onChange={(e) => choose({ showNumbers: e.target.checked })}
+                className="peer sr-only"
+              />
+              <span
+                aria-hidden
+                className="relative h-6 w-11 shrink-0 rounded-full bg-white/20 ring-1 ring-white/15 transition-colors duration-200 ease-smooth peer-checked:bg-amber peer-checked:ring-amber peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-amber after:absolute after:left-1 after:top-1 after:size-4 after:rounded-full after:bg-stage-ink after:transition-[transform,background-color] after:duration-200 after:ease-smooth peer-checked:after:translate-x-5 peer-checked:after:bg-amber-ink"
+              />
+            </label>
+          </div>
 
           <ExportButtons
             canvasRef={canvasRef}

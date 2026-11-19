@@ -27,7 +27,7 @@ Os tokens viram classes do Tailwind (`bg-room`, `bg-card`, `bg-terra`, `bg-stage
 | `danger` | `#B8321C` | `#FF9B85` | erro do formulário |
 | `vinyl` / `vinyl-groove` | `#0B0A09` / `#1B1714` | `#0B0A09` / `#1B1714` | sulcos dos discos |
 
-**Imagens geradas no canvas (intocadas):** o recap (`src/lib/recap/*`), a grade (`src/lib/grid/*`) e a prévia do link (`src/app/og/*`) continuam usando `src/lib/theme.ts` e `src/lib/recap/palettes.ts`, sem alteração.
+**Imagens geradas no canvas:** o recap (`src/lib/recap/*`), a grade (`src/lib/grid/*`) e a prévia do link (`src/app/og/*`) continuam usando `src/lib/theme.ts` e `src/lib/recap/palettes.ts`. No formato **Toca-discos**, há a opção **Vinil colorido** (desligada por padrão, salva no `localStorage`): quando ligada, desenha um LP colorido liso com poucos sulcos sutis na cor que melhor contrasta com a capa nº 1; desligada, mantém o vinil preto clássico intacto.
 
 ### Destaque do palco no perfil (`AccentScope`)
 
@@ -51,8 +51,8 @@ Não usar serif nem letra manuscrita no site. Sem textura de grão: a página fi
 
 ## Estética "Loja de discos viva"
 
-- **Primeira dobra viva no celular:** título + campo em pílula arredondada + janela escura com leque de capas reais e disco de vinil girando aparecem logo na primeira tela.
-- **Blocos de cor e ritmo:** alternância entre papel/sala, faixa terracota com discos redondos clicáveis (que trocam o disco no topo e no palco), palco escuro dedicado para os pôsteres reais intactos e blocos arredondados (`rounded-[24px]` a `rounded-[28px]`).
+- **Primeira dobra viva no celular:** título + campo em pílula arredondada + janela escura com leque de capas quadradas (sem cantos arredondados, como capas reais de LP) e disco de vinil colorido liso girando (poucos sulcos sutis, cor contrastante calculada em `src/lib/vinyl-color.ts`) aparecem logo na primeira tela.
+- **Blocos de cor e ritmo:** alternância entre papel/sala, faixa terracota com discos de vinil coloridos clicáveis (selo central de 42%, cada disco em uma cor distinta que contrasta com a capa e sincronizada com o topo), palco escuro dedicado para os pôsteres reais (com opção de vinil colorido no formato Toca-discos) e blocos arredondados (`rounded-[24px]` a `rounded-[28px]`).
 - **Perfil coerente:** topo com faixa limpa de capas retas (sem fita crepe) e `VinylAvatar` girando, pílulas para `Recap | Grade` e período (com gaveta arredondada), troca rápida de usuário em gaveta no topo, palco escuro com switches unificados e listas em abas no celular (`2×2` largo no computador) com o cartão de gêneros em terracota.
 - **Proibido:** fita crepe em CSS, capas tortas decorativas na faixa, sombra deslocada de "adesivo", letra manuscrita, vidro fosco pesado, brilhos difusos de IA.
 

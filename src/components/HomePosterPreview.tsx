@@ -31,20 +31,23 @@ type Props = {
   covers: TrendingCover[];
   /** Quantas posições girar a ordem das capas (sincronizado com a faixa de discos). */
   offset: number;
+  /** Cor de vinil contrastante do disco ativo (sincronizada com o topo e a vitrine). */
+  vinylColor?: string | null;
   /** Avança para o próximo disco da vitrine. */
   onNext: () => void;
 };
 
 /**
  * Palco da página inicial: mostra os formatos reais que o sulco gera, desenhados pelo mesmo
- * código da imagem baixada (drawRecap/drawGrid — intactos), dentro de um cartão escuro dedicado
+ * código da imagem baixada (drawRecap/drawGrid), dentro de um cartão escuro dedicado
  * para as imagens saltarem tanto no modo claro quanto no modo escuro.
  */
-export function HomePosterPreview({ covers, offset, onNext }: Props) {
+export function HomePosterPreview({ covers, offset, vinylColor = null, onNext }: Props) {
   const { lang, t } = useI18n();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [tab, setTab] = useState<StageTab>("toca-discos");
   const [paletteId, setPaletteId] = useState<string>("ambar");
+  const [coloredVinyl, setColoredVinyl] = useState(true);
   const [font, setFont] = useState<string | null>(null);
   const [images, setImages] = useState<(HTMLImageElement | null)[]>(() => covers.map(() => null));
 
@@ -109,12 +112,13 @@ export function HomePosterPreview({ covers, offset, onNext }: Props) {
         genres: EXAMPLE_GENRES,
         siteHost: window.location.host,
       },
-      { layout: tab, palette, showNumbers: false, font, lang },
+      { layout: tab, palette, showNumbers: false, vinylColor: coloredVinyl ? vinylColor : null, font, lang },
     );
-  }, [font, images, order, covers, tab, palette, lang, t]);
+  }, [font, images, order, covers, tab, palette, coloredVinyl, vinylColor, lang, t]);
 
   const tabName = (id: StageTab) => (id === "grade" ? t.home.gridName : t.recap.layouts[id]);
   const isGrid = tab === "grade";
+  const isTurntable = tab === "toca-discos";
   const activePaletteLabel = isGrid
     ? t.home.gridClean
     : paletteId === COVER_PALETTE_ID
@@ -206,7 +210,29 @@ export function HomePosterPreview({ covers, offset, onNext }: Props) {
               </button>
             </div>
 
-            <p className="font-mono text-xs tracking-[0.08em] text-stage-faint">{t.home.stageNote}</p>
+            {isTurntable && (
+              <label className="flex cursor-pointer items-center justify-between gap-3 rounded-2xl border border-stage-line bg-stage-card px-4 py-3 transition-colors duration-200 ease-smooth hover:border-stage-faint has-[:checked]:border-amber/60 has-[:checked]:bg-amber/10">
+                <span className="flex items-center gap-2.5">
+                  <span
+                    aria-hidden
+                    className="size-3 shrink-0 rounded-full ring-1 ring-white/25 transition-colors duration-300 ease-smooth"
+                    style={{ backgroundColor: coloredVinyl && vinylColor ? vinylColor : "var(--color-vinyl)" }}
+                  />
+                  <span className="text-sm font-bold text-stage-ink">{t.recap.coloredVinyl}</span>
+                </span>
+                <input
+                  type="checkbox"
+                  role="switch"
+                  checked={coloredVinyl}
+                  onChange={(e) => setColoredVinyl(e.target.checked)}
+                  className="peer sr-only"
+                />
+                <span
+                  aria-hidden
+                  className="relative h-6 w-11 shrink-0 rounded-full bg-white/20 ring-1 ring-white/15 transition-colors duration-200 ease-smooth peer-checked:bg-amber peer-checked:ring-amber peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-amber after:absolute after:left-1 after:top-1 after:size-4 after:rounded-full after:bg-stage-ink after:transition-[transform,background-color] after:duration-200 after:ease-smooth peer-checked:after:translate-x-5 peer-checked:after:bg-amber-ink"
+                />
+              </label>
+            )}
           </div>
 
           {/* O pôster real (intacto!) */}

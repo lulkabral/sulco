@@ -3,6 +3,7 @@
 import { useI18n } from "@/i18n/client";
 import { thumbUrl } from "@/lib/grid/layout";
 import type { TrendingCover } from "@/lib/trending";
+import { VINYL_GROOVES, VINYL_SHEEN } from "@/lib/vinyl-color";
 import { Marquee } from "./Marquee";
 
 /** A faixa tem até 6 discos (como a vitrine em src/data/vitrine.json). */
@@ -14,16 +15,18 @@ type Props = {
   caption: string;
   /** Índice do disco atualmente em destaque no hero e no palco. */
   activeIndex: number;
+  /** Cor de vinil contrastante calculada para cada capa (mesma usada no topo). */
+  vinylColors: (string | null)[];
   /** Troca o disco em destaque ao tocar/clicar. */
   onSelect: (index: number) => void;
 };
 
 /**
- * Faixa terracota da página inicial com os discos da vitrine em formato redondo, clicáveis.
- * Tocar em um disco coloca o álbum como destaque no topo e no palco do pôster abaixo.
- * O disco ativo gira bem devagar; os demais retomam o giro suave ao passar o mouse sem dar tranco.
+ * Faixa terracota da página inicial com os discos coloridos da vitrine, clicáveis.
+ * Cada disco recebe uma cor de vinil contrastante à capa do álbum (igual à do topo).
+ * O disco ativo gira calmo; os demais retomam o giro suave ao passar o mouse sem dar tranco.
  */
-export function ShowcaseShelf({ covers, caption, activeIndex, onSelect }: Props) {
+export function ShowcaseShelf({ covers, caption, activeIndex, vinylColors, onSelect }: Props) {
   const { t } = useI18n();
   const items = covers.slice(0, SHELF_SIZE);
 
@@ -50,6 +53,7 @@ export function ShowcaseShelf({ covers, caption, activeIndex, onSelect }: Props)
           <div className="no-scrollbar -mx-2 flex gap-3.5 overflow-x-auto px-2 py-2 sm:mx-0 sm:grid sm:grid-cols-3 sm:gap-5 sm:overflow-visible sm:px-0 lg:grid-cols-6">
             {items.map((cover, i) => {
               const active = i === activeIndex % items.length;
+              const discColor = vinylColors[i] ?? null;
               return (
                 <button
                   key={cover.imageUrl}
@@ -64,28 +68,27 @@ export function ShowcaseShelf({ covers, caption, activeIndex, onSelect }: Props)
                       "relative block size-[82px] rounded-full p-[3px] transition-[transform,opacity,box-shadow] duration-300 ease-smooth sm:size-[96px] " +
                       (active
                         ? "scale-105 ring-2 ring-terra-ink ring-offset-2 ring-offset-terra group-hover:-translate-y-0.5"
-                        : "opacity-90 group-hover:-translate-y-1 group-hover:scale-[1.04] group-hover:opacity-100")
+                        : "opacity-95 group-hover:-translate-y-1 group-hover:scale-[1.04] group-hover:opacity-100")
                     }
                   >
                     <span
                       aria-hidden
                       className={
-                        "relative block size-full overflow-hidden rounded-full shadow-lg shadow-black/45 ring-1 ring-white/10 motion-safe:animate-spin-slow " +
+                        "relative block size-full overflow-hidden rounded-full shadow-lg shadow-black/40 transition-[background-color] duration-300 ease-smooth motion-safe:animate-spin-slow " +
                         (active
                           ? "[animation-play-state:running]"
                           : "[animation-play-state:paused] group-hover:[animation-play-state:running]")
                       }
                       style={{
-                        background:
-                          "repeating-radial-gradient(circle, var(--color-vinyl) 0 2px, var(--color-vinyl-groove) 2px 4px)",
+                        backgroundColor: discColor ?? "var(--color-vinyl)",
+                        backgroundImage: VINYL_GROOVES,
+                        boxShadow:
+                          "inset 0 0 0 1px rgba(255, 255, 255, 0.24), inset 0 0 10px rgba(0, 0, 0, 0.16), 0 8px 18px rgba(0, 0, 0, 0.35)",
                       }}
                     >
                       <span
                         className="absolute inset-0 rounded-full"
-                        style={{
-                          background:
-                            "conic-gradient(from 24deg, transparent 0 8%, rgba(255,243,214,0.22) 13%, transparent 19%, transparent 58%, rgba(255,243,214,0.14) 63%, transparent 69%)",
-                        }}
+                        style={{ background: VINYL_SHEEN }}
                       />
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
@@ -94,8 +97,9 @@ export function ShowcaseShelf({ covers, caption, activeIndex, onSelect }: Props)
                         width={174}
                         height={174}
                         loading="eager"
+                        crossOrigin="anonymous"
                         decoding="async"
-                        className="absolute inset-[29%] size-[42%] rounded-full object-cover ring-1 ring-black/60"
+                        className="absolute inset-[29%] size-[42%] rounded-full object-cover ring-1 ring-black/35"
                       />
                       <span className="absolute inset-[46%] rounded-full bg-vinyl ring-1 ring-white/20" />
                     </span>

@@ -1,9 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useI18n } from "@/i18n/client";
+import { loadImage } from "@/lib/canvas/image";
 import { thumbUrl } from "@/lib/grid/layout";
+import type { Rgb } from "@/lib/recap/palettes";
 import type { TrendingCover } from "@/lib/trending";
+import { assignVinylFinishes, sampleCoverRgb, VINYL_GROOVES, VINYL_SHEEN } from "@/lib/vinyl-color";
 import { HomePosterPreview } from "./HomePosterPreview";
 import { Marquee } from "./Marquee";
 import { NoLastfmGuide } from "./NoLastfmGuide";
@@ -15,21 +18,56 @@ type Props = {
   caption: string;
 };
 
+/** Quantas capas da vitrine amostram cor para o vinil colorido (cobre os 6 discos + eventual reserva). */
+const VINYL_SAMPLE_LIMIT = 9;
+
 /**
  * Experiência completa da página inicial ("Loja de discos viva", docs/MARCA.md):
- * 1. Primeira dobra mobile-first: título + campo de username + janela viva de discos girando;
- * 2. Faixa terracota com os discos redondos clicáveis da vitrine;
+ * 1. Primeira dobra mobile-first: título + campo de username + janela viva de discos coloridos girando;
+ * 2. Faixa terracota com os discos redondos clicáveis da vitrine (cada um contrastando com sua capa);
  * 3. Palco escuro com os formatos reais desenhados pelo mesmo código do canvas;
  * 4. Três cartões quentes resumindo como o site funciona.
  */
 export function HomeHero({ covers, caption }: Props) {
   const { t } = useI18n();
   const [activeIndex, setActiveIndex] = useState(0);
+  const [coverRgbs, setCoverRgbs] = useState<(Rgb | null)[]>(() =>
+    covers.slice(0, VINYL_SAMPLE_LIMIT).map(() => null),
+  );
   const count = covers.length;
   const hasCovers = count > 0;
   const lead = hasCovers ? covers[activeIndex % count] : null;
   const second = count > 1 ? covers[(activeIndex + 1) % count] : lead;
   const third = count > 2 ? covers[(activeIndex + 2) % count] : second;
+
+  // Lê a cor dominante das miniaturas 174s (já carregadas com CORS na tela) para gerar o
+  // vinil colorido contrastante de cada capa — sem pedidos extras à API.
+  useEffect(() => {
+    let cancelled = false;
+    covers.slice(0, VINYL_SAMPLE_LIMIT).forEach((cover, i) => {
+      loadImage(thumbUrl(cover.imageUrl), 8_000).then((img) => {
+        if (cancelled || !img) return;
+        const rgb = sampleCoverRgb(img);
+        if (!rgb) return;
+        setCoverRgbs((prev) => prev.map((c, j) => (j === i ? rgb : c)));
+      });
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [covers]);
+
+  const vinylColors = useMemo(
+    () =>
+      assignVinylFinishes(
+        covers
+          .slice(0, VINYL_SAMPLE_LIMIT)
+          .map((c, i) => ({ color: coverRgbs[i] ?? null, seed: `${c.artist}-${c.name}` })),
+      ).map((finish) => finish?.base ?? null),
+    [covers, coverRgbs],
+  );
+  const activeVinylColor =
+    hasCovers && vinylColors.length > 0 ? (vinylColors[activeIndex % vinylColors.length] ?? null) : null;
 
   function nextDisc() {
     if (count > 0) setActiveIndex((i) => (i + 1) % count);
@@ -53,57 +91,56 @@ export function HomeHero({ covers, caption }: Props) {
 
             <div className="mt-0.5 flex max-w-md flex-col gap-2.5">
               <UsernameForm />
-              <div className="flex flex-wrap items-center justify-between gap-2 px-1">
+              <div className="px-1">
                 <NoLastfmGuide />
-                <span className="font-mono text-xs text-ink-faint">{t.home.freeNoLogin}</span>
               </div>
             </div>
           </div>
 
-          {/* Janela viva com capas em leque + disco girando logo na primeira dobra */}
+          {/* Janela viva com capas em leque + disco colorido girando logo na primeira dobra */}
           <div className="relative overflow-hidden rounded-[26px] border border-stage-line bg-stage p-5 text-stage-ink shadow-xl">
             {lead ? (
               <>
-                <div className="mb-4 flex items-center justify-between gap-3 text-xs">
+                <div className="mb-4 flex items-center gap-3 text-xs">
                   <p className="flex min-w-0 items-center gap-2 font-semibold">
-                    <span aria-hidden className="size-2 shrink-0 rounded-full bg-amber" />
+                    <span
+                      aria-hidden
+                      className="size-2 shrink-0 rounded-full transition-colors duration-300 ease-smooth"
+                      style={{ backgroundColor: activeVinylColor ?? "var(--color-amber)" }}
+                    />
                     <span key={lead.imageUrl} className="truncate motion-safe:animate-disc-in">
                       {lead.name} · {lead.artist}
                     </span>
                   </p>
-                  <span className="shrink-0 rounded-full bg-white/10 px-2.5 py-0.5 font-mono text-xs text-stage-soft">
-                    33⅓ RPM
-                  </span>
                 </div>
 
                 <div aria-hidden className="relative mx-auto h-44 w-[264px] sm:h-52 sm:w-[324px]">
                   {third && (
-                    <div className="absolute left-0 top-5 size-28 -rotate-12 overflow-hidden rounded-xl border border-white/15 opacity-75 shadow-xl transition-all duration-300 ease-smooth sm:top-6 sm:size-32">
+                    <div className="absolute left-0 top-5 size-28 -rotate-12 overflow-hidden opacity-75 shadow-xl shadow-black/50 transition-all duration-300 ease-smooth sm:top-6 sm:size-32">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={thumbUrl(third.imageUrl)} alt="" width={174} height={174} decoding="async" className="size-full object-cover" />
+                      <img src={thumbUrl(third.imageUrl)} alt="" width={174} height={174} crossOrigin="anonymous" decoding="async" className="size-full object-cover" />
                     </div>
                   )}
                   {second && (
-                    <div className="absolute left-4 top-3 size-32 -rotate-6 overflow-hidden rounded-xl border border-white/20 opacity-90 shadow-xl transition-all duration-300 ease-smooth sm:left-6 sm:top-3.5 sm:size-36">
+                    <div className="absolute left-4 top-3 size-32 -rotate-6 overflow-hidden opacity-90 shadow-xl shadow-black/60 transition-all duration-300 ease-smooth sm:left-6 sm:top-3.5 sm:size-36">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={thumbUrl(second.imageUrl)} alt="" width={174} height={174} decoding="async" className="size-full object-cover" />
+                      <img src={thumbUrl(second.imageUrl)} alt="" width={174} height={174} crossOrigin="anonymous" decoding="async" className="size-full object-cover" />
                     </div>
                   )}
 
-                  {/* Disco de vinil saindo pela direita com a capa principal como selo */}
+                  {/* Disco de vinil colorido saindo pela direita com a capa principal como selo */}
                   <div
-                    className="absolute right-0 top-2 size-36 rounded-full border border-white/20 shadow-2xl motion-safe:animate-spin-slow sm:size-44"
+                    className="absolute right-0 top-2 size-36 rounded-full shadow-2xl transition-[background-color] duration-300 ease-smooth motion-safe:animate-spin-slow sm:size-44"
                     style={{
-                      background:
-                        "repeating-radial-gradient(circle, var(--color-vinyl) 0 2px, var(--color-vinyl-groove) 2px 4px)",
+                      backgroundColor: activeVinylColor ?? "var(--color-vinyl)",
+                      backgroundImage: VINYL_GROOVES,
+                      boxShadow:
+                        "inset 0 0 0 1px rgba(255, 255, 255, 0.2), inset 0 0 14px rgba(0, 0, 0, 0.14), 0 18px 36px rgba(0, 0, 0, 0.55)",
                     }}
                   >
                     <span
                       className="absolute inset-0 rounded-full"
-                      style={{
-                        background:
-                          "conic-gradient(from 24deg, transparent 0 8%, rgba(255,243,214,0.2) 13%, transparent 19%, transparent 58%, rgba(255,243,214,0.12) 63%, transparent 69%)",
-                      }}
+                      style={{ background: VINYL_SHEEN }}
                     />
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
@@ -111,14 +148,15 @@ export function HomeHero({ covers, caption }: Props) {
                       alt=""
                       width={120}
                       height={120}
+                      crossOrigin="anonymous"
                       decoding="async"
-                      className="absolute inset-[30%] size-[40%] rounded-full object-cover ring-2 ring-amber"
+                      className="absolute inset-[30%] size-[40%] rounded-full object-cover ring-1 ring-black/20"
                     />
                     <span className="absolute inset-[46%] rounded-full bg-stage" />
                   </div>
 
-                  {/* Capa principal na frente */}
-                  <div className="absolute left-9 top-2 z-10 size-36 overflow-hidden rounded-xl border border-white/20 bg-stage-card shadow-2xl shadow-black/60 transition-all duration-300 ease-smooth sm:left-11 sm:size-44">
+                  {/* Capa principal quadrada na frente (sem cantos arredondados, como capa de LP) */}
+                  <div className="absolute left-9 top-2 z-10 size-36 overflow-hidden bg-stage-card shadow-2xl shadow-black/70 ring-1 ring-white/10 transition-all duration-300 ease-smooth sm:left-11 sm:size-44">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={thumbUrl(lead.imageUrl)}
@@ -126,6 +164,7 @@ export function HomeHero({ covers, caption }: Props) {
                       width={174}
                       height={174}
                       loading="eager"
+                      crossOrigin="anonymous"
                       decoding="async"
                       fetchPriority="high"
                       className="size-full object-cover"
@@ -153,11 +192,24 @@ export function HomeHero({ covers, caption }: Props) {
         </div>
       </section>
 
-      {/* FAIXA TERRACOTA DE DISCOS REDONDOS CLICÁVEIS */}
-      <ShowcaseShelf covers={covers} caption={caption} activeIndex={activeIndex} onSelect={setActiveIndex} />
+      {/* FAIXA TERRACOTA DE DISCOS COLORIDOS CLICÁVEIS */}
+      <ShowcaseShelf
+        covers={covers}
+        caption={caption}
+        activeIndex={activeIndex}
+        vinylColors={vinylColors}
+        onSelect={setActiveIndex}
+      />
 
-      {/* PALCO ESCURO COM OS PÔSTERES REAIS INTACTOS */}
-      {hasCovers && <HomePosterPreview covers={covers} offset={activeIndex} onNext={nextDisc} />}
+      {/* PALCO ESCURO COM OS PÔSTERES REAIS */}
+      {hasCovers && (
+        <HomePosterPreview
+          covers={covers}
+          offset={activeIndex}
+          vinylColor={activeVinylColor}
+          onNext={nextDisc}
+        />
+      )}
 
       {/* 3 BLOCOS ARREDONDADOS QUENTES */}
       <section className="mx-auto w-full max-w-6xl px-4 pb-10 sm:px-6">
