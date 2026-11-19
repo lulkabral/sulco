@@ -1,6 +1,7 @@
 import { HomeHero } from "@/components/HomeHero";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { LogoLink } from "@/components/Logo";
+import { ShowcaseShelf } from "@/components/ShowcaseShelf";
 import { getI18n } from "@/i18n/server";
 import { getShowcaseCovers } from "@/lib/lastfm/client";
 
@@ -11,8 +12,10 @@ import { getShowcaseCovers } from "@/lib/lastfm/client";
 export default async function Home() {
   // Vitrine escolhida em src/data/vitrine.json (ou, se faltar capa, os em alta no mundo).
   // As mesmas capas alimentam o palco do hero: o navegador não chama a API do Last.fm.
-  const { covers } = await getShowcaseCovers();
-  const { t } = await getI18n();
+  const { covers, source, captions } = await getShowcaseCovers();
+  const { lang, t } = await getI18n();
+  // Legenda escrita em vitrine.json na língua da página; sem ela, a padrão.
+  const caption = source === "trending" ? t.home.trendingCaption : captions[lang] || t.home.showcaseCaption;
 
   return (
     <main id="conteudo" className="flex w-full flex-1 flex-col">
@@ -29,6 +32,7 @@ export default async function Home() {
 
       <div className="mx-auto w-full max-w-6xl md:border-x md:border-rule">
         <HomeHero covers={covers} />
+        <ShowcaseShelf covers={covers} caption={caption} />
       </div>
     </main>
   );

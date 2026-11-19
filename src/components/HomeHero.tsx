@@ -31,7 +31,7 @@ export function HomeHero({ covers }: { covers: TrendingCover[] }) {
             <span className="block text-ink">{t.home.titleLine1}</span>
             <span className="block text-soft">
               {t.home.titleLine2}
-              <span className="text-amber">{t.home.titleEnd}</span>
+              <span className="-ml-[0.06em] text-amber">{t.home.titleEnd}</span>
             </span>
           </h1>
 

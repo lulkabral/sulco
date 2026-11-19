@@ -23,16 +23,10 @@ function dictFor(lang: string) {
   return DICTS[isLocale(lang) ? lang : DEFAULT_LOCALE];
 }
 
-/** Mesma colagem da página inicial (CoverCollage): [esquerda, topo, largura, giro, fita?] em %. */
-const SLOTS: [number, number, number, number, boolean][] = [
-  [1, 7, 34, -8, false],
-  [29, 0, 38, 5, true],
-  [65, 9, 32, -4, false],
-  [6, 47, 33, 4, true],
-  [37, 43, 36, -6, false],
-  [70, 50, 28, 7, true],
-];
-const BOX = { left: 618, top: 96, width: 556, height: 417 }; // 4:3, como na página
+/** Prateleira da vitrine, como na página inicial: 3 colunas x 2 linhas de capas retas. */
+const SHELF = { left: 618, top: 106, side: 176, gap: 14, columns: 3 };
+/** Lugares da prateleira (os mesmos 6 da vitrine). */
+const SLOTS = 6;
 const IMAGE_HOSTS = /^https:\/\/lastfm(?:-img)?\.freetls\.fastly\.net\//;
 
 /**
@@ -43,7 +37,7 @@ async function showcaseImages(): Promise<string[]> {
   "use cache";
   const { covers } = await getShowcaseCovers();
   const images = await Promise.all(
-    covers.slice(0, SLOTS.length).map(async (c) => {
+    covers.slice(0, SLOTS).map(async (c) => {
       const url = coverUrl(c.imageUrl, 300);
       if (!IMAGE_HOSTS.test(url)) return null;
       try {
@@ -124,7 +118,7 @@ export async function GET(_request: Request, { params }: RouteContext<"/og/[lang
             {/* Segunda linha no tom de apoio, fechada com o ponto âmbar (como na página). */}
             <div style={{ display: "flex", color: THEME.inkSoft }}>
               <span>{t.home.titleLine2}</span>
-              <span style={{ color: THEME.amber }}>{t.home.titleEnd}</span>
+              <span style={{ color: THEME.amber, marginLeft: -5 }}>{t.home.titleEnd}</span>
             </div>
           </div>
 
@@ -133,45 +127,24 @@ export async function GET(_request: Request, { params }: RouteContext<"/og/[lang
           </div>
         </div>
 
-        {/* Colagem: capas "impressas" com borda, coladas tortas com fita. */}
+        {/* Prateleira: capas retas com borda fina e número de catálogo. */}
         {pieces.map((piece, i) => {
-          const [left, top, width, rotate, tape] = SLOTS[i];
-          const side = Math.round((BOX.width * width) / 100);
+          const col = i % SHELF.columns;
+          const row = Math.floor(i / SHELF.columns);
+          const left = SHELF.left + col * (SHELF.side + SHELF.gap);
+          const top = SHELF.top + row * (SHELF.side + SHELF.gap + 34);
           return (
-            <div
-              key={i}
-              style={{
-                position: "absolute",
-                left: BOX.left + (BOX.width * left) / 100,
-                top: BOX.top + (BOX.height * top) / 100,
-                width: side,
-                height: side,
-                display: "flex",
-                transform: `rotate(${rotate}deg)`,
-                border: `5px solid ${THEME.ink}`,
-                background: THEME.card,
-                boxShadow: "0 18px 40px rgba(0,0,0,0.55)",
-              }}
-            >
-              {typeof piece === "string" ? (
-                <img src={piece} width={side - 10} height={side - 10} alt="" style={{ objectFit: "cover" }} />
-              ) : (
-                <Tile index={piece} side={side - 10} />
-              )}
-              {tape && (
-                <div
-                  style={{
-                    position: "absolute",
-                    top: -14,
-                    left: side / 2 - 44,
-                    width: 88,
-                    height: 26,
-                    background: "rgba(244,238,230,0.78)",
-                    transform: "rotate(-12deg)",
-                    display: "flex",
-                  }}
-                />
-              )}
+            <div key={i} style={{ position: "absolute", left, top, display: "flex", flexDirection: "column" }}>
+              <div style={{ display: "flex", width: SHELF.side, height: SHELF.side, border: `1px solid ${THEME.line}`, background: THEME.card }}>
+                {typeof piece === "string" ? (
+                  <img src={piece} width={SHELF.side - 2} height={SHELF.side - 2} alt="" style={{ objectFit: "cover" }} />
+                ) : (
+                  <Tile index={piece} side={SHELF.side - 2} />
+                )}
+              </div>
+              <div style={{ display: "flex", marginTop: 8, fontSize: 16, fontWeight: 500, color: THEME.inkFaint, letterSpacing: 1 }}>
+                {String(i + 1).padStart(2, "0")}
+              </div>
             </div>
           );
         })}
