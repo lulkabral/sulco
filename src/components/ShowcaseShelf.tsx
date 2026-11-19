@@ -1,7 +1,7 @@
 "use client";
 
 import { useI18n } from "@/i18n/client";
-import { thumbUrl } from "@/lib/grid/layout";
+import { coverUrl } from "@/lib/grid/layout";
 import type { TrendingCover } from "@/lib/trending";
 import { VINYL_GROOVES, VINYL_SHEEN } from "@/lib/vinyl-color";
 import { Marquee } from "./Marquee";
@@ -92,10 +92,10 @@ export function ShowcaseShelf({ covers, caption, activeIndex, vinylColors, onSel
                       />
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
-                        src={thumbUrl(cover.imageUrl)}
+                        src={coverUrl(cover.imageUrl, 300)}
                         alt=""
-                        width={174}
-                        height={174}
+                        width={300}
+                        height={300}
                         loading="eager"
                         crossOrigin="anonymous"
                         decoding="async"

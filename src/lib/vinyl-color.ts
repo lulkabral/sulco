@@ -27,7 +27,7 @@ export const VINYL_FINISHES: readonly VinylFinish[] = [
 
 /** Superfície lisa com poucos sulcos bem sutis e borda suave (como um LP colorido liso). */
 export const VINYL_GROOVES =
-  "radial-gradient(circle, transparent 0 46%, rgba(0, 0, 0, 0.08) 46.5%, transparent 47.5%, transparent 64%, rgba(0, 0, 0, 0.06) 64.5%, transparent 65.5%, transparent 80%, rgba(0, 0, 0, 0.07) 80.5%, transparent 81.5%, transparent 94%, rgba(0, 0, 0, 0.12) 98%, rgba(0, 0, 0, 0.22) 100%)";
+  "radial-gradient(circle, transparent 0 45.5%, rgba(0, 0, 0, 0.08) 47%, transparent 48.5%, transparent 63%, rgba(0, 0, 0, 0.06) 64.5%, transparent 66%, transparent 79.5%, rgba(0, 0, 0, 0.07) 81%, transparent 82.5%, transparent 94%, rgba(0, 0, 0, 0.12) 98%, rgba(0, 0, 0, 0.22) 100%)";
 export const VINYL_SHEEN =
   "conic-gradient(from 28deg, transparent 0 10%, rgba(255, 255, 255, 0.16) 15%, transparent 22%, transparent 60%, rgba(255, 255, 255, 0.1) 65%, transparent 72%)";
 

@@ -65,7 +65,7 @@ export function Marquee({ covers, size, seconds, reverse = false, offset = 0, co
             loading="eager"
             decoding="async"
             fetchPriority="low"
-            className="shrink-0 rounded-lg object-cover"
+            className="shrink-0 object-cover"
             style={{ width: size, height: size }}
           />
           ),

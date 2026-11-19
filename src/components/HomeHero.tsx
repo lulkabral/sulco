@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useI18n } from "@/i18n/client";
 import { loadImage } from "@/lib/canvas/image";
-import { thumbUrl } from "@/lib/grid/layout";
+import { coverUrl } from "@/lib/grid/layout";
 import type { Rgb } from "@/lib/recap/palettes";
 import type { TrendingCover } from "@/lib/trending";
 import { assignVinylFinishes, sampleCoverRgb, VINYL_GROOVES, VINYL_SHEEN } from "@/lib/vinyl-color";
@@ -40,12 +40,12 @@ export function HomeHero({ covers, caption }: Props) {
   const second = count > 1 ? covers[(activeIndex + 1) % count] : lead;
   const third = count > 2 ? covers[(activeIndex + 2) % count] : second;
 
-  // Lê a cor dominante das miniaturas 174s (já carregadas com CORS na tela) para gerar o
-  // vinil colorido contrastante de cada capa — sem pedidos extras à API.
+  // Lê o tom predominante das capas 300x300 (mesmo endereço já usado no topo, na vitrine e
+  // no palco com CORS: baixa uma vez só e fica nítido em telas Retina).
   useEffect(() => {
     let cancelled = false;
     covers.slice(0, VINYL_SAMPLE_LIMIT).forEach((cover, i) => {
-      loadImage(thumbUrl(cover.imageUrl), 8_000).then((img) => {
+      loadImage(coverUrl(cover.imageUrl, 300), 8_000).then((img) => {
         if (cancelled || !img) return;
         const rgb = sampleCoverRgb(img);
         if (!rgb) return;
@@ -118,19 +118,19 @@ export function HomeHero({ covers, caption }: Props) {
                   {third && (
                     <div className="absolute left-0 top-5 size-28 -rotate-12 overflow-hidden opacity-75 shadow-xl shadow-black/50 transition-all duration-300 ease-smooth sm:top-6 sm:size-32">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={thumbUrl(third.imageUrl)} alt="" width={174} height={174} crossOrigin="anonymous" decoding="async" className="size-full object-cover" />
+                      <img src={coverUrl(third.imageUrl, 300)} alt="" width={300} height={300} crossOrigin="anonymous" decoding="async" className="size-full object-cover" />
                     </div>
                   )}
                   {second && (
                     <div className="absolute left-4 top-3 size-32 -rotate-6 overflow-hidden opacity-90 shadow-xl shadow-black/60 transition-all duration-300 ease-smooth sm:left-6 sm:top-3.5 sm:size-36">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={thumbUrl(second.imageUrl)} alt="" width={174} height={174} crossOrigin="anonymous" decoding="async" className="size-full object-cover" />
+                      <img src={coverUrl(second.imageUrl, 300)} alt="" width={300} height={300} crossOrigin="anonymous" decoding="async" className="size-full object-cover" />
                     </div>
                   )}
 
                   {/* Disco de vinil colorido saindo pela direita com a capa principal como selo */}
                   <div
-                    className="absolute right-0 top-2 size-36 rounded-full shadow-2xl transition-[background-color] duration-300 ease-smooth motion-safe:animate-spin-slow sm:size-44"
+                    className="absolute right-0 top-2 size-36 overflow-hidden rounded-full shadow-2xl transition-[background-color] duration-300 ease-smooth motion-safe:animate-spin-slow sm:size-44"
                     style={{
                       backgroundColor: activeVinylColor ?? "var(--color-vinyl)",
                       backgroundImage: VINYL_GROOVES,
@@ -144,10 +144,10 @@ export function HomeHero({ covers, caption }: Props) {
                     />
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
-                      src={thumbUrl(lead.imageUrl)}
+                      src={coverUrl(lead.imageUrl, 300)}
                       alt=""
-                      width={120}
-                      height={120}
+                      width={300}
+                      height={300}
                       crossOrigin="anonymous"
                       decoding="async"
                       className="absolute inset-[30%] size-[40%] rounded-full object-cover ring-1 ring-black/20"
@@ -159,10 +159,10 @@ export function HomeHero({ covers, caption }: Props) {
                   <div className="absolute left-9 top-2 z-10 size-36 overflow-hidden bg-stage-card shadow-2xl shadow-black/70 ring-1 ring-white/10 transition-all duration-300 ease-smooth sm:left-11 sm:size-44">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
-                      src={thumbUrl(lead.imageUrl)}
+                      src={coverUrl(lead.imageUrl, 300)}
                       alt=""
-                      width={174}
-                      height={174}
+                      width={300}
+                      height={300}
                       loading="eager"
                       crossOrigin="anonymous"
                       decoding="async"
