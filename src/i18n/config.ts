@@ -1,4 +1,4 @@
-// Línguas do site. Português fica sem prefixo no endereço (sulcofm.vercel.app/...);
+// Línguas do site. Português fica sem prefixo no endereço (www.sulcofm.com.br/...);
 // inglês e espanhol ganham /en e /es. Funções puras, com teste em config.test.ts.
 
 export const LOCALES = ["pt", "en", "es"] as const;

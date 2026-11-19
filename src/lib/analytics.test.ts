@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { optedOut, sanitizeUrl } from "./analytics";
 
-const site = "https://sulcofm.vercel.app";
+const site = "https://www.sulcofm.com.br";
 
 describe("sanitizeUrl", () => {
   it("troca o username por [perfil]", () => {
@@ -10,9 +10,9 @@ describe("sanitizeUrl", () => {
   });
 
   it("troca o username também com língua no endereço", () => {
-    expect(sanitizeUrl("https://sulcofm.vercel.app/en/u/ana")).toBe("https://sulcofm.vercel.app/en/u/[perfil]");
-    expect(sanitizeUrl("https://sulcofm.vercel.app/es/u/ana?period=2026")).toBe("https://sulcofm.vercel.app/es/u/[perfil]");
-    expect(sanitizeUrl("https://sulcofm.vercel.app/en")).toBe("https://sulcofm.vercel.app/en");
+    expect(sanitizeUrl("https://www.sulcofm.com.br/en/u/ana")).toBe("https://www.sulcofm.com.br/en/u/[perfil]");
+    expect(sanitizeUrl("https://www.sulcofm.com.br/es/u/ana?period=2026")).toBe("https://www.sulcofm.com.br/es/u/[perfil]");
+    expect(sanitizeUrl("https://www.sulcofm.com.br/en")).toBe("https://www.sulcofm.com.br/en");
   });
 
   it("descarta parâmetros e âncora", () => {

@@ -22,7 +22,7 @@ const geistMono = Geist_Mono({
 // Endereço oficial do site: completa os endereços absolutos (ex.: da imagem de
 // compartilhamento). Sem isso, o Next usava um domínio interno da Vercel que dava 404.
 // Se o domínio mudar, troque aqui.
-const SITE_URL = "https://sulcofm.vercel.app";
+const SITE_URL = "https://www.sulcofm.com.br";
 
 // Nome da marca: sempre em minúsculas (brand/GUIA.md).
 const NAME = "sulco";

@@ -144,7 +144,7 @@ Descartar antes de escolher as 5 mais fortes evita que lixo forte ("the voice": 
 
 O site existe em português, inglês e espanhol.
 
-- Português fica sem prefixo (`sulcofm.vercel.app/u/nome`); inglês e espanhol ganham `/en` e `/es` (`/en/u/nome`). Por baixo, o português é servido de `/pt/...` (`src/proxy.ts` reescreve o endereço sem mudar a barra).
+- Português fica sem prefixo (`www.sulcofm.com.br/u/nome`); inglês e espanhol ganham `/en` e `/es` (`/en/u/nome`). Por baixo, o português é servido de `/pt/...` (`src/proxy.ts` reescreve o endereço sem mudar a barra).
 - Primeira visita num endereço sem prefixo: se o navegador estiver em inglês ou espanhol (`Accept-Language`), vai para `/en` ou `/es`. Robôs (prévia do link no X, WhatsApp, buscadores) nunca são redirecionados, para a prévia de um link em português não sair em outra língua.
 - Seletor "PT · EN · ES" no rodapé: abre a mesma página na outra língua e guarda a escolha no cookie `lang` (só "pt", "en" ou "es", 1 ano). A escolha vence a língua do navegador.
 - Textos em `src/i18n/` (`pt.ts` é a origem; `en.ts` e `es.ts` têm as mesmas chaves, conferidas pelo TypeScript e por teste). Servidor: `getI18n()`; navegador: `useI18n()`.

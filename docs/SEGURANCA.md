@@ -24,7 +24,7 @@ A única variável de ambiente lida pelo código é `LASTFM_API_KEY`, no servido
 
 ## Publicação (fase 8, 16/11/2026)
 
-- Site em https://sulcofm.vercel.app; repositório público em https://github.com/lulkabral/sulco.
+- Site em https://www.sulcofm.com.br (o endereço antigo, https://sulcofm.vercel.app, redireciona para ele); repositório público em https://github.com/lulkabral/sulco.
 - Antes de publicar: `.env.local` nunca foi commitado; o valor da chave não aparece no histórico do git nem nos arquivos do repositório.
 - Depois de publicar: busca da chave nas páginas e nos 10 arquivos JavaScript servidos ao navegador: 0 ocorrências. POST nas rotas: 405.
 - Corrigido na publicação: a imagem de compartilhamento apontava para um domínio interno da Vercel (404). Agora `metadataBase` fixa o endereço oficial em `src/app/layout.tsx`.
