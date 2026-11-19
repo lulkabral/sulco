@@ -24,7 +24,7 @@ export function loadImage(url: string, timeoutMs = 15_000): Promise<HTMLImageEle
   });
 }
 
-/** Família de fonte do corpo da página (a Plus Jakarta Sans, carregada pelo next/font). */
+/** Família de fonte do corpo da página (a DM Sans, carregada pelo next/font). */
 export function pageFontFamily(): string {
   return getComputedStyle(document.body).fontFamily || "sans-serif";
 }

@@ -35,7 +35,7 @@ Direção "Hi-Fi / catálogo de vinil" desde 18/11/2026 (regras em `docs/MARCA.m
 Escolhida no redesign entre as fases 7 e 8, no lugar da direção "Encarte" da fase 4.
 
 - **Tema escuro sempre.** Fundo preto quente (`#110F0D` desde 18/11/2026), superfícies `#181512`, texto `#F4EEE6`, destaque âmbar (`#E8A13A`). Nada de verde nem de degradês coloridos (não lembrar o Spotify).
-- **Tipografia (desde 18/11/2026):** Plus Jakarta Sans, com títulos bem pesados (800), e IBM Plex Mono para números, datas e rótulos técnicos. O canvas usa a mesma fonte. Tokens, fontes e regras em `docs/MARCA.md`.
+- **Tipografia (desde 18/11/2026):** DM Sans (texto em 500, títulos em 800) e DM Mono para números, datas e rótulos técnicos. O canvas usa a mesma fonte. Tokens, fontes e regras em `docs/MARCA.md`.
 - **Hi-Fi / catálogo (desde 18/11/2026, no lugar da colagem de zine de 17/11):** grid de linhas de 1px, rótulos em mono e o produto real como protagonista. Não usar verde neon (lembra o Spotify).
 - **Movimento:**
   - na página inicial, cada capa da prateleira tem um disco girando atrás (com a capa como selo), que sai dela com o mouse em cima (as peças abstratas vivas só aparecem se a vitrine não carregar);

@@ -7,7 +7,7 @@ As cores batem com `src/app/globals.css` e `src/lib/theme.ts`.
 
 O "S" da palavra é um disco de vinil âmbar: sulcos finos, dois feixes de brilho, furo central com pino e um sulco em S cortando o disco.
 Disco + "ulco" formam o nome: a marca é a própria palavra. O disco sozinho (`simbolo.svg`) é o avatar e o favicon; nos tamanhos pequenos o brilho e os sulcos somem e sobra o S limpo.
-Nome sempre em minúsculas, Plus Jakarta Sans 800, espaçamento apertado. (As peças de brand/ feitas antes de 18/11/2026 usam Geist 800.)
+Nome sempre em minúsculas, DM Sans 800, espaçamento apertado. (As peças de brand/ feitas antes de 18/11/2026 usam Geist 800.)
 
 ## Cores
 
@@ -24,8 +24,8 @@ Regra: âmbar só em uma coisa por peça (destaque). As capas abstratas usam as 
 
 ## Tipografia
 
-Plus Jakarta Sans, a mesma do site (arquivos em `assets/`, licença OFL). Nome em Plus Jakarta Sans 800, minúsculas, espaçamento apertado.
-Textos de apoio em Plus Jakarta Sans 500. Números e rótulos técnicos do site em IBM Plex Mono (`docs/MARCA.md`).
+DM Sans, a mesma do site (arquivos em `assets/`, licença OFL). Nome em DM Sans 800, minúsculas, espaçamento apertado.
+Textos de apoio em DM Sans 500. Números e rótulos técnicos do site em DM Mono (`docs/MARCA.md`).
 
 ## Arquivos
 

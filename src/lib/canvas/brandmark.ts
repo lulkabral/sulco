@@ -7,8 +7,8 @@ const ROOM = "#15120F";
 
 /** Parte da caixa de 400 px ocupada pelo círculo do disco (de 10 a 390). */
 const DISC_IN_BOX = 380 / 400;
-/** Altura do "l" da Plus Jakarta Sans 800, em fração do tamanho da fonte (medido: 0,766). */
-const L_HEIGHT = 0.766;
+/** Altura do "l" da DM Sans 800, em fração do tamanho da fonte (medido: 0,734). */
+const L_HEIGHT = 0.734;
 
 /** Desenha o disco-S numa caixa quadrada de lado `size`, com o canto superior em (x, y). */
 export function drawSymbol(ctx: CanvasRenderingContext2D, x: number, y: number, size: number) {
@@ -71,7 +71,7 @@ export function wordmarkWidth(ctx: CanvasRenderingContext2D, fontPx: number, fon
 }
 
 /**
- * Logo completo: disco (o "S") + "ulco" em Plus Jakarta Sans 800, com o disco da altura do "l"
+ * Logo completo: disco (o "S") + "ulco" em DM Sans 800, com o disco da altura do "l"
  * apoiado na linha de base `baseline`. `x` é a borda esquerda. Devolve a largura usada.
  */
 export function drawWordmark(

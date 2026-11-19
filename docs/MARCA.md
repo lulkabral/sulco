@@ -40,11 +40,13 @@ O logo (`public/brand/simbolo.svg`) é sempre âmbar.
 
 | Fonte | Uso | Regra |
 |---|---|---|
-| Plus Jakarta Sans 800 | títulos e nomes | espaçamento apertado (-0.045em no título da página inicial) |
-| Plus Jakarta Sans 400 a 700 | texto e interface | |
-| IBM Plex Mono | números, datas, contagens, metadados, rótulos técnicos em caixa alta | sempre com `tabular-nums`; rótulos com espaçamento aberto (0.14em a 0.18em) |
+| DM Sans 800 | títulos e nomes | espaçamento apertado (-0.045em no título da página inicial) |
+| DM Sans 500 | texto e interface (peso padrão do corpo; 600 e 700 para ênfase) | a 400 ficava fina demais (pedido do dono em 18/11/2026) |
+| DM Mono 500 | números, datas, contagens, metadados, rótulos técnicos em caixa alta | sempre com `tabular-nums`; rótulos com espaçamento aberto (0.14em a 0.18em) |
 
-O canvas do recap e da grade usa a mesma Plus Jakarta Sans (lida do corpo da página). O logo ("ulco") também: o disco tem a altura do "l" dessa fonte (0,766 do tamanho), em `Logo.tsx` e `src/lib/canvas/brandmark.ts`. A prévia do link usa os TTF estáticos em `assets/` (licença OFL em `assets/PlusJakartaSans-OFL.txt`).
+Escolhida em 18/11/2026 entre 4 opções (Plus Jakarta Sans + IBM Plex Mono, Inter Tight + JetBrains Mono, DM Sans + DM Mono e Space Grotesk + Space Mono): a DM é mais redonda e macia.
+
+O canvas do recap e da grade usa a mesma DM Sans (lida do corpo da página). O logo ("ulco") também: o disco tem a altura do "l" dessa fonte (0,734 do tamanho), em `Logo.tsx` e `src/lib/canvas/brandmark.ts`. A prévia do link e o banner usam os TTF estáticos em `assets/` (licença OFL em `assets/DMSans-OFL.txt`).
 
 Todas carregadas com `next/font/google` (subset latin, `display: swap`), sem CDN externo. A legenda da vitrine é curta (até 5 palavras): conferida no teste (`showcase.test.ts`) e no `npm run vitrine`.
 

@@ -67,7 +67,7 @@ O site lê apenas dados públicos do perfil no Last.fm. Não tem cadastro, banco
 
 ## Tecnologias
 
-Next.js, TypeScript, Tailwind CSS, Canvas 2D e Vitest. Fontes: Plus Jakarta Sans e IBM Plex Mono (licença OFL; os TTF da Plus Jakarta Sans em `assets/` são usados na imagem de compartilhamento). Logo e ícones a partir de `brand/` (o símbolo fica em `public/brand/simbolo.svg`; os ícones do site em `src/app/icon.svg`, `apple-icon.png` e `favicon.ico`).
+Next.js, TypeScript, Tailwind CSS, Canvas 2D e Vitest. Fontes: DM Sans e DM Mono (licença OFL; os TTF da DM Sans em `assets/` são usados na imagem de compartilhamento e no banner). Logo e ícones a partir de `brand/` (o símbolo fica em `public/brand/simbolo.svg`; os ícones do site em `src/app/icon.svg`, `apple-icon.png` e `favicon.ico`).
 
 ## Créditos
 

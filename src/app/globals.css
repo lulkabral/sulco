@@ -24,8 +24,8 @@
   --color-vinyl: #0b0a09; /* sulco escuro dos discos */
   --color-vinyl-groove: #1b1714; /* sulco claro dos discos */
 
-  --font-sans: var(--font-jakarta);
-  --font-mono: var(--font-plex-mono);
+  --font-sans: var(--font-dm-sans);
+  --font-mono: var(--font-dm-mono);
 
   /* Faixas de capas passando (metade do conteúdo é repetida, por isso -50%). */
   --animate-marquee: marquee var(--marquee-duration, 60s) linear infinite;
@@ -127,6 +127,8 @@ body {
   background: var(--color-room);
   color: var(--color-ink);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  /* Texto encorpado por padrão (pedido do dono: a 400 parecia fina demais). */
+  font-weight: 500;
 }
 
 /* Contorno de foco âmbar em tudo que recebe foco pelo teclado. */

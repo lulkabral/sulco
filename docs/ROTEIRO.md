@@ -141,7 +141,7 @@ Pedido do dono do projeto: alinhar o visual do site ao manual de marca (`docs/MA
 
 Pedido do dono do projeto: tirar a cara de "site genérico de IA" da página inicial, numa direção de catálogo de vinil e aparelho de som (`docs/MARCA.md`).
 
-- [x] Plus Jakarta Sans e IBM Plex Mono no lugar da Geist, também no canvas, no logo e na prévia do link
+- [x] DM Sans e DM Mono no lugar da Geist (escolhidas entre 4 opções, depois de testar a Plus Jakarta Sans), também no canvas, no logo e na prévia do link
 - [x] fundo mais profundo e linhas de 1px do grid, com contraste AA conferido
 - [x] campo de username em painel fino e guia do Last.fm em gaveta (Esc, toque fora e botão)
 - [x] barra de catálogo, hero em duas colunas e ficha técnica

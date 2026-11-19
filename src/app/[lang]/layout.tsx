@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import type { Viewport } from "next";
-import { IBM_Plex_Mono, Plus_Jakarta_Sans } from "next/font/google";
+import { DM_Mono, DM_Sans } from "next/font/google";
 import { PrivateAnalytics } from "@/components/PrivateAnalytics";
 import { SiteFooter, X_AUTHOR, X_SITE } from "@/components/SiteFooter";
 import { LocaleProvider } from "@/i18n/client";
@@ -10,18 +10,18 @@ import { THEME } from "@/lib/theme";
 import "../globals.css";
 
 // Interface e títulos (docs/MARCA.md). O canvas do recap e da grade usa a mesma fonte.
-const sans = Plus_Jakarta_Sans({
-  variable: "--font-jakarta",
+const sans = DM_Sans({
+  variable: "--font-dm-sans",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700", "800"],
   display: "swap",
 });
 
 // Números, datas e metadados (sempre com tabular-nums).
-const mono = IBM_Plex_Mono({
-  variable: "--font-plex-mono",
+const mono = DM_Mono({
+  variable: "--font-dm-mono",
   subsets: ["latin"],
-  weight: ["400", "500", "600"],
+  weight: ["400", "500"],
   display: "swap",
 });
 
