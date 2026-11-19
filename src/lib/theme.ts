@@ -2,12 +2,12 @@
 // São as mesmas de src/app/globals.css: se mudar lá, mude aqui também.
 
 export const THEME = {
-  room: "#15120F",
-  card: "#221D19",
-  card2: "#2C2621",
+  room: "#110F0D",
+  card: "#181512",
+  card2: "#211C18",
   line: "#3A322C",
   ink: "#F4EEE6",
-  inkSoft: "#B5ABA0",
+  inkSoft: "#ABA196",
   inkFaint: "#958B7F",
   amber: "#E8A13A",
   amberInk: "#2A1A05",

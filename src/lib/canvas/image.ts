@@ -24,7 +24,7 @@ export function loadImage(url: string, timeoutMs = 15_000): Promise<HTMLImageEle
   });
 }
 
-/** Família de fonte do corpo da página (a Geist, carregada pelo next/font). */
+/** Família de fonte do corpo da página (a Plus Jakarta Sans, carregada pelo next/font). */
 export function pageFontFamily(): string {
   return getComputedStyle(document.body).fontFamily || "sans-serif";
 }
@@ -32,10 +32,11 @@ export function pageFontFamily(): string {
 /** Espera as fontes da página ficarem prontas, para o canvas não desenhar com a fonte reserva. */
 export async function waitForFonts(...families: string[]): Promise<void> {
   if (!document.fonts) return; // sem a API de fontes: desenha com o que houver
-  // Cada `load` pode falhar sozinho (ex.: a fonte reserva "Geist Fallback" aponta para
+  // Cada `load` pode falhar sozinho (ex.: a fonte reserva "... Fallback" aponta para
   // uma fonte local que não existe no Linux). Falha de uma não impede esperar as outras.
   await Promise.allSettled(
     families.flatMap((family) => [
+      document.fonts.load(`400 16px ${family}`),
       document.fonts.load(`500 16px ${family}`),
       document.fonts.load(`700 16px ${family}`),
       document.fonts.load(`800 16px ${family}`),

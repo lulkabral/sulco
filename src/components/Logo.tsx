@@ -13,7 +13,7 @@ const SIZES = {
 };
 
 /**
- * Logo "sulco": o disco de vinil (que é o "S") + "ulco" em Geist 800, minúsculas.
+ * Logo "sulco": o disco de vinil (que é o "S") + "ulco" em Plus Jakarta Sans 800, minúsculas.
  * O disco tem a altura do "l" e se apoia na linha de base, como no lockup de brand/.
  * O SVG entra por <img> (next/image): assim os ids internos dele não se repetem
  * quando o logo aparece mais de uma vez na página.
@@ -31,8 +31,8 @@ export function Logo({ size = "sm" }: Props) {
         height={400}
         unoptimized
         priority={size === "lg"}
-        // O desenho ocupa 380 dos 400 px do SVG: 0,8em deixa o disco da altura do "l".
-        className="relative top-[0.04em] mr-[0.01em] h-[0.8em] w-auto"
+        // O desenho ocupa 380 dos 400 px do SVG: 0,85em deixa o disco da altura do "l".
+        className="relative top-[0.04em] mr-[0.01em] h-[0.85em] w-auto"
       />
       <span aria-hidden>ulco</span>
     </span>

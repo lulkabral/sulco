@@ -28,8 +28,8 @@ type Config = { titulo: string; subtitulo?: string; itens: Item[]; arquivo?: str
 const S = 2;
 const COLORS = { room: "#15120F", ink: "#F4EEE6", inkSoft: "#B5ABA0" };
 const TILES = ["#B8432C", "#3D5A73", "#D9A441", "#5E4B6E", "#2F6B5E", "#8A6A4F", "#C77C9B", "#29333F"];
-const FONT_BOLD = "assets/Geist-800.ttf";
-const FONT_MEDIUM = "assets/Geist-500.ttf";
+const FONT_BOLD = "assets/PlusJakartaSans-800.ttf";
+const FONT_MEDIUM = "assets/PlusJakartaSans-500.ttf";
 const SYMBOL = "brand/simbolo-800.png";
 const IMAGE_HOST = "lastfm-img.freetls.fastly.net";
 

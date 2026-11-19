@@ -7,12 +7,13 @@
  * (se mudar aqui, mude lá também).
  */
 @theme inline {
-  --color-room: #15120f; /* fundo da página */
-  --color-card: #221d19; /* cartões */
-  --color-card-2: #2c2621; /* cartão em destaque / hover */
-  --color-line: #3a322c; /* bordas e divisórias */
+  --color-room: #110f0d; /* fundo da página */
+  --color-card: #181512; /* superfícies */
+  --color-card-2: #211c18; /* superfície em destaque / hover */
+  --color-line: #3a322c; /* bordas de controles e cartões */
+  --color-rule: #2c2621; /* divisórias finas de 1px do grid (sobre o fundo) */
   --color-ink: #f4eee6; /* texto principal */
-  --color-soft: #b5aba0; /* texto de apoio */
+  --color-soft: #aba196; /* texto de apoio */
   --color-ink-faint: #958b7f; /* detalhes pequenos (datas, contagens) */
   /* Destaque: o âmbar, por padrão. Na página do perfil, segue a paleta da imagem quando ela
      passa no contraste (--accent*, definidos em :root e trocados por AccentScope). */
@@ -23,8 +24,8 @@
   --color-vinyl: #0b0a09; /* sulco escuro dos discos */
   --color-vinyl-groove: #1b1714; /* sulco claro dos discos */
 
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-jakarta);
+  --font-mono: var(--font-plex-mono);
 
   /* Faixas de capas passando (metade do conteúdo é repetida, por isso -50%). */
   --animate-marquee: marquee var(--marquee-duration, 60s) linear infinite;

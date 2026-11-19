@@ -64,7 +64,7 @@ async function showcaseImages(): Promise<string[]> {
 }
 
 /**
- * Geist em TTF estático (licença OFL) e o símbolo da marca em PNG, em base64.
+ * Plus Jakarta Sans em TTF estático (licença OFL) e o símbolo da marca em PNG, em base64.
  * Em cache (nunca mudam entre publicações): com Cache Components, ler arquivo sem cache
  * impede o Next de pré-gerar a imagem (dava erro 500 em produção).
  */
@@ -72,8 +72,8 @@ async function loadAssets(): Promise<{ medium: string; extraBold: string; symbol
   "use cache";
   cacheLife("max");
   const [medium, extraBold, symbol] = await Promise.all([
-    readFile(join(process.cwd(), "assets/Geist-500.ttf")),
-    readFile(join(process.cwd(), "assets/Geist-800.ttf")),
+    readFile(join(process.cwd(), "assets/PlusJakartaSans-500.ttf")),
+    readFile(join(process.cwd(), "assets/PlusJakartaSans-800.ttf")),
     readFile(join(process.cwd(), "brand/simbolo-800.png")),
   ]);
   return { medium: medium.toString("base64"), extraBold: extraBold.toString("base64"), symbol: symbol.toString("base64") };
@@ -108,7 +108,7 @@ export async function GET(_request: Request, { params }: RouteContext<"/og/[lang
           display: "flex",
           position: "relative",
           background: THEME.room,
-          fontFamily: "Geist",
+          fontFamily: "Plus Jakarta Sans",
           color: THEME.ink,
         }}
       >
@@ -197,8 +197,8 @@ export async function GET(_request: Request, { params }: RouteContext<"/og/[lang
       // A CDN guarda por 1 dia (a vitrine muda pouco); os robôs do X e do WhatsApp guardam também.
       headers: { "Cache-Control": "public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800" },
       fonts: [
-        { name: "Geist", data: medium, style: "normal", weight: 500 },
-        { name: "Geist", data: extraBold, style: "normal", weight: 800 },
+        { name: "Plus Jakarta Sans", data: medium, style: "normal", weight: 500 },
+        { name: "Plus Jakarta Sans", data: extraBold, style: "normal", weight: 800 },
       ],
     },
   );

@@ -63,7 +63,7 @@ export type RecapOptions = {
   palette: Palette;
   /** Mostrar total de scrobbles, minutos e reproduções (desligado por padrão: lembrar, não medir). */
   showNumbers: boolean;
-  /** Família da fonte (Geist), já carregada. */
+  /** Família da fonte (Plus Jakarta Sans), já carregada. */
   font: string;
   /** Língua do texto desenhado ("Na sua cabeça" / "In your head"...). */
   lang: Locale;
