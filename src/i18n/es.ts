@@ -230,14 +230,18 @@ export const es: Dict = {
     building: "Armando la cuadrícula…",
     completing: "Completando las portadas…",
     empty: "Ningún álbum en este período.",
+    format: "Formato",
+    formatSquare: "Cuadrado",
+    formatStories: "Stories",
+    storiesHint: "Vertical (9:16), a la medida de la pantalla de las Stories de Instagram.",
     size: "Tamaño",
     fewAlbums: (n: number) =>
       `Solo ${n} ${n === 1 ? "álbum" : "álbumes"} en este período; el resto de la cuadrícula queda vacío.`,
     show: "Mostrar",
     caption: "Nombre del álbum y artista",
     plays: "Número de reproducciones",
-    alt: (size: number, label: string) =>
-      `Cuadrícula ${size}x${size} con las portadas de los álbumes más escuchados: ${label.toLowerCase()}. La lista en texto está abajo.`,
+    alt: (cols: number, rows: number, label: string) =>
+      `Cuadrícula ${cols}x${rows} con las portadas de los álbumes más escuchados: ${label.toLowerCase()}. La lista en texto está abajo.`,
     shareTitle: (label: string) => `Mis álbumes: ${label.toLowerCase()}`,
   },
   export: {

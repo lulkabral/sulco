@@ -1,5 +1,16 @@
 import { describe, expect, it } from "vitest";
-import { coverPxFor, coverUrl, GRID_CANVAS_SIDE, gridLayout, recapCoverPx, thumbUrl } from "./layout";
+import {
+  coverPxFor,
+  coverUrl,
+  GRID_CANVAS_SIDE,
+  gridCells,
+  gridFrame,
+  gridLayout,
+  recapCoverPx,
+  storiesColumns,
+  storiesLayout,
+  thumbUrl,
+} from "./layout";
 
 describe("gridLayout", () => {
   it("3x3 tem 9 quadrados de 500 px", () => {
@@ -71,5 +82,47 @@ describe("tamanhos da imagem exportada", () => {
 
   it("no recap, só a capa principal pede a original", () => {
     expect([0, 1, 2, 8].map(recapCoverPx)).toEqual(["original", 600, 600, 600]);
+  });
+});
+
+describe("storiesLayout", () => {
+  it("3 colunas: 3x5 = 15 capas de 360, com 60 de sobra em cima e embaixo", () => {
+    const cells = storiesLayout(3);
+    expect(cells).toHaveLength(15);
+    expect(cells[0]).toEqual({ index: 0, x: 0, y: 60, side: 360 });
+    const last = cells.at(-1)!;
+    expect(last).toEqual({ index: 14, x: 720, y: 1500, side: 360 });
+    expect(1920 - (last.y + last.side)).toBe(60);
+  });
+
+  it("4 colunas: 4x6 = 24 capas de 270, com 150 de sobra em cima e embaixo", () => {
+    const cells = storiesLayout(4);
+    expect(cells).toHaveLength(24);
+    expect(cells[0]).toEqual({ index: 0, x: 0, y: 150, side: 270 });
+    expect(cells[5]).toEqual({ index: 5, x: 270, y: 420, side: 270 });
+    const last = cells.at(-1)!;
+    expect(last.x + last.side).toBe(1080);
+    expect(1920 - (last.y + last.side)).toBe(150);
+  });
+
+  it("na exportação em 1,5x cada capa cai em pixel inteiro", () => {
+    for (const cols of [3, 4] as const) {
+      for (const c of storiesLayout(cols)) {
+        expect(Number.isInteger(c.side * 1.5)).toBe(true);
+        expect(Number.isInteger(c.y * 1.5)).toBe(true);
+      }
+    }
+  });
+
+  it("5x5 do quadrado vira 4 colunas nos Stories", () => {
+    expect(storiesColumns(5)).toBe(4);
+    expect(storiesColumns(3)).toBe(3);
+    expect(gridCells(5, "stories")).toHaveLength(24);
+    expect(gridCells(5, "square")).toHaveLength(25);
+  });
+
+  it("medidas de cada formato", () => {
+    expect(gridFrame("stories")).toEqual({ width: 1080, height: 1920, scale: 1.5 });
+    expect(gridFrame("square")).toEqual({ width: 1500, height: 1500, scale: 1.6 });
   });
 });

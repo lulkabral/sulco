@@ -32,6 +32,61 @@ export function gridLayout(size: GridSize, canvasSide = GRID_SIDE): GridCell[] {
   return cells;
 }
 
+/** Formato da grade: quadrada (feed) ou vertical 9:16 (Stories do Instagram). */
+export type GridFormat = "square" | "stories";
+
+/** Colunas oferecidas nos Stories (5 colunas daria capas pequenas demais no celular). */
+export const STORIES_COLUMNS = [3, 4] as const;
+export type StoriesColumns = (typeof STORIES_COLUMNS)[number];
+
+/** Layout dos Stories: 1080 x 1920 (9:16), exportado em 1,5x = 1620 x 2880, como o recap. */
+export const STORIES_WIDTH = 1080;
+export const STORIES_HEIGHT = 1920;
+export const STORIES_SCALE = 1.5;
+
+/**
+ * Linhas por número de colunas: 3x5 = 15 álbuns, 4x6 = 24 (a página busca até 25).
+ * A sobra de altura vira uma faixa de fundo em cima e embaixo, onde o Instagram
+ * põe a barra de progresso e o campo de resposta.
+ */
+const STORIES_ROWS: Record<StoriesColumns, number> = { 3: 5, 4: 6 };
+
+/** Linhas da grade de Stories com `cols` colunas. */
+export function storiesRows(cols: StoriesColumns): number {
+  return STORIES_ROWS[cols];
+}
+
+/** Colunas válidas nos Stories: a 5x5 do quadrado vira 4 colunas. */
+export function storiesColumns(size: GridSize): StoriesColumns {
+  return size === 5 ? 4 : size;
+}
+
+/** Posição de cada quadrado da grade de Stories, centralizada na vertical, linha por linha. */
+export function storiesLayout(cols: StoriesColumns): GridCell[] {
+  const side = STORIES_WIDTH / cols;
+  const rows = storiesRows(cols);
+  const top = (STORIES_HEIGHT - rows * side) / 2;
+  const cells: GridCell[] = [];
+  for (let row = 0; row < rows; row++) {
+    for (let col = 0; col < cols; col++) {
+      cells.push({ index: row * cols + col, x: col * side, y: top + row * side, side });
+    }
+  }
+  return cells;
+}
+
+/** Medidas do layout e escala de exportação de cada formato. */
+export function gridFrame(format: GridFormat): { width: number; height: number; scale: number } {
+  return format === "stories"
+    ? { width: STORIES_WIDTH, height: STORIES_HEIGHT, scale: STORIES_SCALE }
+    : { width: GRID_SIDE, height: GRID_SIDE, scale: GRID_SCALE };
+}
+
+/** Quadrados da grade no formato escolhido (`size` = 3, 4 ou 5 colunas). */
+export function gridCells(size: GridSize, format: GridFormat): GridCell[] {
+  return format === "stories" ? storiesLayout(storiesColumns(size)) : gridLayout(size);
+}
+
 /** Tamanhos de capa que o Last.fm entrega: 300, 600 ou a original (1200 a 3000 px, mais pesada). */
 export type CoverSize = 300 | 600 | "original";
 

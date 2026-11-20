@@ -2,7 +2,7 @@ import type { Locale } from "@/i18n/config";
 import { truncateText, wrapText } from "@/lib/canvas/text";
 import { formatPlays } from "@/lib/format";
 import { THEME } from "@/lib/theme";
-import { GRID_SCALE, GRID_SIDE, gridLayout, type GridCell, type GridSize } from "./layout";
+import { gridCells, gridFrame, type GridCell, type GridFormat, type GridSize } from "./layout";
 
 export type GridAlbum = {
   name: string;
@@ -19,7 +19,9 @@ export type GridOptions = {
   fontFamily: string;
   /** Língua do "N reproduções" desenhado. */
   lang: Locale;
-  /** Escala do desenho (padrão GRID_SCALE). O palco da página inicial usa 1. */
+  /** Quadrada (padrão) ou vertical 9:16 para os Stories. */
+  format?: GridFormat;
+  /** Escala do desenho (padrão: a do formato). O palco da página inicial usa 1. */
   scale?: number;
 };
 
@@ -29,20 +31,25 @@ const NO_COVER_BG = THEME.card2; // álbum sem capa
 const TEXT = THEME.ink;
 const TEXT_SOFT = "rgba(244,238,230,0.82)";
 
-/** Desenha a grade inteira no canvas (layout de 1500 px, exportado em 2400 x 2400 px). */
+/**
+ * Desenha a grade inteira no canvas: quadrada (layout de 1500 px, exportada em 2400 x 2400)
+ * ou Stories (layout de 1080 x 1920, exportado em 1620 x 2880). Sem assinatura do sulco.
+ */
 export function drawGrid(canvas: HTMLCanvasElement, albums: GridAlbum[], opts: GridOptions): void {
-  const scale = opts.scale ?? GRID_SCALE;
-  canvas.width = GRID_SIDE * scale;
-  canvas.height = GRID_SIDE * scale;
+  const format = opts.format ?? "square";
+  const frame = gridFrame(format);
+  const scale = opts.scale ?? frame.scale;
+  canvas.width = frame.width * scale;
+  canvas.height = frame.height * scale;
   const ctx = canvas.getContext("2d");
   if (!ctx) return;
   ctx.setTransform(scale, 0, 0, scale, 0, 0);
   ctx.imageSmoothingQuality = "high";
 
   ctx.fillStyle = BG;
-  ctx.fillRect(0, 0, GRID_SIDE, GRID_SIDE);
+  ctx.fillRect(0, 0, frame.width, frame.height);
 
-  for (const cell of gridLayout(opts.size)) {
+  for (const cell of gridCells(opts.size, format)) {
     const album = albums[cell.index];
     if (!album) continue; // menos álbuns que quadrados: fica o fundo
     drawCell(ctx, cell, album, opts);

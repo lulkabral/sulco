@@ -12,8 +12,13 @@ import { albumCover } from "@/lib/lookups";
 import {
   coverPxFor,
   coverUrl,
-  GRID_CANVAS_SIDE,
+  gridCells,
+  gridFrame,
   GRID_SIZES,
+  STORIES_COLUMNS,
+  storiesColumns,
+  storiesRows,
+  type GridFormat,
   type GridSize,
 } from "@/lib/grid/layout";
 import type { TopAlbum } from "@/lib/lastfm/types";
@@ -37,6 +42,7 @@ export function AlbumGrid({ username, period, periodLabel, albums }: Props) {
   // Capas já carregadas, por endereço: trocar opção não baixa tudo de novo.
   const coverCache = useRef(new Map<string, Promise<HTMLImageElement | null>>());
 
+  const [format, setFormat] = useState<GridFormat>("square");
   const [size, setSize] = useState<GridSize>(3);
   const [showCaption, setShowCaption] = useState(true);
   const [showPlays, setShowPlays] = useState(false);
@@ -45,10 +51,17 @@ export function AlbumGrid({ username, period, periodLabel, albums }: Props) {
   /** Chave das opções com todas as capas já desenhadas (libera baixar e compartilhar). */
   const [doneKey, setDoneKey] = useState<string | null>(null);
 
-  const key = `${size}-${showCaption}-${showPlays}`;
+  const stories = format === "stories";
+  // Nos Stories a 5x5 não existe: vale como 4 colunas.
+  const cols = stories ? storiesColumns(size) : size;
+  const rows = stories ? storiesRows(storiesColumns(size)) : size;
+  const frame = gridFrame(format);
+  const sizeOptions: readonly GridSize[] = stories ? STORIES_COLUMNS : GRID_SIZES;
+
+  const key = `${format}-${cols}-${showCaption}-${showPlays}`;
   const loading = drawnKey !== key;
   const complete = doneKey === key;
-  const altText = t.grid.alt(size, periodLabel);
+  const altText = t.grid.alt(cols, rows, periodLabel);
 
   useEffect(() => {
     let cancelled = false;
@@ -66,10 +79,11 @@ export function AlbumGrid({ username, period, periodLabel, albums }: Props) {
       return p;
     };
 
-    const optionsKey = `${size}-${showCaption}-${showPlays}`;
+    const optionsKey = `${format}-${cols}-${showCaption}-${showPlays}`;
     const fontFamily = pageFontFamily();
-    const needed = albums.slice(0, size * size);
-    const px = coverPxFor(GRID_CANVAS_SIDE / size);
+    const cells = gridCells(cols, format);
+    const needed = albums.slice(0, cells.length);
+    const px = coverPxFor(cells[0].side * gridFrame(format).scale);
     const covers: (HTMLImageElement | null)[] = needed.map(() => null);
     const gotHd: boolean[] = needed.map(() => false);
     let fontReady = false;
@@ -83,7 +97,7 @@ export function AlbumGrid({ username, period, periodLabel, albums }: Props) {
         canvasRef.current,
         needed.map((a, i) => ({ name: a.name, artist: a.artist, playcount: a.playcount, cover: covers[i] })),
         // Sem assinatura: a grade é só das capas (decisão de 16/11/2026).
-        { size, showCaption, showPlays, fontFamily, lang },
+        { size: cols, format, showCaption, showPlays, fontFamily, lang },
       );
       setDrawnKey(optionsKey);
       if (pending === 0) {
@@ -142,13 +156,18 @@ export function AlbumGrid({ username, period, periodLabel, albums }: Props) {
       cancelled = true;
       if (redraw) clearTimeout(redraw);
     };
-  }, [albums, size, showCaption, showPlays, takeSnapshot, lang]);
+  }, [albums, format, cols, showCaption, showPlays, takeSnapshot, lang]);
 
   if (albums.length === 0) {
     return <p className="text-soft">{t.grid.empty}</p>;
   }
 
-  const sizeIndex = Math.max(0, GRID_SIZES.indexOf(size));
+  const sizeIndex = Math.max(0, sizeOptions.indexOf(cols));
+  const formatIndex = stories ? 1 : 0;
+  const formats: { id: GridFormat; label: string }[] = [
+    { id: "square", label: t.grid.formatSquare },
+    { id: "stories", label: t.grid.formatStories },
+  ];
 
   return (
     <section
@@ -160,12 +179,17 @@ export function AlbumGrid({ username, period, periodLabel, albums }: Props) {
       </h2>
 
       <div className="grid grid-cols-1 items-start gap-6 md:grid-cols-[minmax(0,26rem)_1fr] md:gap-8 lg:grid-cols-[minmax(0,32rem)_1fr] lg:gap-10 xl:grid-cols-[minmax(0,36rem)_1fr]">
-        <div className="relative mx-auto w-full max-w-md transition-transform duration-300 ease-smooth hover:-translate-y-0.5 lg:max-w-[32rem] xl:max-w-[36rem]">
-          <div className="relative aspect-square w-full">
+        <div
+          className={
+            "relative mx-auto w-full transition-transform duration-300 ease-smooth hover:-translate-y-0.5 " +
+            (stories ? "max-w-[18rem] lg:max-w-[20rem]" : "max-w-md lg:max-w-[32rem] xl:max-w-[36rem]")
+          }
+        >
+          <div className={"relative w-full " + (stories ? "aspect-[9/16]" : "aspect-square")}>
             <canvas
               ref={canvasRef}
-              width={GRID_CANVAS_SIDE}
-              height={GRID_CANVAS_SIDE}
+              width={frame.width * frame.scale}
+              height={frame.height * frame.scale}
               // Sem a cópia em <img> (computador), o próprio canvas é a imagem para leitores de tela.
               role={snapshot ? undefined : "img"}
               aria-label={snapshot ? undefined : altText}
@@ -202,31 +226,70 @@ export function AlbumGrid({ username, period, periodLabel, albums }: Props) {
 
           <fieldset>
             <legend className="mb-2.5 font-mono text-xs font-semibold uppercase tracking-[0.14em] text-stage-faint">
-              {t.grid.size}
+              {t.grid.format}
             </legend>
-            <div className="relative grid grid-cols-3 rounded-full border border-stage-line bg-stage p-1">
+            <div className="relative grid grid-cols-2 rounded-full border border-stage-line bg-stage p-1">
               <span
                 aria-hidden
-                className="pointer-events-none absolute inset-y-1 left-1 z-0 w-[calc((100%-0.5rem)/3)] rounded-full bg-amber shadow-sm transition-transform duration-300 ease-smooth motion-reduce:transition-none"
-                style={{ transform: `translateX(${sizeIndex * 100}%)` }}
+                className="pointer-events-none absolute inset-y-1 left-1 z-0 w-[calc((100%-0.5rem)/2)] rounded-full bg-amber shadow-sm transition-transform duration-300 ease-smooth motion-reduce:transition-none"
+                style={{ transform: `translateX(${formatIndex * 100}%)` }}
               />
-              {GRID_SIZES.map((s) => (
+              {formats.map((f) => (
+                <label key={f.id} className="relative z-10 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="grid-format"
+                    value={f.id}
+                    checked={format === f.id}
+                    onChange={() => {
+                      setFormat(f.id);
+                      // A 5x5 vira 4 colunas nos Stories; o seletor mostra a escolha que vale.
+                      if (f.id === "stories") setSize(storiesColumns(size));
+                    }}
+                    className="peer sr-only"
+                  />
+                  <span className="block rounded-full px-3 py-2 text-center text-sm font-bold text-stage-soft transition-colors duration-200 ease-smooth hover:text-stage-ink peer-checked:text-amber-ink peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-amber">
+                    {f.label}
+                  </span>
+                </label>
+              ))}
+            </div>
+            {stories && <p className="mt-2.5 text-xs text-stage-soft">{t.grid.storiesHint}</p>}
+          </fieldset>
+
+          <fieldset>
+            <legend className="mb-2.5 font-mono text-xs font-semibold uppercase tracking-[0.14em] text-stage-faint">
+              {t.grid.size}
+            </legend>
+            <div
+              className="relative grid rounded-full border border-stage-line bg-stage p-1"
+              style={{ gridTemplateColumns: `repeat(${sizeOptions.length}, minmax(0, 1fr))` }}
+            >
+              <span
+                aria-hidden
+                className="pointer-events-none absolute inset-y-1 left-1 z-0 rounded-full bg-amber shadow-sm transition-transform duration-300 ease-smooth motion-reduce:transition-none"
+                style={{
+                  width: `calc((100% - 0.5rem) / ${sizeOptions.length})`,
+                  transform: `translateX(${sizeIndex * 100}%)`,
+                }}
+              />
+              {sizeOptions.map((s) => (
                 <label key={s} className="relative z-10 cursor-pointer">
                   <input
                     type="radio"
                     name="grid-size"
                     value={s}
-                    checked={size === s}
+                    checked={cols === s}
                     onChange={() => setSize(s)}
                     className="peer sr-only"
                   />
                   <span className="block rounded-full px-3 py-2 text-center font-mono text-sm font-bold text-stage-soft transition-colors duration-200 ease-smooth hover:text-stage-ink peer-checked:text-amber-ink peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-amber">
-                    {s}×{s}
+                    {s}×{stories ? storiesRows(storiesColumns(s)) : s}
                   </span>
                 </label>
               ))}
             </div>
-            {albums.length < size * size && (
+            {albums.length < cols * rows && (
               <p className="mt-2.5 text-xs text-stage-soft">{t.grid.fewAlbums(albums.length)}</p>
             )}
           </fieldset>
@@ -267,7 +330,7 @@ export function AlbumGrid({ username, period, periodLabel, albums }: Props) {
 
           <ExportButtons
             canvasRef={canvasRef}
-            filename={`grade-${showUsername ? `${username}-` : ""}${period}-${size}x${size}.png`}
+            filename={`grade-${showUsername ? `${username}-` : ""}${period}-${cols}x${rows}${stories ? "-stories" : ""}.png`}
             shareTitle={t.grid.shareTitle(periodLabel)}
             disabled={!complete}
           />

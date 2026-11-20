@@ -229,13 +229,17 @@ export const en: Dict = {
     building: "Building your grid…",
     completing: "Adding covers…",
     empty: "No albums in this period.",
+    format: "Format",
+    formatSquare: "Square",
+    formatStories: "Stories",
+    storiesHint: "Vertical (9:16), sized for the Instagram Stories screen.",
     size: "Size",
     fewAlbums: (n: number) => `Only ${n} ${n === 1 ? "album" : "albums"} in this period; the rest of the grid stays empty.`,
     show: "Show",
     caption: "Album name and artist",
     plays: "Play count",
-    alt: (size: number, label: string) =>
-      `${size}x${size} grid of your most played album covers: ${label}. The list as text is below.`,
+    alt: (cols: number, rows: number, label: string) =>
+      `${cols}x${rows} grid of your most played album covers: ${label}. The list as text is below.`,
     shareTitle: (label: string) => `My albums: ${label}`,
   },
   export: {

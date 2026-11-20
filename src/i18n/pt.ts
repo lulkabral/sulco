@@ -230,13 +230,17 @@ export const pt = {
     building: "Montando a grade…",
     completing: "Completando as capas…",
     empty: "Nenhum álbum neste período.",
+    format: "Formato",
+    formatSquare: "Quadrado",
+    formatStories: "Stories",
+    storiesHint: "Vertical (9:16), na medida da tela dos Stories do Instagram.",
     size: "Tamanho",
     fewAlbums: (n: number) => `Só ${n} ${n === 1 ? "álbum" : "álbuns"} neste período; o resto da grade fica vazio.`,
     show: "Mostrar",
     caption: "Nome do álbum e artista",
     plays: "Número de reproduções",
-    alt: (size: number, label: string) =>
-      `Grade ${size}x${size} com as capas dos álbuns mais ouvidos: ${label.toLowerCase()}. A lista em texto está abaixo.`,
+    alt: (cols: number, rows: number, label: string) =>
+      `Grade ${cols}x${rows} com as capas dos álbuns mais ouvidos: ${label.toLowerCase()}. A lista em texto está abaixo.`,
     shareTitle: (label: string) => `Meus álbuns: ${label.toLowerCase()}`,
   },
   export: {
