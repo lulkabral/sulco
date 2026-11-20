@@ -23,6 +23,10 @@ function dictFor(lang: string) {
   return DICTS[isLocale(lang) ? lang : DEFAULT_LOCALE];
 }
 
+/** Lockup de public/brand/lockup-escuro.svg (552 x 157, "ulco" com 200 px) reduzido para "ulco" com 64 px. */
+const LOCKUP_W = Math.round((552 * 64) / 200);
+const LOCKUP_H = Math.round((157 * 64) / 200);
+
 /** Prateleira da vitrine, como na página inicial: 3 colunas x 2 linhas de capas retas. */
 const SHELF = { left: 618, top: 106, side: 176, gap: 14, columns: 3 };
 /** Lugares da prateleira (os mesmos 6 da vitrine). */
@@ -58,7 +62,7 @@ async function showcaseImages(): Promise<string[]> {
 }
 
 /**
- * DM Sans em TTF estático (licença OFL) e o símbolo da marca em PNG, em base64.
+ * DM Sans em TTF estático (licença OFL) e o logo horizontal (lockup escuro, nov. 2026) em SVG, em base64.
  * Em cache (nunca mudam entre publicações): com Cache Components, ler arquivo sem cache
  * impede o Next de pré-gerar a imagem (dava erro 500 em produção).
  */
@@ -68,7 +72,7 @@ async function loadAssets(): Promise<{ medium: string; extraBold: string; symbol
   const [medium, extraBold, symbol] = await Promise.all([
     readFile(join(process.cwd(), "assets/DMSans-500.ttf")),
     readFile(join(process.cwd(), "assets/DMSans-800.ttf")),
-    readFile(join(process.cwd(), "brand/simbolo-800.png")),
+    readFile(join(process.cwd(), "public/brand/lockup-escuro.svg")),
   ]);
   return { medium: medium.toString("base64"), extraBold: extraBold.toString("base64"), symbol: symbol.toString("base64") };
 }
@@ -89,7 +93,7 @@ export async function GET(_request: Request, { params }: RouteContext<"/og/[lang
   const [assets, covers] = await Promise.all([loadAssets(), showcaseImages().catch(() => [] as string[])]);
   const medium = Buffer.from(assets.medium, "base64");
   const extraBold = Buffer.from(assets.extraBold, "base64");
-  const symbolSrc = `data:image/png;base64,${assets.symbol}`;
+  const lockupSrc = `data:image/svg+xml;base64,${assets.symbol}`;
   const useCovers = covers.length >= 4;
   const pieces = useCovers ? covers : [0, 1, 2, 3, 4, 5];
 
@@ -108,10 +112,8 @@ export async function GET(_request: Request, { params }: RouteContext<"/og/[lang
       >
         {/* Texto: logo no alto, título e uma linha. Termina antes do canto de baixo. */}
         <div style={{ position: "absolute", left: 64, top: 56, width: 520, display: "flex", flexDirection: "column" }}>
-          <div style={{ display: "flex", alignItems: "flex-end" }}>
-            <img src={symbolSrc} width={52} height={52} alt="" style={{ marginRight: 2, marginBottom: 1 }} />
-            <span style={{ fontSize: 64, fontWeight: 800, letterSpacing: -3, lineHeight: 0.8 }}>ulco</span>
-          </div>
+          {/* Lockup pronto (disco + "ulco" em contorno), na proporção de "ulco" com 64 px. */}
+          <img src={lockupSrc} width={LOCKUP_W} height={LOCKUP_H} alt="" />
 
           <div style={{ display: "flex", flexDirection: "column", marginTop: 72, fontSize: 86, fontWeight: 800, letterSpacing: -4, lineHeight: 0.98 }}>
             <span>{t.home.titleLine1}</span>

@@ -1,78 +1,71 @@
 // Logo "sulco" desenhado direto no canvas (para assinar as imagens geradas).
-// Os traços são os mesmos de brand/simbolo.svg (caixa de 400 x 400): desenhar em vez de
-// carregar o arquivo deixa o logo nítido em qualquer tamanho e não precisa esperar download.
+// Mesmo desenho de public/brand/simbolo.svg (src/lib/brand-symbol.ts): disco âmbar com o "s"
+// da DM Sans 800 em contorno. Desenhar em vez de carregar o arquivo deixa o logo nítido em
+// qualquer tamanho e não espera download. O "ulco" usa a fonte da página, que quem chama
+// já esperou carregar (waitForFonts) antes de desenhar.
 
-const AMBER = "#E8A13A";
-const ROOM = "#15120F";
+import {
+  LOCKUP,
+  SYMBOL_AMBER,
+  SYMBOL_CENTER,
+  SYMBOL_DARK,
+  SYMBOL_HOLE_RADIUS,
+  SYMBOL_MINI_BELOW_PX,
+  SYMBOL_RADIUS,
+  SYMBOL_RING_RADIUS,
+  SYMBOL_S_PATH,
+} from "@/lib/brand-symbol";
 
-/** Parte da caixa de 400 px ocupada pelo círculo do disco (de 10 a 390). */
-const DISC_IN_BOX = 380 / 400;
-/** Altura do "l" da DM Sans 800, em fração do tamanho da fonte (medido: 0,734). */
-const L_HEIGHT = 0.734;
-
-/** Desenha o disco-S numa caixa quadrada de lado `size`, com o canto superior em (x, y). */
-export function drawSymbol(ctx: CanvasRenderingContext2D, x: number, y: number, size: number) {
-  const s = size / 400;
+/**
+ * Desenha o símbolo com o disco de diâmetro `diameter` e o canto superior do disco em (x, y).
+ * Abaixo de 32 px (já contando a escala do canvas) sai a versão mini, sem o furo central.
+ */
+export function drawSymbol(ctx: CanvasRenderingContext2D, x: number, y: number, diameter: number) {
+  const s = diameter / (SYMBOL_RADIUS * 2);
+  const realPx = diameter * ctx.getTransform().a;
   ctx.save();
-  ctx.translate(x, y);
+  // A caixa do SVG tem 200 de lado e o disco começa em 4 (100 - 96).
+  ctx.translate(x - (SYMBOL_CENTER - SYMBOL_RADIUS) * s, y - (SYMBOL_CENTER - SYMBOL_RADIUS) * s);
   ctx.scale(s, s);
 
-  // Disco âmbar.
+  ctx.fillStyle = SYMBOL_AMBER;
   ctx.beginPath();
-  ctx.arc(200, 200, 190, 0, Math.PI * 2);
-  ctx.fillStyle = AMBER;
+  ctx.arc(SYMBOL_CENTER, SYMBOL_CENTER, SYMBOL_RADIUS, 0, Math.PI * 2);
   ctx.fill();
 
-  // Sulcos e brilho, recortados no disco. Em tamanho pequeno somem, e sobra o S limpo.
-  ctx.save();
-  ctx.clip();
-  ctx.strokeStyle = "rgba(21,18,15,0.26)";
-  ctx.lineWidth = 2.28;
-  for (let r = 57; r <= 177; r += 17.1) {
+  ctx.fillStyle = SYMBOL_DARK;
+  ctx.fill(new Path2D(SYMBOL_S_PATH));
+
+  if (realPx >= SYMBOL_MINI_BELOW_PX) {
     ctx.beginPath();
-    ctx.arc(200, 200, r, 0, Math.PI * 2);
-    ctx.stroke();
+    ctx.arc(SYMBOL_CENTER, SYMBOL_CENTER, SYMBOL_RING_RADIUS, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = SYMBOL_AMBER;
+    ctx.beginPath();
+    ctx.arc(SYMBOL_CENTER, SYMBOL_CENTER, SYMBOL_HOLE_RADIUS, 0, Math.PI * 2);
+    ctx.fill();
   }
-  ctx.fillStyle = "rgba(255,243,214,0.30)";
-  ctx.fill(new Path2D("M 200 200 L 328.7 35.3 L 384.5 101.9 Z"));
-  ctx.fill(new Path2D("M 200 200 L 71.3 364.7 L 15.5 298.1 Z"));
-  ctx.restore();
-
-  // O "S": um sulco cortando o disco.
-  ctx.strokeStyle = ROOM;
-  ctx.lineWidth = 44.71;
-  ctx.lineCap = "round";
-  ctx.stroke(new Path2D("M 282.27 57.50 A 95.00 95.00 0 1 0 200.00 200.00 A 95.00 95.00 0 1 1 117.73 342.50"));
-
-  // Furo central com pino.
-  ctx.fillStyle = ROOM;
-  ctx.beginPath();
-  ctx.arc(200, 200, 29.45, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = AMBER;
-  ctx.beginPath();
-  ctx.arc(200, 200, 10.45, 0, Math.PI * 2);
-  ctx.fill();
   ctx.restore();
 }
 
-/** Tamanho da caixa do símbolo para o disco ter a altura do "l" numa fonte de `fontPx`. */
-export function symbolBoxFor(fontPx: number): number {
-  return (fontPx * L_HEIGHT) / DISC_IN_BOX;
-}
-
-/** Largura total do logo (disco + "ulco") numa fonte de `fontPx`. */
-export function wordmarkWidth(ctx: CanvasRenderingContext2D, fontPx: number, font: string): number {
+/** Mede o "ulco" em DM Sans 800 com o letter-spacing do lockup. */
+function measureUlco(ctx: CanvasRenderingContext2D, fontPx: number, font: string): number {
   ctx.font = `800 ${fontPx}px ${font}`;
-  ctx.letterSpacing = `${-fontPx * 0.05}px`;
+  ctx.letterSpacing = `${fontPx * LOCKUP.letterSpacing}px`;
   const w = ctx.measureText("ulco").width;
   ctx.letterSpacing = "0px";
-  return symbolBoxFor(fontPx) + w;
+  return w;
+}
+
+/** Largura total do logo (disco + espaço + "ulco") numa fonte de `fontPx`. */
+export function wordmarkWidth(ctx: CanvasRenderingContext2D, fontPx: number, font: string): number {
+  return fontPx * (LOCKUP.disc + LOCKUP.gap) + measureUlco(ctx, fontPx, font);
 }
 
 /**
- * Logo completo: disco (o "S") + "ulco" em DM Sans 800, com o disco da altura do "l"
- * apoiado na linha de base `baseline`. `x` é a borda esquerda. Devolve a largura usada.
+ * Logo completo: disco (o "s") + "ulco" em DM Sans 800, com as proporções do lockup
+ * (docs/MARCA.md): disco de 0,787em, base 0,063em abaixo da linha de base `baseline`
+ * (o topo cai no topo do "l"), 0,01em até o "u". `x` é a borda esquerda. Devolve a largura.
  */
 export function drawWordmark(
   ctx: CanvasRenderingContext2D,
@@ -82,15 +75,16 @@ export function drawWordmark(
   font: string,
   inkColor: string,
 ): number {
-  const box = symbolBoxFor(fontPx);
-  // O círculo vai de 10 a 390 na caixa: a base dele (390) fica na linha de base.
-  drawSymbol(ctx, x, baseline - box * (390 / 400), box);
+  const disc = fontPx * LOCKUP.disc;
+  drawSymbol(ctx, x, baseline + fontPx * LOCKUP.belowBaseline - disc, disc);
+  const textX = x + disc + fontPx * LOCKUP.gap;
   ctx.font = `800 ${fontPx}px ${font}`;
   ctx.fillStyle = inkColor;
   ctx.textAlign = "left";
-  ctx.letterSpacing = `${-fontPx * 0.05}px`;
-  ctx.fillText("ulco", x + box, baseline);
+  ctx.textBaseline = "alphabetic";
+  ctx.letterSpacing = `${fontPx * LOCKUP.letterSpacing}px`;
+  ctx.fillText("ulco", textX, baseline);
   const w = ctx.measureText("ulco").width;
   ctx.letterSpacing = "0px";
-  return box + w;
+  return textX - x + w;
 }

@@ -71,7 +71,7 @@ Conteúdo da imagem:
 - título com o período (ex.: "Outubro de 2026") e o username (desde 20/11/2026 com a opção **"Mostrar meu @ na imagem"**, ligada por padrão e salva no navegador; desligada, o topo vira "RECAP" no Toca-discos, no Mosaico e no Clássico e "sulco apresenta" no Lineup, e o nome do arquivo baixado, do recap e da grade, sai sem o username);
 - o álbum do período em destaque ("O álbum do mês", "O álbum da sua vida"...), com capa;
 - artistas ("Na sua cabeça"), músicas ("No repeat"), álbuns e gêneros;
-- rodapé com o crédito "dados: Last.fm" à esquerda e a assinatura à direita: endereço do site + logo "sulco" (disco-S desenhado no canvas, `src/lib/canvas/brandmark.ts`);
+- rodapé com o crédito "dados: Last.fm" à esquerda e a assinatura à direita: endereço do site + logo "sulco" (disco âmbar com o "s", logo de nov. 2026, desenhado no canvas: `src/lib/canvas/brandmark.ts`);
 - com "Mostrar scrobbles e minutos" ligado: total de scrobbles e minutos ouvidos (na linha das datas, nunca no cartão do álbum; no Lineup, no "ingresso") e reproduções de cada item. A letra diminui se a linha não couber.
 - Minutos: estimativa (o Last.fm não diz quanto durou cada scrobble). Duração média das 10 músicas mais ouvidas, pesada pelas vezes que tocaram (`track.getInfo`), vezes o total de scrobbles; sem nenhuma duração, 3 min 30 s por música (`src/lib/minutes.ts`). Só é calculada quando a pessoa liga a opção. O painel ao lado avisa que é estimativa.
 

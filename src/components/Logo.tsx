@@ -1,6 +1,16 @@
-import Image from "next/image";
 import Link from "next/link";
 import { getI18n } from "@/i18n/server";
+import {
+  LOCKUP,
+  SYMBOL_AMBER,
+  SYMBOL_CENTER,
+  SYMBOL_DARK,
+  SYMBOL_DISC_VIEWBOX,
+  SYMBOL_HOLE_RADIUS,
+  SYMBOL_RADIUS,
+  SYMBOL_RING_RADIUS,
+  SYMBOL_S_PATH,
+} from "@/lib/brand-symbol";
 
 type Props = {
   /** "sm" para cabeçalhos, "lg" para a página inicial. */
@@ -13,28 +23,41 @@ const SIZES = {
 };
 
 /**
- * Logo "sulco": o disco de vinil (que é o "S") + "ulco" em DM Sans 800, minúsculas.
- * O disco tem a altura do "l" e se apoia na linha de base, como no lockup de brand/.
- * O SVG entra por <img> (next/image): assim os ids internos dele não se repetem
- * quando o logo aparece mais de uma vez na página.
- * Leitores de tela leem só "sulco".
+ * Logo "sulco" (novembro de 2026): o disco âmbar com o "s" é a primeira letra, seguido de
+ * "ulco" como texto de verdade (DM Sans 800, minúsculas), na cor do texto do tema.
+ * Proporções em docs/MARCA.md: disco de 0,787em, topo no topo do "l", base 0,063em abaixo
+ * da linha de base, 0,01em até o "u". O disco é SVG embutido, sempre âmbar.
+ * No "sm" (disco de ~19 px) usa a versão mini, sem o furo central. Leitores de tela leem "sulco".
  */
 export function Logo({ size = "sm" }: Props) {
+  const withHole = size === "lg";
   return (
-    <span className={`inline-flex items-baseline font-extrabold leading-none tracking-tighter text-ink ${SIZES[size]}`}>
+    <span className={`inline-block whitespace-nowrap font-extrabold leading-none text-ink ${SIZES[size]}`}>
       <span className="sr-only">sulco</span>
-      <Image
-        src="/brand/simbolo.svg"
-        alt=""
+      <svg
+        viewBox={SYMBOL_DISC_VIEWBOX}
         aria-hidden
-        width={400}
-        height={400}
-        unoptimized
-        priority={size === "lg"}
-        // O desenho ocupa 380 dos 400 px do SVG: 0,82em deixa o disco da altura do "l".
-        className="relative top-[0.04em] mr-[0.01em] h-[0.82em] w-auto"
-      />
-      <span aria-hidden>ulco</span>
+        focusable="false"
+        className="inline-block"
+        style={{
+          width: `${LOCKUP.disc}em`,
+          height: `${LOCKUP.disc}em`,
+          verticalAlign: `-${LOCKUP.belowBaseline}em`,
+          marginRight: `${LOCKUP.gap}em`,
+        }}
+      >
+        <circle cx={SYMBOL_CENTER} cy={SYMBOL_CENTER} r={SYMBOL_RADIUS} fill={SYMBOL_AMBER} />
+        <path d={SYMBOL_S_PATH} fill={SYMBOL_DARK} />
+        {withHole && (
+          <>
+            <circle cx={SYMBOL_CENTER} cy={SYMBOL_CENTER} r={SYMBOL_RING_RADIUS} fill={SYMBOL_DARK} />
+            <circle cx={SYMBOL_CENTER} cy={SYMBOL_CENTER} r={SYMBOL_HOLE_RADIUS} fill={SYMBOL_AMBER} />
+          </>
+        )}
+      </svg>
+      <span aria-hidden style={{ letterSpacing: `${LOCKUP.letterSpacing}em` }}>
+        ulco
+      </span>
     </span>
   );
 }

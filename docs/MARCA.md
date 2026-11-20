@@ -33,7 +33,39 @@ Os tokens viram classes do Tailwind (`bg-room`, `bg-card`, `bg-terra`, `bg-stage
 
 As paletas da imagem (Âmbar, Meia-noite, Vinho, Papel, Lilás e Cor da capa) moram em `src/lib/recap/palettes.ts`. Na página do perfil, `AccentScope` troca `--accent`, `--accent-hover` e `--accent-ink` pelo destaque da paleta escolhida quando ela passa no contraste AA (`uiAccentFor`, em `src/lib/recap/ui-accent.ts`). Como o palco do pôster/grade (`bg-stage`) é sempre escuro nos dois temas, esse destaque mantém contraste AA tanto no modo claro quanto no modo escuro.
 
-O logo (`public/brand/simbolo.svg`) é sempre âmbar.
+O disco do logo é sempre âmbar.
+
+## Logo (novembro de 2026)
+
+O "s" é a própria letra da DM Sans 800, em `#14110E`, dentro de um disco âmbar (`#E8A13A`). O disco funciona como a primeira letra da palavra: disco + "ulco" lê-se **"sulco"**, sempre em minúsculas. (Antes, o "S" era um traço desenhado dentro do disco.)
+
+**Versões do símbolo** (originais em `brand/logo-2026-11/`, fora do git):
+
+| Arquivo | Como é | Uso |
+|---|---|---|
+| `simbolo.svg` (copiado para `public/brand/`) | disco + "s" + anel escuro com furo âmbar no centro | interface e avatar, a partir de 32 px |
+| `simbolo-mini.svg` | sem o furo central | abaixo de 32 px; `src/app/icon.svg` e `favicon.ico` (16/32/48/64) já são esta versão |
+| `simbolo-completo.svg` | com dois sulcos finos | a partir de 48 px |
+| `lockup-escuro.svg` / `lockup-claro.svg` | logo horizontal em contorno | o escuro está em `public/brand/` e assina a prévia do link (`src/app/og`) |
+| `apple-icon.png` | 180 x 180, fundo `#14110E` | `src/app/apple-icon.png` |
+
+**Proporções do lockup**, em em da fonte do "ulco" (em `LOCKUP`, `src/lib/brand-symbol.ts`):
+
+- diâmetro do disco: **0,787em**;
+- topo do disco alinhado ao topo do "l";
+- base do disco **0,063em abaixo da linha de base** (`vertical-align: -0.063em`);
+- espaço entre o disco e o "u": **0,01em** de margem (dá ~0,07em de respiro visual, pelo recuo da letra);
+- "ulco" em DM Sans 800, `letter-spacing: -0.05em`.
+
+**Cores:** no modo escuro a palavra fica em `var(--ink)` (`#F4EEE6`); no claro, em `#191512` (o `text-ink` de cada tema). O disco é sempre âmbar.
+
+**Onde aparece:**
+
+- **Cabeçalho** (`src/components/Logo.tsx`): disco como SVG embutido e "ulco" como texto real, na cor do tema. No tamanho do cabeçalho (disco de ~19 px) usa a versão mini; no tamanho grande, a com furo.
+- **Recap** (`src/lib/canvas/brandmark.ts`, no rodapé): disco e "s" desenhados no canvas com o mesmo contorno do SVG (não depende da fonte); o "ulco" usa a DM Sans já carregada antes do desenho. Abaixo de 32 px reais sai a mini.
+- **Grade:** sem logo (decisão de 16/11/2026: a grade é só das capas).
+- **Prévia do link:** `public/brand/lockup-escuro.svg`.
+- O banner do X (`npm run banner`, ferramenta local) ainda usa o símbolo antigo `brand/simbolo-800.png`.
 
 ## Tipografia
 
@@ -43,7 +75,7 @@ O logo (`public/brand/simbolo.svg`) é sempre âmbar.
 | DM Sans 500 | texto e interface (peso padrão do corpo; 600 e 700 para ênfase) | |
 | DM Mono 500 | números, datas, contagens, metadados e rótulos em caixa alta | sempre com `tabular-nums` |
 
-O canvas do recap e da grade usa a mesma DM Sans (lida do corpo da página). O logo ("ulco") também (`Logo.tsx` e `src/lib/canvas/brandmark.ts`). A prévia do link e o banner usam os TTF estáticos em `assets/` (licença OFL em `assets/DMSans-OFL.txt`).
+O canvas do recap e da grade usa a mesma DM Sans (lida do corpo da página). O "ulco" do logo também (`Logo.tsx` e `src/lib/canvas/brandmark.ts`). A prévia do link e o banner usam os TTF estáticos em `assets/` (licença OFL em `assets/DMSans-OFL.txt`).
 
 Todas carregadas com `next/font/google` (subset latin, `display: swap`), sem CDN externo. A legenda da vitrine é curta (até 5 palavras): conferida no teste (`showcase.test.ts`) e no `npm run vitrine`.
 
