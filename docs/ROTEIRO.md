@@ -160,6 +160,16 @@ Pedido do dono do projeto: as imagens não podem perder qualidade ao postar ou d
 - [x] opção "Mostrar meu @ na imagem" (ligada por padrão), também no nome do arquivo, nas três línguas
 - [x] palco da página inicial continua em 1x (é só exemplo)
 
+## Grade no formato Stories (20/11/2026)
+
+Pedido de um usuário no X: uma versão da grade para a tela dos Stories do Instagram. O dono aprovou a versão em tela cheia, sem nenhuma assinatura do sulco (a assinatura fica só no recap).
+
+- [x] seletor "Formato: Quadrado / Stories" no painel da grade, nas três línguas
+- [x] Stories em 1620 x 2880 (layout de 1080 x 1920 em 1,5x): 3x5 (15 álbuns, capas de 540 px) ou 4x6 (24 álbuns, capas de 405 px); sobra uma faixa do fundo em cima e embaixo, onde o Instagram põe a barra de progresso e o campo de resposta
+- [x] a 5x5 não existe nos Stories (capas pequenas demais e 40 álbuns): vira 4 colunas
+- [x] nome do arquivo termina em `-stories` (ex.: `grade-user-7day-3x5-stories.png`)
+- [x] conferido em 360 px, sem rolagem lateral
+
 ---
 
 ## Ideias para depois

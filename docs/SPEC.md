@@ -109,6 +109,7 @@ A paleta padrão (Âmbar) é a identidade visual do site (ver "Identidade visual
 - Opções: mostrar ou não o nome do álbum e artista; mostrar ou não a contagem de plays. A grade não leva assinatura nem selo (só as capas); o recap continua com a assinatura e o crédito ao Last.fm.
 - Álbum que vem sem capa no top do usuário: a grade (e o recap) pergunta à página do álbum (`album.getInfo` pela rota `/api/lastfm/album`), que às vezes tem. Se nem ela tiver, quadrado neutro com o nome do álbum.
 - Exportar em **2400 x 2400** (layout de 1500 em 1,6x, desde 20/11/2026; 2400 é divisível por 3, 4 e 5, sem fresta entre as capas), com a capa original na 3x3 e 600 px na 4x4 e na 5x5. Mesmos botões e mesma prévia segurável do recap; como a 3x3 em PNG chega a ~8 MB, ela costuma sair em JPEG 92% (~1,2 MB).
+- **Formato Stories (desde 20/11/2026):** seletor "Quadrado / Stories". Stories sai em **1620 x 2880** (9:16, layout de 1080 x 1920 em 1,5x), com as capas ocupando a tela: **3x5** (15 álbuns) ou **4x6** (24 álbuns; a página busca até 25). A sobra de altura vira uma faixa do fundo em cima e embaixo, onde o Instagram cobre a tela. Sem assinatura, como a grade quadrada. A 5x5 não existe nesse formato (vira 4 colunas). O nome do arquivo termina em `-stories`.
 
 ## Gêneros
 
