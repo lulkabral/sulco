@@ -68,7 +68,7 @@ Princípio: **lembrar, não medir.** A imagem mostra nomes e capas; números só
 
 Conteúdo da imagem:
 
-- título com o período (ex.: "Outubro de 2026") e o username;
+- título com o período (ex.: "Outubro de 2026") e o username (desde 20/11/2026 com a opção **"Mostrar meu @ na imagem"**, ligada por padrão e salva no navegador; desligada, o topo vira "RECAP" no Toca-discos, no Mosaico e no Clássico e "sulco apresenta" no Lineup, e o nome do arquivo baixado, do recap e da grade, sai sem o username);
 - o álbum do período em destaque ("O álbum do mês", "O álbum da sua vida"...), com capa;
 - artistas ("Na sua cabeça"), músicas ("No repeat"), álbuns e gêneros;
 - rodapé com o crédito "dados: Last.fm" à esquerda e a assinatura à direita: endereço do site + logo "sulco" (disco-S desenhado no canvas, `src/lib/canvas/brandmark.ts`);
@@ -85,14 +85,14 @@ Código: `src/lib/recap/` (um arquivo por formato em `layouts/`).
 
 Formatos:
 
-- Story: 1080 x 1920 (o principal).
+- Story: 1080 x 1920 (o principal). Desde 20/11/2026 a imagem é desenhada nesse layout e exportada em dobro, **2160 x 3840**, para ficar nítida no zoom e no arquivo baixado; as capas nº 1 a 3 (as grandes) usam a capa original do Last.fm e as demais, 600 px.
 - Quadrado: 1080 x 1080 (depois).
 
 Regras:
 
 - Desenhar com Canvas 2D. Esperar as fontes carregarem (`document.fonts.ready`) antes de desenhar.
 - Nomes longos são cortados com reticências; nunca estouram a área.
-- Exportar em PNG com dois botões lado a lado: **Baixar imagem** e **Compartilhar**. Compartilhar usa o menu nativo do celular (Web Share API com arquivo); no computador, sem esse menu, vira **Copiar imagem** (área de transferência); sem nenhum dos dois, baixa.
+- Exportar em PNG (até 5 MB, o limite de imagem do X; acima disso, JPEG de qualidade 92%, com a mesma resolução) com dois botões lado a lado: **Baixar imagem** e **Compartilhar**. Compartilhar usa o menu nativo do celular (Web Share API com arquivo); no computador, sem esse menu, vira **Copiar imagem** (área de transferência); sem nenhum dos dois, baixa.
 - Em telas de toque, a prévia é uma `<img>` (cópia PNG do canvas), para que segurar o dedo nela abra o "Salvar imagem" do celular, com a dica "segure a imagem para salvar ou compartilhar". A cópia só é gerada com a imagem completa e depois de a pessoa parar de trocar opções por 350 ms (gerar um PNG de 1080x1920 a cada clique pesava). No computador não há cópia: a tela mostra o próprio canvas.
 - **Desenho progressivo (17/11/2026):** a imagem aparece assim que a fonte carrega; cada capa entra quando chega e os gêneros entram por último ("Completando capas e gêneros…" embaixo da prévia). Antes, a imagem esperava os gêneros (2 a 3 s com cache vazio) e todas as capas. Baixar e compartilhar só liberam com tudo pronto. A grade faz o mesmo com as capas.
 - Artistas não têm foto disponível na API (ver `LASTFM.md`). Usar capas de álbum ou composição só com texto. Na lista "Artistas" da página, cada artista aparece numa bolinha com a capa do seu álbum mais ouvido no período (buscada pela rota `album` se ainda não veio, como no ano); sem álbum do artista na lista, a capa da sua música mais ouvida; se nada disso tiver capa, a capa do álbum mais popular do artista no Last.fm (rota `artist`); só sem nenhuma capa, a inicial do nome.
@@ -108,7 +108,7 @@ A paleta padrão (Âmbar) é a identidade visual do site (ver "Identidade visual
 - Períodos: os mesmos do seletor (padrão: últimos 7 dias, a "semaninha").
 - Opções: mostrar ou não o nome do álbum e artista; mostrar ou não a contagem de plays. A grade não leva assinatura nem selo (só as capas); o recap continua com a assinatura e o crédito ao Last.fm.
 - Álbum que vem sem capa no top do usuário: a grade (e o recap) pergunta à página do álbum (`album.getInfo` pela rota `/api/lastfm/album`), que às vezes tem. Se nem ela tiver, quadrado neutro com o nome do álbum.
-- Exportar em PNG, mesmos botões e mesma prévia segurável do recap.
+- Exportar em **3000 x 3000** (layout de 1500 em 2x, desde 20/11/2026), com a capa original nas grades 3x3 e 4x4 e 600 px na 5x5. Mesmos botões e mesma prévia segurável do recap; como a 3x3 em PNG passa de 10 MB, ela costuma sair em JPEG 92% (~2 MB).
 
 ## Gêneros
 

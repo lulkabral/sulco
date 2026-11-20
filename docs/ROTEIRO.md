@@ -150,6 +150,16 @@ Pedido do dono do projeto: tirar a cara de "site genérico de IA" da página ini
 - [x] rodapé editorial em uma linha, sem pílulas
 - [x] conferido em 360 px e no computador, sem rolagem lateral
 
+## Imagens em alta resolução e @ opcional (20/11/2026)
+
+Pedido do dono do projeto: as imagens não podem perder qualidade ao postar ou dar zoom, e o @ do Last.fm deve poder sair da imagem.
+
+- [x] recap exportado em 2160 x 3840 e grade em 3000 x 3000 (mesmo layout, escala 2x; sombras ajustadas)
+- [x] capas originais onde aparecem grandes (recap nº 1 a 3, grades 3x3 e 4x4), depois da versão rápida
+- [x] PNG até 5 MB (limite do X); acima, JPEG 92% com a mesma resolução (grade 3x3: ~12 MB em PNG, ~1,8 MB em JPEG)
+- [x] opção "Mostrar meu @ na imagem" (ligada por padrão), também no nome do arquivo, nas três línguas
+- [x] palco da página inicial continua em 1x (é só exemplo)
+
 ---
 
 ## Ideias para depois
