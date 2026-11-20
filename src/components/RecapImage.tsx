@@ -431,7 +431,7 @@ export function RecapImage(props: Props) {
               />
             </label>
 
-            <label className="flex cursor-pointer items-center justify-between gap-3 rounded-2xl border border-stage-line p-3.5 transition-colors duration-200 ease-smooth hover:border-stage-faint has-[:checked]:border-amber/60 has-[:checked]:bg-amber/10">
+            <label className="mt-3 flex cursor-pointer items-center justify-between gap-3 rounded-2xl border border-stage-line p-3.5 transition-colors duration-200 ease-smooth hover:border-stage-faint has-[:checked]:border-amber/60 has-[:checked]:bg-amber/10">
               <span>
                 <span className="block text-sm font-bold text-stage-ink">{t.recap.showUsername}</span>
                 <span className="block text-xs text-stage-soft">{t.recap.showUsernameHint}</span>
