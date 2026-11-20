@@ -4,9 +4,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Swatch } from "@/components/Swatch";
 import { VinylLoader } from "@/components/VinylLoader";
 import { useI18n } from "@/i18n/client";
-import { loadImage, pageFontFamily, waitForFonts } from "@/lib/canvas/image";
+import { pageFontFamily, waitForFonts } from "@/lib/canvas/image";
 import { drawGrid } from "@/lib/grid/draw";
-import { coverUrl } from "@/lib/grid/layout";
 import { periodLabel } from "@/lib/periods";
 import { albumHeading, dateText, shortTag } from "@/lib/recap/copy";
 import { paletteFromCover } from "@/lib/recap/cover-color";
@@ -29,43 +28,57 @@ const DAY = 86_400;
 type Props = {
   /** Capas já buscadas no servidor para a vitrine (nenhuma chamada nova à API do Last.fm aqui). */
   covers: TrendingCover[];
+  /** Imagens 300×300 já carregadas com CORS no topo (evita baixar duas vezes). */
+  images: (HTMLImageElement | null)[];
   /** Quantas posições girar a ordem das capas (sincronizado com a faixa de discos). */
   offset: number;
-  /** Cor de vinil contrastante do disco ativo (sincronizada com o topo e a vitrine). */
+  /** Cor de vinil contrastante do disco ativo (sincronizada com a vitrine). */
   vinylColor?: string | null;
   /** Avança para o próximo disco da vitrine. */
   onNext: () => void;
 };
 
 /**
- * Palco da página inicial: mostra os formatos reais que o sulco gera, desenhados pelo mesmo
- * código da imagem baixada (drawRecap/drawGrid), dentro de um cartão escuro dedicado
- * para as imagens saltarem tanto no modo claro quanto no modo escuro.
+ * Palco compacto já na 1ª tela da página inicial: mostra os formatos reais que o sulco gera,
+ * desenhados pelo mesmo código da imagem baixada (drawRecap/drawGrid), com a imagem como
+ * protagonista — abas em 1 linha acima e cores/controles enxutos logo abaixo para ver tudo
+ * mudar ao vivo sem rolar a página.
  */
-export function HomePosterPreview({ covers, offset, vinylColor = null, onNext }: Props) {
+export function HomePosterPreview({ covers, images, offset, vinylColor = null, onNext }: Props) {
   const { lang, t } = useI18n();
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [tab, setTab] = useState<StageTab>("toca-discos");
+  const canvas0Ref = useRef<HTMLCanvasElement>(null);
+  const canvas1Ref = useRef<HTMLCanvasElement>(null);
+  // Dois slots de canvas alternados: ao trocar de formato, o anterior some em fade suave
+  // enquanto o novo entra no centro — sem corte seco mesmo entre 9:16 e Grade 1:1.
+  const [stage, setStage] = useState<{ active: 0 | 1; tabs: [StageTab, StageTab] }>({
+    active: 0,
+    tabs: ["toca-discos", "toca-discos"],
+  });
   const [paletteId, setPaletteId] = useState<string>("ambar");
   const [coloredVinyl, setColoredVinyl] = useState(true);
   const [font, setFont] = useState<string | null>(null);
-  const [images, setImages] = useState<(HTMLImageElement | null)[]>(() => covers.map(() => null));
 
-  // Fonte e capas: carregadas uma vez. Na prévia da página inicial (não baixada), 300 px
-  // já fica nítido e vem rápido da borda do Fastly (600 px no Last.fm pode levar vários segundos).
+  const tab = stage.tabs[stage.active];
+  const tabIndex = STAGE_TABS.indexOf(tab);
+
+  function selectTab(next: StageTab) {
+    setStage((prev) => {
+      if (prev.tabs[prev.active] === next) return prev;
+      const nextActive: 0 | 1 = prev.active === 0 ? 1 : 0;
+      const nextTabs: [StageTab, StageTab] = [...prev.tabs];
+      nextTabs[nextActive] = next;
+      return { active: nextActive, tabs: nextTabs };
+    });
+  }
+
   useEffect(() => {
     let cancelled = false;
     const family = pageFontFamily();
     waitForFonts(family).then(() => !cancelled && setFont(family));
-    covers.forEach((c, i) => {
-      loadImage(coverUrl(c.imageUrl, 300)).then((img) => {
-        if (!cancelled && img) setImages((prev) => prev.map((x, j) => (j === i ? img : x)));
-      });
-    });
     return () => {
       cancelled = true;
     };
-  }, [covers]);
+  }, []);
 
   // Ordem do exemplo: as capas giradas a partir do disco escolhido na vitrine.
   const order = useMemo(() => covers.map((_, i) => (i + offset) % Math.max(covers.length, 1)), [covers, offset]);
@@ -75,9 +88,9 @@ export function HomePosterPreview({ covers, offset, vinylColor = null, onNext }:
   const palette = paletteId === COVER_PALETTE_ID ? (coverPalette ?? paletteById("ambar")) : paletteById(paletteId);
 
   useEffect(() => {
-    const canvas = canvasRef.current;
+    const canvas = stage.active === 0 ? canvas0Ref.current : canvas1Ref.current;
     if (!font || !canvas || covers.length === 0) return;
-    const items = order.map((i, rank) => ({ cover: covers[i], image: images[i], plays: EXAMPLE_PLAYS[rank] ?? 10 }));
+    const items = order.map((i, rank) => ({ cover: covers[i], image: images[i] ?? null, plays: EXAMPLE_PLAYS[rank] ?? 10 }));
 
     if (tab === "grade") {
       const nine = Array.from({ length: 9 }, (_, k) => items[k % items.length]);
@@ -114,150 +127,169 @@ export function HomePosterPreview({ covers, offset, vinylColor = null, onNext }:
       },
       { layout: tab, palette, showNumbers: false, vinylColor: coloredVinyl ? vinylColor : null, font, lang },
     );
-  }, [font, images, order, covers, tab, palette, coloredVinyl, vinylColor, lang, t]);
+  }, [font, images, order, covers, stage.active, tab, palette, coloredVinyl, vinylColor, lang, t]);
 
   const tabName = (id: StageTab) => (id === "grade" ? t.home.gridName : t.recap.layouts[id]);
   const isGrid = tab === "grade";
   const isTurntable = tab === "toca-discos";
-  const activePaletteLabel = isGrid
-    ? t.home.gridClean
-    : paletteId === COVER_PALETTE_ID
-      ? t.recap.coverColor
-      : (t.recap.palettes[paletteId] ?? palette.name);
 
   return (
-    <section id="palco" aria-labelledby="palco-titulo" className="mx-auto w-full max-w-6xl px-4 py-7 sm:px-6 sm:py-9">
-      <div className="overflow-hidden rounded-[28px] border border-stage-line bg-stage p-5 text-stage-ink shadow-xl sm:p-7 lg:p-9">
-        <div className="grid grid-cols-1 items-center gap-7 lg:grid-cols-[0.95fr_1.05fr] lg:gap-10">
-          {/* Controles do palco */}
-          <div className="flex flex-col gap-5">
-            <div>
-              <p className="font-mono text-xs font-medium tracking-[0.14em] text-amber uppercase">
-                {t.home.stageEyebrow}
-              </p>
-              <h2 id="palco-titulo" className="mt-1.5 text-2xl font-extrabold tracking-tight text-stage-ink sm:text-3xl">
-                {t.home.stageHeading}
-              </h2>
-              <p className="mt-2 max-w-md text-sm leading-relaxed text-stage-soft">{t.home.stageBody}</p>
-            </div>
+    <div
+      id="palco"
+      aria-labelledby="palco-titulo"
+      className="flex flex-col gap-3.5 overflow-hidden rounded-[26px] border border-stage-line bg-stage p-3.5 text-stage-ink shadow-xl sm:gap-4 sm:p-5"
+    >
+      <h2 id="palco-titulo" className="sr-only">
+        {t.home.stageHeading}
+      </h2>
 
-            {/* Abas de formato em pílulas táteis */}
-            <div role="group" aria-label={t.home.stageFormats} className="flex flex-wrap gap-2">
-              {STAGE_TABS.map((id) => {
-                const active = tab === id;
-                return (
-                  <button
-                    key={id}
-                    type="button"
-                    aria-pressed={active}
-                    onClick={() => setTab(id)}
-                    className={
-                      "rounded-full px-4 py-2 text-xs font-bold transition duration-200 ease-smooth active:scale-[0.98] sm:text-sm " +
-                      (active
-                        ? "bg-amber text-amber-ink"
-                        : "border border-stage-line text-stage-soft hover:border-stage-faint hover:text-stage-ink")
-                    }
-                  >
-                    {tabName(id)}
-                  </button>
-                );
-              })}
-            </div>
+      {/* 1. Abas de formato em uma única linha com pílula âmbar que desliza suave */}
+      <div
+        role="group"
+        aria-label={t.home.stageFormats}
+        className="relative grid grid-cols-4 rounded-full border border-stage-line bg-stage-card p-1"
+      >
+        <span
+          aria-hidden
+          className="pointer-events-none absolute inset-y-1 left-1 z-0 w-[calc(25%-0.125rem)] rounded-full bg-amber shadow-sm transition-transform duration-300 ease-smooth motion-reduce:transition-none"
+          style={{ transform: `translateX(${tabIndex * 100}%)` }}
+        />
+        {STAGE_TABS.map((id) => {
+          const active = tab === id;
+          return (
+            <button
+              key={id}
+              type="button"
+              aria-pressed={active}
+              onClick={() => selectTab(id)}
+              className={
+                "relative z-10 truncate rounded-full px-1.5 py-1.5 text-center text-[11px] font-bold transition-colors duration-200 ease-smooth sm:px-3 sm:py-2 sm:text-sm " +
+                (active ? "text-amber-ink" : "text-stage-soft hover:text-stage-ink")
+              }
+            >
+              {tabName(id)}
+            </button>
+          );
+        })}
+      </div>
 
-            {/* Paletas em bolinhas + botão trocar disco */}
-            <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-stage-line bg-stage-card p-4">
-              <div className="flex flex-col gap-2.5">
-                <p className="font-mono text-xs tracking-[0.1em] text-stage-faint uppercase">
-                  {t.recap.color}: <span className="font-semibold text-stage-ink">{activePaletteLabel}</span>
-                </p>
-                <div role="group" aria-label={t.home.stagePalettes} className="flex flex-wrap items-center gap-2.5">
-                  {STAGE_PALETTES.map((id) => {
-                    const p = paletteById(id);
-                    return (
-                      <Swatch
-                        key={id}
-                        label={t.recap.palettes[id] ?? p.name}
-                        active={paletteId === id && !isGrid}
-                        disabled={isGrid}
-                        onClick={() => setPaletteId(id)}
-                        background={`linear-gradient(135deg, ${p.room} 50%, ${p.accent} 50%)`}
-                      />
-                    );
-                  })}
-                  <Swatch
-                    label={t.recap.coverColor}
-                    active={paletteId === COVER_PALETTE_ID && !isGrid}
-                    disabled={isGrid}
-                    onClick={() => setPaletteId(COVER_PALETTE_ID)}
-                    background={
-                      coverPalette
-                        ? `linear-gradient(135deg, ${coverPalette.room} 50%, ${coverPalette.accent} 50%)`
-                        : "conic-gradient(#e8a13a, #ff7aa2, #c59bff, #6fc3ff, #e8a13a)"
-                    }
-                  />
-                </div>
-              </div>
-
-              <button
-                type="button"
-                onClick={onNext}
-                className="group inline-flex shrink-0 items-center gap-1.5 rounded-full border border-stage-line px-3.5 py-2 text-xs font-semibold text-stage-ink transition duration-200 ease-smooth hover:border-stage-faint active:scale-[0.98]"
-              >
-                <span aria-hidden className="inline-block transition-transform duration-300 ease-smooth group-hover:rotate-90">
-                  ↻
-                </span>
-                {t.home.swapDisc}
-              </button>
-            </div>
-
-            {isTurntable && (
-              <label className="flex cursor-pointer items-center justify-between gap-3 rounded-2xl border border-stage-line bg-stage-card px-4 py-3 transition-colors duration-200 ease-smooth hover:border-stage-faint has-[:checked]:border-amber/60 has-[:checked]:bg-amber/10">
-                <span className="flex items-center gap-2.5">
-                  <span
-                    aria-hidden
-                    className="size-3 shrink-0 rounded-full ring-1 ring-white/25 transition-colors duration-300 ease-smooth"
-                    style={{ backgroundColor: coloredVinyl && vinylColor ? vinylColor : "var(--color-vinyl)" }}
-                  />
-                  <span className="text-sm font-bold text-stage-ink">{t.recap.coloredVinyl}</span>
-                </span>
-                <input
-                  type="checkbox"
-                  role="switch"
-                  checked={coloredVinyl}
-                  onChange={(e) => setColoredVinyl(e.target.checked)}
-                  className="peer sr-only"
-                />
-                <span
-                  aria-hidden
-                  className="relative h-6 w-11 shrink-0 rounded-full bg-white/20 ring-1 ring-white/15 transition-colors duration-200 ease-smooth peer-checked:bg-amber peer-checked:ring-amber peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-amber after:absolute after:left-1 after:top-1 after:size-4 after:rounded-full after:bg-stage-ink after:transition-[transform,background-color] after:duration-200 after:ease-smooth peer-checked:after:translate-x-5 peer-checked:after:bg-amber-ink"
-                />
-              </label>
-            )}
-          </div>
-
-          {/* O pôster real (intacto!) */}
-          <div className="relative flex items-center justify-center">
-            <div className="relative">
-              <canvas
-                ref={canvasRef}
-                width={RECAP_WIDTH}
-                height={RECAP_HEIGHT}
-                role="img"
-                aria-label={t.home.stageAlt(tabName(tab))}
+      {/* 2. A imagem real gerada — dois slots com crossfade suave e altura estável */}
+      <div className="relative h-[min(24rem,52dvh)] w-full sm:h-[min(28rem,58dvh)]">
+        {([0, 1] as const).map((slot) => {
+          const isActive = slot === stage.active;
+          const slotTab = stage.tabs[slot];
+          const slotIsGrid = slotTab === "grade";
+          return (
+            <div
+              key={slot}
+              aria-hidden={!isActive}
+              className={
+                "absolute inset-0 flex items-center justify-center transition-[opacity,transform] ease-smooth motion-reduce:transition-none " +
+                (isActive
+                  ? "z-10 scale-100 opacity-100 duration-300"
+                  : "pointer-events-none z-0 scale-[0.96] opacity-0 duration-200")
+              }
+            >
+              <div
                 className={
-                  "block rounded-2xl bg-stage-card shadow-2xl shadow-black/60 ring-1 ring-white/10 transition-shadow duration-300 ease-smooth " +
-                  (isGrid ? "aspect-square w-full max-w-[21rem]" : "aspect-[9/16] h-[25rem] w-auto sm:h-[29rem]")
+                  slotIsGrid
+                    ? "relative w-full max-w-[min(18rem,52dvh)] sm:max-w-[min(22.5rem,58dvh)]"
+                    : "relative h-full"
                 }
-              />
-              {!font && (
-                <div className="absolute inset-0 flex items-center justify-center rounded-2xl bg-stage-card">
-                  <VinylLoader />
-                </div>
-              )}
+              >
+                <canvas
+                  ref={slot === 0 ? canvas0Ref : canvas1Ref}
+                  width={RECAP_WIDTH}
+                  height={RECAP_HEIGHT}
+                  role={isActive ? "img" : undefined}
+                  aria-label={isActive ? t.home.stageAlt(tabName(slotTab)) : undefined}
+                  className={
+                    "block rounded-2xl bg-stage-card shadow-2xl shadow-black/60 ring-1 ring-white/10 " +
+                    (slotIsGrid ? "aspect-square w-full" : "aspect-[9/16] h-full w-auto")
+                  }
+                />
+              </div>
+            </div>
+          );
+        })}
+
+        {!font && (
+          <div className="absolute inset-0 z-20 flex items-center justify-center">
+            <div className="flex aspect-[9/16] h-full items-center justify-center rounded-2xl bg-stage-card ring-1 ring-white/10">
+              <VinylLoader />
             </div>
           </div>
+        )}
+      </div>
+
+      {/* 3. Barra compacta de cores, vinil colorido e troca de disco logo abaixo da imagem */}
+      <div className="flex min-h-[50px] flex-wrap items-center justify-between gap-2.5 rounded-2xl border border-stage-line bg-stage-card px-3 py-2 sm:px-3.5">
+        {isGrid ? (
+          <span className="font-mono text-xs tracking-[0.08em] text-stage-soft uppercase">{t.home.gridClean}</span>
+        ) : (
+          <div role="group" aria-label={t.home.stagePalettes} className="flex items-center gap-2 lg:gap-1.5">
+            {STAGE_PALETTES.map((id) => {
+              const p = paletteById(id);
+              return (
+                <Swatch
+                  key={id}
+                  compact
+                  label={t.recap.palettes[id] ?? p.name}
+                  active={paletteId === id}
+                  onClick={() => setPaletteId(id)}
+                  background={`linear-gradient(135deg, ${p.room} 50%, ${p.accent} 50%)`}
+                />
+              );
+            })}
+            <Swatch
+              compact
+              label={t.recap.coverColor}
+              active={paletteId === COVER_PALETTE_ID}
+              onClick={() => setPaletteId(COVER_PALETTE_ID)}
+              background={
+                coverPalette
+                  ? `linear-gradient(135deg, ${coverPalette.room} 50%, ${coverPalette.accent} 50%)`
+                  : "conic-gradient(#e8a13a, #ff7aa2, #c59bff, #6fc3ff, #e8a13a)"
+              }
+            />
+          </div>
+        )}
+
+        <div className="flex items-center gap-2">
+          {isTurntable && (
+            <button
+              type="button"
+              role="switch"
+              aria-checked={coloredVinyl}
+              onClick={() => setColoredVinyl((v) => !v)}
+              className={
+                "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1.5 text-xs font-bold transition duration-200 ease-smooth active:scale-[0.98] " +
+                (coloredVinyl
+                  ? "border-amber/60 bg-amber/15 text-stage-ink"
+                  : "border-stage-line text-stage-soft hover:border-stage-faint hover:text-stage-ink")
+              }
+            >
+              <span
+                aria-hidden
+                className="size-2.5 shrink-0 rounded-full ring-1 ring-white/25 transition-colors duration-200 ease-smooth"
+                style={{ backgroundColor: coloredVinyl && vinylColor ? vinylColor : "var(--color-vinyl)" }}
+              />
+              <span>{t.recap.coloredVinyl}</span>
+            </button>
+          )}
+
+          <button
+            type="button"
+            onClick={onNext}
+            className="group inline-flex shrink-0 items-center gap-1.5 rounded-full border border-stage-line px-2.5 py-1.5 text-xs font-semibold text-stage-ink transition duration-200 ease-smooth hover:border-stage-faint active:scale-[0.98]"
+          >
+            <span aria-hidden className="inline-block transition-transform duration-300 ease-smooth group-hover:rotate-90">
+              ↻
+            </span>
+            <span>{t.home.swapDisc}</span>
+          </button>
         </div>
       </div>
-    </section>
+    </div>
   );
 }

@@ -65,7 +65,7 @@ export default function UserPage({ params, searchParams }: PageProps<"/[lang]/u/
   return (
     <main id="conteudo" className="flex w-full flex-1 flex-col">
       <header className="border-b border-rule">
-        <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-2 px-4 sm:px-6">
+        <div className="mx-auto flex h-14 max-w-[88rem] items-center justify-between gap-2 px-4 sm:px-6 lg:px-10">
           <LogoLink />
           <div className="flex items-center gap-2">
             <QuickUserSwitch />
@@ -75,7 +75,7 @@ export default function UserPage({ params, searchParams }: PageProps<"/[lang]/u/
         </div>
       </header>
 
-      <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-5 px-4 pb-10 pt-4 sm:px-6 sm:pt-6">
+      <div className="mx-auto flex w-full max-w-[88rem] flex-1 flex-col gap-5 px-4 pb-10 pt-4 sm:px-6 sm:pt-6 lg:px-10">
         <Suspense fallback={<ProfileSkeleton />}>
           <Profile params={params} searchParams={searchParams} />
         </Suspense>

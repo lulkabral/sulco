@@ -14,8 +14,8 @@ export const X_AUTHOR = "alcoholicgoatt";
 export async function SiteFooter() {
   const { t, href } = await getI18n();
   return (
-    <footer className="border-t border-rule px-4 py-6 text-sm sm:px-8">
-      <div className="mx-auto flex max-w-6xl flex-col gap-4 md:flex-row md:items-center md:justify-between">
+    <footer className="border-t border-rule px-4 py-6 text-sm sm:px-6 lg:px-10">
+      <div className="mx-auto flex max-w-[88rem] flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <p className="text-ink-faint">
           <span className="font-extrabold tracking-tight text-ink">sulco</span> · {t.footer.line}
         </p>

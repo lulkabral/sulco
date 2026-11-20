@@ -51,8 +51,8 @@ Não usar serif nem letra manuscrita no site. Sem textura de grão: a página fi
 
 ## Estética "Loja de discos viva"
 
-- **Primeira dobra viva no celular:** título + campo em pílula arredondada + janela escura com leque de capas quadradas (sem cantos arredondados, como capas reais de LP) e disco de vinil colorido liso girando (poucos sulcos sutis, cor contrastante calculada em `src/lib/vinyl-color.ts`) aparecem logo na primeira tela.
-- **Blocos de cor e ritmo:** alternância entre papel/sala, faixa terracota com discos de vinil coloridos clicáveis (selo central de 42%, cada disco em uma cor distinta que contrasta com a capa e sincronizada com o topo), palco escuro dedicado para os pôsteres reais (com opção de vinil colorido no formato Toca-discos) e blocos arredondados (`rounded-[24px]` a `rounded-[28px]`).
+- **Primeira dobra com o produto real:** título + campo em pílula arredondada + palco escuro ao vivo (abas `Toca-discos · Lineup · Mosaico · Grade` em 1 linha acima, o canvas real no centro como protagonista e barra compacta de cores, *Vinil colorido* e troca de disco logo abaixo) aparecem já na primeira tela tanto no celular quanto no computador.
+- **Blocos de cor e ritmo:** alternância limpa entre papel/sala com o palco escuro no topo e a faixa terracota logo abaixo com os 6 LPs clicáveis (capa quadrada na frente e vinil colorido contrastante girando metade para fora à direita, sincronizado com o palco), sem blocos genéricos de explicação.
 - **Perfil coerente:** topo com faixa limpa de capas retas (sem fita crepe) e `VinylAvatar` girando, pílulas para `Recap | Grade` e período (com gaveta arredondada), troca rápida de usuário em gaveta no topo, palco escuro com switches unificados e listas em abas no celular (`2×2` largo no computador) com o cartão de gêneros em terracota.
 - **Proibido:** fita crepe em CSS, capas tortas decorativas na faixa, sombra deslocada de "adesivo", letra manuscrita, vidro fosco pesado, brilhos difusos de IA.
 

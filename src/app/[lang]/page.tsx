@@ -20,7 +20,7 @@ export default async function Home() {
   return (
     <main id="conteudo" className="flex w-full flex-1 flex-col">
       <header className="border-b border-rule">
-        <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-3 px-4 sm:px-6">
+        <div className="mx-auto flex h-14 max-w-[88rem] items-center justify-between gap-3 px-4 sm:px-6 lg:px-10">
           <LogoLink />
           <div className="flex items-center gap-2">
             <ThemeToggle />

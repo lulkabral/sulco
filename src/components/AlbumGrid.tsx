@@ -143,46 +143,54 @@ export function AlbumGrid({ username, period, periodLabel, albums }: Props) {
     return <p className="text-soft">{t.grid.empty}</p>;
   }
 
+  const sizeIndex = Math.max(0, GRID_SIZES.indexOf(size));
+
   return (
     <section
       aria-labelledby="grade-titulo"
-      className="overflow-hidden rounded-[28px] border border-stage-line bg-stage p-4 text-stage-ink shadow-xl motion-safe:animate-rise sm:p-6"
+      className="overflow-hidden rounded-[28px] border border-stage-line bg-stage p-4 text-stage-ink shadow-xl motion-safe:animate-rise sm:p-6 lg:p-8"
     >
       <h2 id="grade-titulo" className="sr-only">
         {t.grid.heading}
       </h2>
 
-      <div className="grid grid-cols-1 items-start gap-6 md:grid-cols-[minmax(0,26rem)_1fr] md:gap-8">
-        <div className="relative mx-auto w-full max-w-md transition-transform duration-300 ease-smooth hover:-translate-y-0.5">
-          <canvas
-            ref={canvasRef}
-            width={GRID_CANVAS_SIDE}
-            height={GRID_CANVAS_SIDE}
-            // Sem a cópia em <img> (computador), o próprio canvas é a imagem para leitores de tela.
-            role={snapshot ? undefined : "img"}
-            aria-label={snapshot ? undefined : altText}
-            aria-hidden={snapshot ? true : undefined}
-            className="block aspect-square w-full rounded-2xl bg-stage-card shadow-2xl shadow-black/60 ring-1 ring-white/10"
-          />
-          {snapshot && (
-            // Cópia em PNG por cima do canvas: no celular, segurar o dedo abre "Salvar imagem".
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={snapshot} alt={altText} className="absolute left-0 top-0 aspect-square w-full rounded-2xl" />
-          )}
+      <div className="grid grid-cols-1 items-start gap-6 md:grid-cols-[minmax(0,26rem)_1fr] md:gap-8 lg:grid-cols-[minmax(0,32rem)_1fr] lg:gap-10 xl:grid-cols-[minmax(0,36rem)_1fr]">
+        <div className="relative mx-auto w-full max-w-md transition-transform duration-300 ease-smooth hover:-translate-y-0.5 lg:max-w-[32rem] xl:max-w-[36rem]">
+          <div className="relative aspect-square w-full">
+            <canvas
+              ref={canvasRef}
+              width={GRID_CANVAS_SIDE}
+              height={GRID_CANVAS_SIDE}
+              // Sem a cópia em <img> (computador), o próprio canvas é a imagem para leitores de tela.
+              role={snapshot ? undefined : "img"}
+              aria-label={snapshot ? undefined : altText}
+              aria-hidden={snapshot ? true : undefined}
+              className="block size-full rounded-2xl bg-stage-card shadow-2xl shadow-black/60 ring-1 ring-white/10"
+            />
+            {snapshot && (
+              // Cópia em PNG por cima do canvas: no celular, segurar o dedo abre "Salvar imagem".
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={snapshot} alt={altText} className="absolute inset-0 size-full rounded-2xl" />
+            )}
+            <div
+              aria-hidden={!loading}
+              className={
+                "pointer-events-none absolute inset-0 flex items-center justify-center rounded-2xl bg-stage/80 transition-opacity duration-300 ease-smooth " +
+                (loading ? "opacity-100" : "opacity-0")
+              }
+            >
+              {loading && <VinylLoader label={t.grid.building} />}
+            </div>
+          </div>
           {!loading && !complete && (
             <p role="status" className="mt-2 text-center text-xs text-stage-faint">
               {t.grid.completing}
             </p>
           )}
-          {loading && (
-            <div className="absolute left-0 top-0 flex aspect-square w-full items-center justify-center rounded-2xl bg-stage/80">
-              <VinylLoader label={t.grid.building} />
-            </div>
-          )}
           {snapshot && <SaveHint />}
         </div>
 
-        <div className="flex flex-col gap-5 rounded-2xl border border-stage-line bg-stage-card p-4 sm:p-5">
+        <div className="flex flex-col gap-5 rounded-2xl border border-stage-line bg-stage-card p-4 sm:p-5 lg:p-6">
           <p className="border-b border-stage-line pb-2 font-mono text-xs font-semibold uppercase tracking-[0.14em] text-amber">
             {periodLabel}
           </p>
@@ -191,9 +199,14 @@ export function AlbumGrid({ username, period, periodLabel, albums }: Props) {
             <legend className="mb-2.5 font-mono text-xs font-semibold uppercase tracking-[0.14em] text-stage-faint">
               {t.grid.size}
             </legend>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="relative grid grid-cols-3 rounded-full border border-stage-line bg-stage p-1">
+              <span
+                aria-hidden
+                className="pointer-events-none absolute inset-y-1 left-1 z-0 w-[calc((100%-0.5rem)/3)] rounded-full bg-amber shadow-sm transition-transform duration-300 ease-smooth motion-reduce:transition-none"
+                style={{ transform: `translateX(${sizeIndex * 100}%)` }}
+              />
               {GRID_SIZES.map((s) => (
-                <label key={s} className="cursor-pointer">
+                <label key={s} className="relative z-10 cursor-pointer">
                   <input
                     type="radio"
                     name="grid-size"
@@ -202,7 +215,7 @@ export function AlbumGrid({ username, period, periodLabel, albums }: Props) {
                     onChange={() => setSize(s)}
                     className="peer sr-only"
                   />
-                  <span className="block rounded-full border border-stage-line px-3 py-2 text-center font-mono text-sm font-semibold text-stage-soft transition duration-200 ease-smooth hover:border-stage-faint hover:text-stage-ink peer-checked:border-amber peer-checked:bg-amber peer-checked:font-bold peer-checked:text-amber-ink peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-amber">
+                  <span className="block rounded-full px-3 py-2 text-center font-mono text-sm font-bold text-stage-soft transition-colors duration-200 ease-smooth hover:text-stage-ink peer-checked:text-amber-ink peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-amber">
                     {s}×{s}
                   </span>
                 </label>
