@@ -29,7 +29,7 @@ const NO_COVER_BG = THEME.card2; // álbum sem capa
 const TEXT = THEME.ink;
 const TEXT_SOFT = "rgba(244,238,230,0.82)";
 
-/** Desenha a grade inteira no canvas (layout de 1500 px, exportado em 3000 x 3000 px). */
+/** Desenha a grade inteira no canvas (layout de 1500 px, exportado em 2400 x 2400 px). */
 export function drawGrid(canvas: HTMLCanvasElement, albums: GridAlbum[], opts: GridOptions): void {
   const scale = opts.scale ?? GRID_SCALE;
   canvas.width = GRID_SIDE * scale;

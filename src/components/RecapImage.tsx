@@ -154,7 +154,7 @@ export function RecapImage(props: Props) {
         }
         let gotHd = false;
         const fastUrl = coverUrl(url, 300);
-        // Imagem em 2x: as capas grandes (nº 1 a 3) pedem a original; as outras, 600 px.
+        // Imagem em 1,5x: a capa principal (nº 1) pede a original; as outras, 600 px.
         const hdPx = recapCoverPx(i);
         const hdUrl = coverUrl(url, hdPx);
         if (fastUrl !== hdUrl) {

@@ -135,7 +135,7 @@ export function HomePosterPreview({ covers, images, offset, vinylColor = null, o
       drawGrid(
         canvas,
         nine.map((it) => ({ name: it.cover.name, artist: it.cover.artist, playcount: it.plays, cover: it.image })),
-        // Palco é só exemplo: desenha em 1x (mais leve que a imagem baixada, em 2x).
+        // Palco é só exemplo: desenha em 1x (mais leve que a imagem baixada, em 1,5x).
         { size: 3, showCaption: false, showPlays: false, fontFamily: font, lang, scale: 1 },
       );
       return;

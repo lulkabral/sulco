@@ -16,8 +16,8 @@ export const MAX_SHARE_BYTES = 5 * 1024 * 1024;
 const JPEG_QUALITY = 0.92;
 
 /**
- * Arquivo para baixar e compartilhar. As imagens saem em 2x: em PNG (texto mais nítido) quando
- * cabem em 5 MB; acima disso (ex.: grade 3x3 com capas originais, ~12 MB em PNG), em JPEG 92%,
+ * Arquivo para baixar e compartilhar. As imagens saem ampliadas (1,5x no recap, 2400 px na grade): em PNG (texto mais nítido) quando
+ * cabem em 5 MB; acima disso (ex.: grade 3x3 com capas originais, ~8 MB em PNG), em JPEG 92%,
  * para o X e outros apps aceitarem. Devolve também o nome com a extensão certa.
  */
 export async function canvasToShareFile(canvas: HTMLCanvasElement, filename: string): Promise<{ blob: Blob; name: string }> {

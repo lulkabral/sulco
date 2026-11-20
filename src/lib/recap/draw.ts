@@ -10,10 +10,11 @@ import { H, W } from "./helpers";
 import type { Palette } from "./palettes";
 
 /**
- * A imagem é desenhada no layout de 1080 x 1920 e exportada em dobro (2160 x 3840): textos,
- * linhas e capas ficam nítidos no zoom e no arquivo baixado. O desenho não muda, só a escala.
+ * A imagem é desenhada no layout de 1080 x 1920 e exportada em 1,5x (1620 x 2880): mais nítida
+ * no zoom e no arquivo baixado, sem exagerar no peso (o 2x pareceu demais ao dono, 20/11/2026).
+ * O desenho não muda, só a escala.
  */
-export const RECAP_SCALE = 2;
+export const RECAP_SCALE = 1.5;
 /** Tamanho final, em pixels, da imagem exportada. */
 export const RECAP_WIDTH = W * RECAP_SCALE;
 export const RECAP_HEIGHT = H * RECAP_SCALE;

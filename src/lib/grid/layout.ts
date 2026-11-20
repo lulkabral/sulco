@@ -4,8 +4,11 @@ export type GridSize = (typeof GRID_SIZES)[number];
 
 /** Lado do layout da grade. Divisível por 3, 4 e 5. */
 export const GRID_SIDE = 1500;
-/** A grade é exportada em dobro (3000 x 3000), para ficar nítida no zoom e no arquivo baixado. */
-export const GRID_SCALE = 2;
+/**
+ * A grade é exportada em 2400 x 2400 (1,6x): nítida no zoom sem exagerar no peso. 2400 é
+ * divisível por 3, 4 e 5, então cada capa cai em pixel inteiro (sem fresta entre as capas).
+ */
+export const GRID_SCALE = 1.6;
 /** Lado da imagem final, em pixels. */
 export const GRID_CANVAS_SIDE = GRID_SIDE * GRID_SCALE;
 
@@ -60,10 +63,10 @@ export function coverPxFor(side: number): CoverSize {
   return "original";
 }
 
-/** Capas do recap desenhadas grandes (nº 1 a 3: capa principal e as de trás no Toca-discos, blocos maiores no Mosaico). */
-const RECAP_LARGE_COVERS = 3;
+/** Capas do recap que pedem a original: só a nº 1 (a capa principal, a maior em todos os formatos). */
+const RECAP_LARGE_COVERS = 1;
 
-/** Tamanho da capa nº `index` (0 = mais ouvida) no recap exportado em 2x: as grandes pedem a original. */
+/** Tamanho da capa nº `index` (0 = mais ouvida) no recap exportado em 1,5x: a principal pede a original. */
 export function recapCoverPx(index: number): CoverSize {
   return index < RECAP_LARGE_COVERS ? "original" : 600;
 }

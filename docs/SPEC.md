@@ -85,7 +85,7 @@ Código: `src/lib/recap/` (um arquivo por formato em `layouts/`).
 
 Formatos:
 
-- Story: 1080 x 1920 (o principal). Desde 20/11/2026 a imagem é desenhada nesse layout e exportada em dobro, **2160 x 3840**, para ficar nítida no zoom e no arquivo baixado; as capas nº 1 a 3 (as grandes) usam a capa original do Last.fm e as demais, 600 px.
+- Story: 1080 x 1920 (o principal). Desde 20/11/2026 a imagem é desenhada nesse layout e exportada em 1,5x, **1620 x 2880**, para ficar nítida no zoom e no arquivo baixado sem exagerar (o 2x, 2160 x 3840, pareceu demais ao dono); a capa principal (nº 1) usa a capa original do Last.fm e as demais, 600 px.
 - Quadrado: 1080 x 1080 (depois).
 
 Regras:
@@ -108,7 +108,7 @@ A paleta padrão (Âmbar) é a identidade visual do site (ver "Identidade visual
 - Períodos: os mesmos do seletor (padrão: últimos 7 dias, a "semaninha").
 - Opções: mostrar ou não o nome do álbum e artista; mostrar ou não a contagem de plays. A grade não leva assinatura nem selo (só as capas); o recap continua com a assinatura e o crédito ao Last.fm.
 - Álbum que vem sem capa no top do usuário: a grade (e o recap) pergunta à página do álbum (`album.getInfo` pela rota `/api/lastfm/album`), que às vezes tem. Se nem ela tiver, quadrado neutro com o nome do álbum.
-- Exportar em **3000 x 3000** (layout de 1500 em 2x, desde 20/11/2026), com a capa original nas grades 3x3 e 4x4 e 600 px na 5x5. Mesmos botões e mesma prévia segurável do recap; como a 3x3 em PNG passa de 10 MB, ela costuma sair em JPEG 92% (~2 MB).
+- Exportar em **2400 x 2400** (layout de 1500 em 1,6x, desde 20/11/2026; 2400 é divisível por 3, 4 e 5, sem fresta entre as capas), com a capa original na 3x3 e 600 px na 4x4 e na 5x5. Mesmos botões e mesma prévia segurável do recap; como a 3x3 em PNG chega a ~8 MB, ela costuma sair em JPEG 92% (~1,2 MB).
 
 ## Gêneros
 

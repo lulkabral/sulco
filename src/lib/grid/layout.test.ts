@@ -60,16 +60,16 @@ describe("coverPxFor", () => {
   });
 });
 
-describe("tamanhos em 2x", () => {
-  it("a grade exportada tem 3000 px e pede a original nas grades 3x3 e 4x4", () => {
-    expect(GRID_CANVAS_SIDE).toBe(3000);
+describe("tamanhos da imagem exportada", () => {
+  it("a grade tem 2400 px (divisível por 3, 4 e 5) e só a 3x3 pede a original", () => {
+    expect(GRID_CANVAS_SIDE).toBe(2400);
+    for (const n of [3, 4, 5]) expect(Number.isInteger(GRID_CANVAS_SIDE / n)).toBe(true);
     expect(coverPxFor(GRID_CANVAS_SIDE / 3)).toBe("original");
-    expect(coverPxFor(GRID_CANVAS_SIDE / 4)).toBe("original");
+    expect(coverPxFor(GRID_CANVAS_SIDE / 4)).toBe(600);
     expect(coverPxFor(GRID_CANVAS_SIDE / 5)).toBe(600);
-    expect(coverPxFor(1000)).toBe("original");
   });
 
-  it("no recap, só as 3 capas grandes pedem a original", () => {
-    expect([0, 1, 2, 3, 8].map(recapCoverPx)).toEqual(["original", "original", "original", 600, 600]);
+  it("no recap, só a capa principal pede a original", () => {
+    expect([0, 1, 2, 8].map(recapCoverPx)).toEqual(["original", 600, 600, 600]);
   });
 });

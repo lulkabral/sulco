@@ -25,7 +25,7 @@ export function drawTurntable(ctx: Ctx, d: RecapData, o: RecapOptions) {
   // Capa da frente (álbum nº 1).
   ctx.save();
   ctx.shadowColor = "rgba(0,0,0,0.55)";
-  // Sombra não segue a escala do canvas: multiplica pela escala atual (2x na exportação).
+  // Sombra não segue a escala do canvas: multiplica pela escala atual (1,5x na exportação).
   const k = ctx.getTransform().a;
   ctx.shadowBlur = 40 * k;
   ctx.shadowOffsetY = 20 * k;
