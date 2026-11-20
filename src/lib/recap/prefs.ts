@@ -10,6 +10,8 @@ export type RecapPrefs = {
   showNumbers: boolean;
   /** No formato Toca-discos: disco colorido contrastando com a capa nº 1 (desligado = vinil preto clássico). */
   coloredVinyl: boolean;
+  /** Mostrar o @ do Last.fm na imagem e no nome do arquivo (ligado por padrão). */
+  showUsername: boolean;
 };
 
 export const DEFAULT_PREFS: RecapPrefs = {
@@ -17,6 +19,7 @@ export const DEFAULT_PREFS: RecapPrefs = {
   paletteId: DEFAULT_PALETTE_ID,
   showNumbers: false,
   coloredVinyl: false,
+  showUsername: true,
 };
 
 const KEY = "recap-prefs";
@@ -37,6 +40,7 @@ export function parsePrefs(raw: string | null): RecapPrefs {
       paletteId: validPalette ? (data.paletteId as string) : DEFAULT_PREFS.paletteId,
       showNumbers: typeof data.showNumbers === "boolean" ? data.showNumbers : DEFAULT_PREFS.showNumbers,
       coloredVinyl: typeof data.coloredVinyl === "boolean" ? data.coloredVinyl : DEFAULT_PREFS.coloredVinyl,
+      showUsername: typeof data.showUsername === "boolean" ? data.showUsername : DEFAULT_PREFS.showUsername,
     };
   } catch {
     return DEFAULT_PREFS;

@@ -2,7 +2,7 @@ import type { Locale } from "@/i18n/config";
 import { truncateText, wrapText } from "@/lib/canvas/text";
 import { formatPlays } from "@/lib/format";
 import { THEME } from "@/lib/theme";
-import { GRID_CANVAS_SIDE, gridLayout, type GridCell, type GridSize } from "./layout";
+import { GRID_SCALE, GRID_SIDE, gridLayout, type GridCell, type GridSize } from "./layout";
 
 export type GridAlbum = {
   name: string;
@@ -19,6 +19,8 @@ export type GridOptions = {
   fontFamily: string;
   /** Língua do "N reproduções" desenhado. */
   lang: Locale;
+  /** Escala do desenho (padrão GRID_SCALE). O palco da página inicial usa 1. */
+  scale?: number;
 };
 
 // Cores da identidade "Sala escura" (src/lib/theme.ts).
@@ -27,15 +29,18 @@ const NO_COVER_BG = THEME.card2; // álbum sem capa
 const TEXT = THEME.ink;
 const TEXT_SOFT = "rgba(244,238,230,0.82)";
 
-/** Desenha a grade inteira no canvas (que fica com 1500 x 1500 px). */
+/** Desenha a grade inteira no canvas (layout de 1500 px, exportado em 3000 x 3000 px). */
 export function drawGrid(canvas: HTMLCanvasElement, albums: GridAlbum[], opts: GridOptions): void {
-  canvas.width = GRID_CANVAS_SIDE;
-  canvas.height = GRID_CANVAS_SIDE;
+  const scale = opts.scale ?? GRID_SCALE;
+  canvas.width = GRID_SIDE * scale;
+  canvas.height = GRID_SIDE * scale;
   const ctx = canvas.getContext("2d");
   if (!ctx) return;
+  ctx.setTransform(scale, 0, 0, scale, 0, 0);
+  ctx.imageSmoothingQuality = "high";
 
   ctx.fillStyle = BG;
-  ctx.fillRect(0, 0, GRID_CANVAS_SIDE, GRID_CANVAS_SIDE);
+  ctx.fillRect(0, 0, GRID_SIDE, GRID_SIDE);
 
   for (const cell of gridLayout(opts.size)) {
     const album = albums[cell.index];

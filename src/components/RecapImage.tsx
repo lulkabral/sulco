@@ -12,7 +12,7 @@ import { albumCover, trackInfo } from "@/lib/lookups";
 import { estimateMinutes } from "@/lib/minutes";
 import { formatNumber } from "@/lib/format";
 import type { Genre } from "@/lib/genres";
-import { coverUrl } from "@/lib/grid/layout";
+import { coverUrl, recapCoverPx } from "@/lib/grid/layout";
 import { albumHeading, dateText, shortTag } from "@/lib/recap/copy";
 import { paletteFromCover } from "@/lib/recap/cover-color";
 import {
@@ -154,7 +154,9 @@ export function RecapImage(props: Props) {
         }
         let gotHd = false;
         const fastUrl = coverUrl(url, 300);
-        const hdUrl = coverUrl(url, 600);
+        // Imagem em 2x: as capas grandes (nº 1 a 3) pedem a original; as outras, 600 px.
+        const hdPx = recapCoverPx(i);
+        const hdUrl = coverUrl(url, hdPx);
         if (fastUrl !== hdUrl) {
           loadImage(fastUrl, 8_000).then((fastImg) => {
             if (cancelled || gotHd || !fastImg) return;
@@ -162,7 +164,7 @@ export function RecapImage(props: Props) {
             if (i === 0) setCoverPalette(paletteFromCover(fastImg));
           });
         }
-        loadImage(hdUrl).then((hdImg) => {
+        loadImage(hdUrl, hdPx === "original" ? 30_000 : undefined).then((hdImg) => {
           if (cancelled) return;
           gotHd = true;
           if (hdImg) {
@@ -216,6 +218,7 @@ export function RecapImage(props: Props) {
         layout: prefs.layout,
         palette,
         showNumbers: prefs.showNumbers,
+        showUsername: prefs.showUsername,
         vinylColor: prefs.coloredVinyl ? vinylColor : null,
         font,
         lang,
@@ -427,11 +430,30 @@ export function RecapImage(props: Props) {
                 className="relative h-6 w-11 shrink-0 rounded-full bg-white/20 ring-1 ring-white/15 transition-colors duration-200 ease-smooth peer-checked:bg-amber peer-checked:ring-amber peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-amber after:absolute after:left-1 after:top-1 after:size-4 after:rounded-full after:bg-stage-ink after:transition-[transform,background-color] after:duration-200 after:ease-smooth peer-checked:after:translate-x-5 peer-checked:after:bg-amber-ink"
               />
             </label>
+
+            <label className="flex cursor-pointer items-center justify-between gap-3 rounded-2xl border border-stage-line p-3.5 transition-colors duration-200 ease-smooth hover:border-stage-faint has-[:checked]:border-amber/60 has-[:checked]:bg-amber/10">
+              <span>
+                <span className="block text-sm font-bold text-stage-ink">{t.recap.showUsername}</span>
+                <span className="block text-xs text-stage-soft">{t.recap.showUsernameHint}</span>
+              </span>
+              <input
+                type="checkbox"
+                role="switch"
+                checked={prefs.showUsername}
+                onChange={(e) => choose({ showUsername: e.target.checked })}
+                className="peer sr-only"
+              />
+              <span
+                aria-hidden
+                className="relative h-6 w-11 shrink-0 rounded-full bg-white/20 ring-1 ring-white/15 transition-colors duration-200 ease-smooth peer-checked:bg-amber peer-checked:ring-amber peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-amber after:absolute after:left-1 after:top-1 after:size-4 after:rounded-full after:bg-stage-ink after:transition-[transform,background-color] after:duration-200 after:ease-smooth peer-checked:after:translate-x-5 peer-checked:after:bg-amber-ink"
+              />
+            </label>
           </div>
 
           <ExportButtons
             canvasRef={slot === 0 ? canvas0Ref : canvas1Ref}
-            filename={`recap-${username}-${period}-${prefs.layout}.png`}
+            // Sem o @ (opção desligada), o nome do arquivo também sai sem o username.
+            filename={`recap-${prefs.showUsername ? `${username}-` : ""}${period}-${prefs.layout}.png`}
             shareTitle={t.recap.shareTitle(periodLabel)}
             disabled={!complete}
           />

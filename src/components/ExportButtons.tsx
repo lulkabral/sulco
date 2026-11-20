@@ -5,6 +5,7 @@ import {
   canCopyImage,
   canShareFiles,
   canvasToPng,
+  canvasToShareFile,
   copyImage,
   downloadBlob,
   shareOrDownload,
@@ -39,18 +40,24 @@ export function ExportButtons({ canvasRef, filename, shareTitle, disabled }: Pro
     if (!canvasRef.current) return;
     setBusy(true);
     try {
-      const blob = await canvasToPng(canvasRef.current);
-      if (action === "download") downloadBlob(blob, filename);
-      else if (canShare) await shareOrDownload(blob, filename, shareTitle);
-      else if (canCopy) {
+      const canvas = canvasRef.current;
+      if (action === "share" && !canShare && canCopy) {
+        // Copiar: a área de transferência só aceita PNG.
+        const png = await canvasToPng(canvas);
         try {
-          await copyImage(blob);
+          await copyImage(png);
           setCopied(true);
           setTimeout(() => setCopied(false), 2500);
         } catch {
-          downloadBlob(blob, filename);
+          const file = await canvasToShareFile(canvas, filename);
+          downloadBlob(file.blob, file.name);
         }
-      } else downloadBlob(blob, filename);
+        return;
+      }
+      // Baixar e compartilhar: PNG até 5 MB; acima disso, JPEG de alta qualidade (limite do X).
+      const file = await canvasToShareFile(canvas, filename);
+      if (action === "share" && canShare) await shareOrDownload(file.blob, file.name, shareTitle);
+      else downloadBlob(file.blob, file.name);
     } finally {
       setBusy(false);
     }

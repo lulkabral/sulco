@@ -26,7 +26,7 @@ export function drawLineup(ctx: Ctx, d: RecapData, o: RecapOptions) {
   const title = d.title.toLocaleUpperCase(INTL_LOCALE[o.lang]);
   const titleSize = fitFontSize(ctx, title, INNER, 54, 30, (px) => `800 ${px}px ${f}`);
   // Acima do título fica o espaço do acento (Ú, Í, Ô): a linha de cima sobe junto com o tamanho.
-  eyebrow(ctx, f, DICTS[o.lang].canvas.presents(d.username), CENTER, 260 - titleSize - ACCENT_ROOM, p.accent, INNER, "center");
+  eyebrow(ctx, f, (o.showUsername === false ? DICTS[o.lang].canvas.presentsAnon : DICTS[o.lang].canvas.presents(d.username)), CENTER, 260 - titleSize - ACCENT_ROOM, p.accent, INNER, "center");
   text(ctx, title, CENTER, 260, { font: `800 ${titleSize}px ${f}`, color: p.ink, align: "center", spacing: 2 });
   text(ctx, d.dateText, CENTER, 312, { font: `500 30px ${f}`, color: p.inkSoft, align: "center" });
   ctx.fillStyle = hexAlpha(p.inkSoft, 0.35);

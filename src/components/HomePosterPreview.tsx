@@ -9,7 +9,11 @@ import { drawGrid } from "@/lib/grid/draw";
 import { periodLabel } from "@/lib/periods";
 import { albumHeading, dateText, shortTag } from "@/lib/recap/copy";
 import { paletteFromCover } from "@/lib/recap/cover-color";
-import { drawRecap, RECAP_HEIGHT, RECAP_WIDTH, type RecapListItem } from "@/lib/recap/draw";
+import { drawRecap, RECAP_HEIGHT, RECAP_SCALE, RECAP_WIDTH, type RecapListItem } from "@/lib/recap/draw";
+
+/** O palco desenha em 1x (é só exemplo): canvas com metade do tamanho da imagem baixada. */
+const STAGE_W = RECAP_WIDTH / RECAP_SCALE;
+const STAGE_H = RECAP_HEIGHT / RECAP_SCALE;
 import { COVER_PALETTE_ID, paletteById, type Palette } from "@/lib/recap/palettes";
 import type { TrendingCover } from "@/lib/trending";
 
@@ -131,7 +135,8 @@ export function HomePosterPreview({ covers, images, offset, vinylColor = null, o
       drawGrid(
         canvas,
         nine.map((it) => ({ name: it.cover.name, artist: it.cover.artist, playcount: it.plays, cover: it.image })),
-        { size: 3, showCaption: false, showPlays: false, fontFamily: font, lang },
+        // Palco é só exemplo: desenha em 1x (mais leve que a imagem baixada, em 2x).
+        { size: 3, showCaption: false, showPlays: false, fontFamily: font, lang, scale: 1 },
       );
       return;
     }
@@ -159,7 +164,7 @@ export function HomePosterPreview({ covers, images, offset, vinylColor = null, o
         genres: EXAMPLE_GENRES,
         siteHost: window.location.host,
       },
-      { layout: tab, palette, showNumbers: false, vinylColor: coloredVinyl ? vinylColor : null, font, lang },
+      { layout: tab, palette, showNumbers: false, vinylColor: coloredVinyl ? vinylColor : null, font, lang, scale: 1 },
     );
   }, [font, images, order, covers, stage.active, tab, palette, coloredVinyl, vinylColor, lang, t]);
 
@@ -239,8 +244,8 @@ export function HomePosterPreview({ covers, images, offset, vinylColor = null, o
               >
                 <canvas
                   ref={slot === 0 ? canvas0Ref : canvas1Ref}
-                  width={RECAP_WIDTH}
-                  height={RECAP_HEIGHT}
+                  width={STAGE_W}
+                  height={STAGE_H}
                   role={isActive ? "img" : undefined}
                   aria-label={isActive ? t.home.stageAlt(tabName(slotTab)) : undefined}
                   className={

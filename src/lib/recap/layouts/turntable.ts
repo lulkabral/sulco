@@ -25,8 +25,10 @@ export function drawTurntable(ctx: Ctx, d: RecapData, o: RecapOptions) {
   // Capa da frente (álbum nº 1).
   ctx.save();
   ctx.shadowColor = "rgba(0,0,0,0.55)";
-  ctx.shadowBlur = 40;
-  ctx.shadowOffsetY = 20;
+  // Sombra não segue a escala do canvas: multiplica pela escala atual (2x na exportação).
+  const k = ctx.getTransform().a;
+  ctx.shadowBlur = 40 * k;
+  ctx.shadowOffsetY = 20 * k;
   ctx.fillStyle = "#000";
   ctx.beginPath();
   ctx.roundRect(SLEEVE_X, SLEEVE_Y, SLEEVE, SLEEVE, 14);
@@ -37,7 +39,7 @@ export function drawTurntable(ctx: Ctx, d: RecapData, o: RecapOptions) {
   // Título e datas.
   const size = fitFontSize(ctx, d.title, INNER, 104, 60, (px) => `800 ${px}px ${f}`);
   // Acima do título fica o espaço do acento (Ú, Í, Ô): a linha de cima sobe junto com o tamanho.
-  eyebrow(ctx, f, `@${d.username}`, M, 920 - size - ACCENT_ROOM, p.accent, INNER);
+  eyebrow(ctx, f, o.showUsername === false ? DICTS[o.lang].canvas.recapAnon : `@${d.username}`, M, 920 - size - ACCENT_ROOM, p.accent, INNER);
   text(ctx, d.title, M - 4, 920, { font: `800 ${size}px ${f}`, color: p.ink, maxWidth: INNER, spacing: -2 });
   dateLine(ctx, d, o, M, 978);
 
@@ -67,8 +69,9 @@ function tiltedSleeve(ctx: Ctx, img: HTMLImageElement | null, degrees: number, d
   ctx.translate(cx, cy);
   ctx.rotate((degrees * Math.PI) / 180);
   ctx.shadowColor = "rgba(0,0,0,0.45)";
-  ctx.shadowBlur = 30;
-  ctx.shadowOffsetY = 12;
+  const k = ctx.getTransform().a; // sombra não segue a escala do canvas
+  ctx.shadowBlur = 30 * k;
+  ctx.shadowOffsetY = 12 * k;
   ctx.fillStyle = "#000";
   ctx.beginPath();
   ctx.roundRect(-SLEEVE / 2, -SLEEVE / 2, SLEEVE, SLEEVE, 14);

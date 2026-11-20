@@ -216,6 +216,8 @@ export const es: Dict = {
     palettes: { ambar: "Ámbar", "meia-noite": "Medianoche", vinho: "Vino", papel: "Papel", lilas: "Lila" },
     coloredVinyl: "Vinilo de color",
     coloredVinylHint: "Disco de color en contraste con la portada del álbum nº 1",
+    showUsername: "Mostrar mi @ en la imagen",
+    showUsernameHint: "Tu usuario de Last.fm aparece arriba en la imagen y en el nombre del archivo",
     showNumbers: "Mostrar scrobbles y minutos",
     showNumbersHint: "En la imagen: total de scrobbles, minutos escuchados y cuántas veces escuchaste cada cosa",
     alt: (user: string, label: string, layout: string) =>
@@ -253,6 +255,9 @@ export const es: Dict = {
     unavailable: "no disponible",
     presents: (user: string) => `@${user} presenta`,
     recapOf: (user: string) => `Recap · @${user}`,
+    /** Sem o @ (opção "Mostrar mi @ en la imagen" desligada). */
+    recapAnon: "Recap",
+    presentsAnon: "sulco presenta",
     albumOf: {
       month: "El álbum del mes",
       year: "El álbum del año",

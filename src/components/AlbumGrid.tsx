@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { ExportButtons } from "@/components/ExportButtons";
 import { VinylLoader } from "@/components/VinylLoader";
 import { useI18n } from "@/i18n/client";
@@ -17,6 +17,7 @@ import {
   type GridSize,
 } from "@/lib/grid/layout";
 import type { TopAlbum } from "@/lib/lastfm/types";
+import { parsePrefs, readPrefsRaw, subscribePrefs } from "@/lib/recap/prefs";
 
 type Props = {
   username: string;
@@ -27,6 +28,9 @@ type Props = {
 
 /** Aba Grade: colagem das capas em canvas, com opções e botão de baixar/compartilhar. */
 export function AlbumGrid({ username, period, periodLabel, albums }: Props) {
+  // Mesma escolha do recap ("Mostrar meu @"): a grade não desenha o @, mas o nome do arquivo tem.
+  const prefsRaw = useSyncExternalStore(subscribePrefs, readPrefsRaw, () => null);
+  const { showUsername } = useMemo(() => parsePrefs(prefsRaw), [prefsRaw]);
   const { lang, t } = useI18n();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [snapshot, takeSnapshot] = useCanvasSnapshot();
@@ -113,7 +117,7 @@ export function AlbumGrid({ username, period, periodLabel, albums }: Props) {
           return;
         }
         const hdUrl = coverUrl(url, px);
-        if (px > 300 && !coverCache.current.has(hdUrl)) {
+        if (px !== 300 && !coverCache.current.has(hdUrl)) {
           const fastUrl = coverUrl(url, 300);
           if (fastUrl !== hdUrl) {
             getCover(fastUrl, 8_000).then((fastImg) => {
@@ -123,7 +127,8 @@ export function AlbumGrid({ username, period, periodLabel, albums }: Props) {
             });
           }
         }
-        getCover(hdUrl).then((hdImg) => {
+        // A original pesa mais (até ~3 MB): mais tempo antes de desistir (fica a de 300 px).
+        getCover(hdUrl, px === "original" ? 30_000 : undefined).then((hdImg) => {
           if (cancelled) return;
           gotHd[i] = true;
           if (hdImg) covers[i] = hdImg;
@@ -262,7 +267,7 @@ export function AlbumGrid({ username, period, periodLabel, albums }: Props) {
 
           <ExportButtons
             canvasRef={canvasRef}
-            filename={`grade-${username}-${period}-${size}x${size}.png`}
+            filename={`grade-${showUsername ? `${username}-` : ""}${period}-${size}x${size}.png`}
             shareTitle={t.grid.shareTitle(periodLabel)}
             disabled={!complete}
           />

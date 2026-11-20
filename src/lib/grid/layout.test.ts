@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { coverPxFor, coverUrl, gridLayout, thumbUrl } from "./layout";
+import { coverPxFor, coverUrl, GRID_CANVAS_SIDE, gridLayout, recapCoverPx, thumbUrl } from "./layout";
 
 describe("gridLayout", () => {
   it("3x3 tem 9 quadrados de 500 px", () => {
@@ -31,6 +31,7 @@ describe("coverUrl", () => {
   it("troca o tamanho no endereço", () => {
     expect(coverUrl(`${base}/300x300/abc.jpg`, 600)).toBe(`${base}/600x600/abc.jpg`);
     expect(coverUrl(`${base}/174s/abc.png`, 300)).toBe(`${base}/300x300/abc.png`);
+    expect(coverUrl(`${base}/300x300/abc.jpg`, "original")).toBe(`${base}/abc.jpg`);
   });
 
   it("deixa igual o endereço sem trecho de tamanho", () => {
@@ -56,5 +57,19 @@ describe("coverPxFor", () => {
     expect(coverPxFor(500)).toBe(600);
     expect(coverPxFor(375)).toBe(600);
     expect(coverPxFor(300)).toBe(300);
+  });
+});
+
+describe("tamanhos em 2x", () => {
+  it("a grade exportada tem 3000 px e pede a original nas grades 3x3 e 4x4", () => {
+    expect(GRID_CANVAS_SIDE).toBe(3000);
+    expect(coverPxFor(GRID_CANVAS_SIDE / 3)).toBe("original");
+    expect(coverPxFor(GRID_CANVAS_SIDE / 4)).toBe("original");
+    expect(coverPxFor(GRID_CANVAS_SIDE / 5)).toBe(600);
+    expect(coverPxFor(1000)).toBe("original");
+  });
+
+  it("no recap, só as 3 capas grandes pedem a original", () => {
+    expect([0, 1, 2, 3, 8].map(recapCoverPx)).toEqual(["original", "original", "original", 600, 600]);
   });
 });

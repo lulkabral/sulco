@@ -216,6 +216,8 @@ export const pt = {
     palettes: { ambar: "Âmbar", "meia-noite": "Meia-noite", vinho: "Vinho", papel: "Papel", lilas: "Lilás" } as Record<string, string>,
     coloredVinyl: "Vinil colorido",
     coloredVinylHint: "Disco colorido contrastando com a capa do álbum nº 1",
+    showUsername: "Mostrar meu @ na imagem",
+    showUsernameHint: "Seu nome de usuário do Last.fm aparece no topo da imagem e no nome do arquivo",
     showNumbers: "Mostrar scrobbles e minutos",
     showNumbersHint: "Na imagem: total de scrobbles, minutos ouvidos e quantas vezes você ouviu cada item",
     alt: (user: string, label: string, layout: string) =>
@@ -253,6 +255,9 @@ export const pt = {
     unavailable: "indisponível",
     presents: (user: string) => `@${user} apresenta`,
     recapOf: (user: string) => `Recap · @${user}`,
+    /** Sem o @ (opção "Mostrar meu @ na imagem" desligada). */
+    recapAnon: "Recap",
+    presentsAnon: "sulco apresenta",
     albumOf: {
       month: "O álbum do mês",
       year: "O álbum do ano",

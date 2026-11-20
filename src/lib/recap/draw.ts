@@ -9,8 +9,14 @@ import { drawTurntable } from "./layouts/turntable";
 import { H, W } from "./helpers";
 import type { Palette } from "./palettes";
 
-export const RECAP_WIDTH = W;
-export const RECAP_HEIGHT = H;
+/**
+ * A imagem é desenhada no layout de 1080 x 1920 e exportada em dobro (2160 x 3840): textos,
+ * linhas e capas ficam nítidos no zoom e no arquivo baixado. O desenho não muda, só a escala.
+ */
+export const RECAP_SCALE = 2;
+/** Tamanho final, em pixels, da imagem exportada. */
+export const RECAP_WIDTH = W * RECAP_SCALE;
+export const RECAP_HEIGHT = H * RECAP_SCALE;
 
 export const RECAP_LAYOUTS = [
   { id: "toca-discos", name: "Toca-discos" },
@@ -69,6 +75,10 @@ export type RecapOptions = {
   font: string;
   /** Língua do texto desenhado ("Na sua cabeça" / "In your head"...). */
   lang: Locale;
+  /** Mostrar o @ do Last.fm na imagem (desligado: "RECAP", "sulco apresenta"...). Padrão: ligado. */
+  showUsername?: boolean;
+  /** Escala do desenho (padrão RECAP_SCALE). O palco da página inicial usa 1 (só exemplo, mais leve). */
+  scale?: number;
 };
 
 const DRAW: Record<RecapLayoutId, (ctx: CanvasRenderingContext2D, d: RecapData, o: RecapOptions) => void> = {
@@ -79,10 +89,14 @@ const DRAW: Record<RecapLayoutId, (ctx: CanvasRenderingContext2D, d: RecapData, 
 };
 
 export function drawRecap(canvas: HTMLCanvasElement, data: RecapData, options: RecapOptions): void {
-  canvas.width = W;
-  canvas.height = H;
+  const scale = options.scale ?? RECAP_SCALE;
+  canvas.width = W * scale;
+  canvas.height = H * scale;
   const ctx = canvas.getContext("2d");
   if (!ctx) return;
+  // Todo o desenho segue no layout de 1080 x 1920; a escala só multiplica os pixels.
+  ctx.setTransform(scale, 0, 0, scale, 0, 0);
+  ctx.imageSmoothingQuality = "high";
   ctx.fillStyle = options.palette.room;
   ctx.fillRect(0, 0, W, H);
   ctx.textBaseline = "alphabetic";

@@ -8,12 +8,13 @@ describe("parsePrefs", () => {
       paletteId: "ambar",
       showNumbers: false,
       coloredVinyl: false,
+      showUsername: true,
     });
   });
 
   it("lê escolhas válidas", () => {
-    const raw = JSON.stringify({ layout: "lineup", paletteId: "capa", showNumbers: true, coloredVinyl: true });
-    expect(parsePrefs(raw)).toEqual({ layout: "lineup", paletteId: "capa", showNumbers: true, coloredVinyl: true });
+    const raw = JSON.stringify({ layout: "lineup", paletteId: "capa", showNumbers: true, coloredVinyl: true, showUsername: false });
+    expect(parsePrefs(raw)).toEqual({ layout: "lineup", paletteId: "capa", showNumbers: true, coloredVinyl: true, showUsername: false });
   });
 
   it("campo inválido volta ao padrão só naquele campo", () => {
@@ -23,5 +24,13 @@ describe("parsePrefs", () => {
 
   it("texto quebrado volta ao padrão", () => {
     expect(parsePrefs("{nao é json")).toEqual(DEFAULT_PREFS);
+  });
+});
+
+describe("showUsername", () => {
+  it("vem ligado por padrão e respeita o que foi guardado", () => {
+    expect(parsePrefs(null).showUsername).toBe(true);
+    expect(parsePrefs(JSON.stringify({ showUsername: false })).showUsername).toBe(false);
+    expect(parsePrefs(JSON.stringify({ showUsername: "não" })).showUsername).toBe(true);
   });
 });

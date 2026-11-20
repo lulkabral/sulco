@@ -20,7 +20,7 @@ export function drawClassic(ctx: Ctx, d: RecapData, o: RecapOptions) {
 
   const size = fitFontSize(ctx, d.title, INNER, 104, 64, (px) => `800 ${px}px ${f}`);
   // Acima do título fica o espaço do acento (Ú, Í, Ô): a linha de cima sobe junto com o tamanho.
-  eyebrow(ctx, f, DICTS[o.lang].canvas.recapOf(d.username), M, 352 - size - ACCENT_ROOM, p.accent, INNER);
+  eyebrow(ctx, f, (o.showUsername === false ? DICTS[o.lang].canvas.recapAnon : DICTS[o.lang].canvas.recapOf(d.username)), M, 352 - size - ACCENT_ROOM, p.accent, INNER);
   text(ctx, d.title, M - 4, 352, { font: `800 ${size}px ${f}`, color: p.ink, maxWidth: INNER, spacing: -2 });
   dateLine(ctx, d, o, M, 408);
 

@@ -66,7 +66,7 @@ export function drawMosaic(ctx: Ctx, d: RecapData, o: RecapOptions) {
 
   const size = fitFontSize(ctx, d.title, INNER, 112, 60, (px) => `800 ${px}px ${f}`);
   // Acima do título fica o espaço do acento (Ú, Í, Ô): a linha de cima sobe junto com o tamanho.
-  eyebrow(ctx, f, `@${d.username}`, M, bottom - 52 - size - ACCENT_ROOM, p.accent, INNER);
+  eyebrow(ctx, f, o.showUsername === false ? DICTS[o.lang].canvas.recapAnon : `@${d.username}`, M, bottom - 52 - size - ACCENT_ROOM, p.accent, INNER);
   text(ctx, d.title, M - 4, bottom - 52, { font: `800 ${size}px ${f}`, color: p.ink, maxWidth: INNER, spacing: -2 });
   dateLine(ctx, d, o, M, bottom + 10);
 
