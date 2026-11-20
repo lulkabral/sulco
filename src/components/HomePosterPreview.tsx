@@ -48,6 +48,9 @@ export function HomePosterPreview({ covers, images, offset, vinylColor = null, o
   const { lang, t } = useI18n();
   const canvas0Ref = useRef<HTMLCanvasElement>(null);
   const canvas1Ref = useRef<HTMLCanvasElement>(null);
+  const railRef = useRef<HTMLDivElement>(null);
+  const pillRef = useRef<HTMLSpanElement>(null);
+  const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
   // Dois slots de canvas alternados: ao trocar de formato, o anterior some em fade suave
   // enquanto o novo entra no centro — sem corte seco mesmo entre 9:16 e Grade 1:1.
   const [stage, setStage] = useState<{ active: 0 | 1; tabs: [StageTab, StageTab] }>({
@@ -79,6 +82,37 @@ export function HomePosterPreview({ covers, images, offset, vinylColor = null, o
       cancelled = true;
     };
   }, []);
+
+  // Posiciona e ajusta a largura da pílula âmbar conforme o botão ativo (cada aba ocupa só
+  // o espaço proporcional ao seu texto, sem cortar "Toca-discos" nem "Cuadrícula" no celular).
+  useEffect(() => {
+    const rail = railRef.current;
+    const pill = pillRef.current;
+    if (!rail || !pill) return;
+
+    const sync = () => {
+      const btn = tabRefs.current[tabIndex];
+      if (!btn) return;
+      pill.style.transform = `translateX(${btn.offsetLeft}px)`;
+      pill.style.width = `${btn.offsetWidth}px`;
+      rail.dataset.ready = "true";
+    };
+
+    sync();
+    let raf = 0;
+    if (!rail.dataset.animate) {
+      raf = requestAnimationFrame(() => {
+        rail.dataset.animate = "true";
+      });
+    }
+
+    const observer = new ResizeObserver(sync);
+    observer.observe(rail);
+    return () => {
+      cancelAnimationFrame(raf);
+      observer.disconnect();
+    };
+  }, [tabIndex, lang, font]);
 
   // Ordem do exemplo: as capas giradas a partir do disco escolhido na vitrine.
   const order = useMemo(() => covers.map((_, i) => (i + offset) % Math.max(covers.length, 1)), [covers, offset]);
@@ -143,28 +177,34 @@ export function HomePosterPreview({ covers, images, offset, vinylColor = null, o
         {t.home.stageHeading}
       </h2>
 
-      {/* 1. Abas de formato em uma única linha com pílula âmbar que desliza suave */}
+      {/* 1. Abas de formato proporcionais em uma única linha com pílula âmbar que desliza suave */}
       <div
+        ref={railRef}
         role="group"
         aria-label={t.home.stageFormats}
-        className="relative grid grid-cols-4 rounded-full border border-stage-line bg-stage-card p-1"
+        className="group/rail no-scrollbar relative flex items-center overflow-x-auto rounded-full border border-stage-line bg-stage-card p-1"
       >
         <span
+          ref={pillRef}
           aria-hidden
-          className="pointer-events-none absolute inset-y-1 left-1 z-0 w-[calc(25%-0.125rem)] rounded-full bg-amber shadow-sm transition-transform duration-300 ease-smooth motion-reduce:transition-none"
-          style={{ transform: `translateX(${tabIndex * 100}%)` }}
+          className="pointer-events-none absolute inset-y-1 left-0 z-0 rounded-full bg-amber opacity-0 shadow-sm duration-300 ease-smooth group-data-[animate]/rail:transition-[transform,width] group-data-[ready]/rail:opacity-100 motion-reduce:transition-none"
         />
-        {STAGE_TABS.map((id) => {
+        {STAGE_TABS.map((id, i) => {
           const active = tab === id;
           return (
             <button
               key={id}
+              ref={(el) => {
+                tabRefs.current[i] = el;
+              }}
               type="button"
               aria-pressed={active}
               onClick={() => selectTab(id)}
               className={
-                "relative z-10 truncate rounded-full px-1.5 py-1.5 text-center text-[11px] font-bold transition-colors duration-200 ease-smooth sm:px-3 sm:py-2 sm:text-sm " +
-                (active ? "text-amber-ink" : "text-stage-soft hover:text-stage-ink")
+                "relative z-10 flex-auto whitespace-nowrap rounded-full px-2 py-1.5 text-center text-xs font-bold transition-colors duration-200 ease-smooth sm:px-3.5 sm:py-2 sm:text-sm " +
+                (active
+                  ? "bg-amber text-amber-ink group-data-[ready]/rail:bg-transparent"
+                  : "text-stage-soft hover:text-stage-ink")
               }
             >
               {tabName(id)}
