@@ -5,9 +5,10 @@ import { coverUrl } from "@/lib/grid/layout";
 import type { TrendingCover } from "@/lib/trending";
 import { VINYL_GROOVES, VINYL_SHEEN } from "@/lib/vinyl-color";
 import { Marquee } from "./Marquee";
+import { SHELF_MAX } from "@/lib/showcase";
 
-/** A faixa tem até 6 discos (como a vitrine em src/data/vitrine.json). */
-const SHELF_SIZE = 6;
+/** A faixa tem até 6 discos (os 6 primeiros da vitrine em src/data/vitrine.json). */
+const SHELF_SIZE = SHELF_MAX;
 
 type Props = {
   covers: TrendingCover[];

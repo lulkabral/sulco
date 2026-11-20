@@ -6,6 +6,7 @@ import { loadImage } from "@/lib/canvas/image";
 import { coverUrl } from "@/lib/grid/layout";
 import type { Rgb } from "@/lib/recap/palettes";
 import type { TrendingCover } from "@/lib/trending";
+import { SHELF_MAX } from "@/lib/showcase";
 import { assignVinylFinishes, sampleCoverRgb } from "@/lib/vinyl-color";
 import { HomePosterPreview } from "./HomePosterPreview";
 import { Marquee } from "./Marquee";
@@ -34,7 +35,8 @@ export function HomeHero({ covers, caption }: Props) {
   const [coverRgbs, setCoverRgbs] = useState<(Rgb | null)[]>(() =>
     covers.slice(0, VINYL_SAMPLE_LIMIT).map(() => null),
   );
-  const count = covers.length;
+  // Só os 6 primeiros viram discos; os outros (até 9) só completam a grade do palco.
+  const count = Math.min(covers.length, SHELF_MAX);
   const hasCovers = count > 0;
 
   // Carrega cada capa 300×300 com CORS uma única vez: alimenta o canvas do palco,

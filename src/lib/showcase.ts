@@ -4,8 +4,13 @@
  * Função pura, com teste em showcase.test.ts.
  */
 
-/** A colagem tem 6 lugares. */
-export const SHOWCASE_MAX = 6;
+/**
+ * Até 9 álbuns: os 6 primeiros são os discos da faixa (e da prévia do link); os 3 seguintes
+ * só completam a grade 3x3 de amostra no palco, para ela não repetir capa.
+ */
+export const SHOWCASE_MAX = 9;
+/** Quantos álbuns viram discos na faixa da página inicial. */
+export const SHELF_MAX = 6;
 
 /** Legenda da vitrine (cabeçalho da prateleira): no máximo 5 palavras (docs/MARCA.md). */
 export const HAND_MAX_WORDS = 5;

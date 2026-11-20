@@ -13,8 +13,9 @@ describe("parseShowcase", () => {
     });
   });
 
-  it("pula item sem artista ou sem álbum e corta em 6", () => {
-    const itens = [{ artista: "A" }, { album: "B" }, ...Array.from({ length: 8 }, (_, i) => ({ artista: `X${i}`, album: "Y" }))];
+  it("pula item sem artista ou sem álbum e corta em 9", () => {
+    expect(SHOWCASE_MAX).toBe(9);
+    const itens = [{ artista: "A" }, { album: "B" }, ...Array.from({ length: 12 }, (_, i) => ({ artista: `X${i}`, album: "Y" }))];
     expect(parseShowcase({ itens }).items).toHaveLength(SHOWCASE_MAX);
     expect(parseShowcase({ itens }).items[0].artist).toBe("X0");
   });

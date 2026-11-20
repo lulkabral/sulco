@@ -60,7 +60,7 @@ Os arquivos foram gerados por script. Para trocar o nome, basta gerar tudo de no
 
 A prateleira de capas da página inicial (e o palco do hero) mostra os álbuns que você escolhe, como no banner.
 
-1. Edite `src/data/vitrine.json`: a `legenda` (curta, até 5 palavras: aparece no cabeçalho da prateleira) e até 6 `itens`, cada um com `artista` e `album` (os dois são obrigatórios). Opcional: `legenda_en` e `legenda_es`, a legenda nas páginas em inglês e espanhol (sem elas, aparece "in the spotlight this month" / "destacados este mes").
+1. Edite `src/data/vitrine.json`: a `legenda` (curta, até 5 palavras: aparece no cabeçalho da prateleira) e até 9 `itens` (os 6 primeiros viram os discos da prateleira; o 7º ao 9º só completam a grade 3x3 de amostra no palco, para não repetir capa), cada um com `artista` e `album` (os dois são obrigatórios). Opcional: `legenda_en` e `legenda_es`, a legenda nas páginas em inglês e espanhol (sem elas, aparece "in the spotlight this month" / "destacados este mes").
 2. Rode `npm run vitrine`: ele procura cada álbum no Last.fm e diz se achou a capa (✓) ou não (✗). Se não achar, confira a grafia na página do álbum no last.fm.
 3. Publique: `git add src/data/vitrine.json`, `git commit -m "Vitrine: ..."` e `git push`. A Vercel publica sozinha e a página já sai com a lista nova.
 

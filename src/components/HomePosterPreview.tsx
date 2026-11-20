@@ -131,6 +131,7 @@ export function HomePosterPreview({ covers, images, offset, vinylColor = null, o
     const items = order.map((i, rank) => ({ cover: covers[i], image: images[i] ?? null, plays: EXAMPLE_PLAYS[rank] ?? 10 }));
 
     if (tab === "grade") {
+      // A vitrine tem até 9 álbuns: com 9, nenhuma capa repete (com menos, repete as primeiras).
       const nine = Array.from({ length: 9 }, (_, k) => items[k % items.length]);
       drawGrid(
         canvas,

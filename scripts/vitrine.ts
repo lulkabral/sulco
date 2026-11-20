@@ -39,6 +39,8 @@ async function main() {
       console.warn(`! "${field}" tem ${wordCount(text)} palavras: a legenda da prateleira aceita até ${HAND_MAX_WORDS} (docs/MARCA.md).`);
   }
   if ((raw.itens?.length ?? 0) > SHOWCASE_MAX) console.warn(`! Mais de ${SHOWCASE_MAX} itens: o site usa só os ${SHOWCASE_MAX} primeiros.`);
+  if ((raw.itens?.length ?? 0) < SHOWCASE_MAX)
+    console.warn(`! Menos de ${SHOWCASE_MAX} itens: a grade de amostra do palco vai repetir capas (os 6 primeiros são os discos; 7 a 9 completam a grade).`);
   if (items.length === 0) fail(`Nenhum item com "artista" e "album" em ${FILE}.`);
 
   const key = apiKey();
