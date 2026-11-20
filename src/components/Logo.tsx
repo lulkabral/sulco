@@ -27,10 +27,10 @@ const SIZES = {
  * "ulco" como texto de verdade (DM Sans 800, minúsculas), na cor do texto do tema.
  * Proporções em docs/MARCA.md: disco de 0,787em, topo no topo do "l", base 0,063em abaixo
  * da linha de base, 0,01em até o "u". O disco é SVG embutido, sempre âmbar.
- * No "sm" (disco de ~19 px) usa a versão mini, sem o furo central. Leitores de tela leem "sulco".
+ * Sempre com o furo central (decisão do dono, 20/11/2026: também no cabeçalho, onde o disco
+ * tem ~19 px). A versão mini, sem furo, fica só para o favicon. Leitores de tela leem "sulco".
  */
 export function Logo({ size = "sm" }: Props) {
-  const withHole = size === "lg";
   return (
     <span className={`inline-block whitespace-nowrap font-extrabold leading-none text-ink ${SIZES[size]}`}>
       <span className="sr-only">sulco</span>
@@ -48,12 +48,8 @@ export function Logo({ size = "sm" }: Props) {
       >
         <circle cx={SYMBOL_CENTER} cy={SYMBOL_CENTER} r={SYMBOL_RADIUS} fill={SYMBOL_AMBER} />
         <path d={SYMBOL_S_PATH} fill={SYMBOL_DARK} />
-        {withHole && (
-          <>
-            <circle cx={SYMBOL_CENTER} cy={SYMBOL_CENTER} r={SYMBOL_RING_RADIUS} fill={SYMBOL_DARK} />
-            <circle cx={SYMBOL_CENTER} cy={SYMBOL_CENTER} r={SYMBOL_HOLE_RADIUS} fill={SYMBOL_AMBER} />
-          </>
-        )}
+        <circle cx={SYMBOL_CENTER} cy={SYMBOL_CENTER} r={SYMBOL_RING_RADIUS} fill={SYMBOL_DARK} />
+        <circle cx={SYMBOL_CENTER} cy={SYMBOL_CENTER} r={SYMBOL_HOLE_RADIUS} fill={SYMBOL_AMBER} />
       </svg>
       <span aria-hidden style={{ letterSpacing: `${LOCKUP.letterSpacing}em` }}>
         ulco

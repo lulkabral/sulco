@@ -61,7 +61,7 @@ O "s" é a própria letra da DM Sans 800, em `#14110E`, dentro de um disco âmba
 
 **Onde aparece:**
 
-- **Cabeçalho** (`src/components/Logo.tsx`): disco como SVG embutido e "ulco" como texto real, na cor do tema. No tamanho do cabeçalho (disco de ~19 px) usa a versão mini; no tamanho grande, a com furo.
+- **Cabeçalho** (`src/components/Logo.tsx`): disco como SVG embutido e "ulco" como texto real, na cor do tema. Sempre com o furo central, também no cabeçalho (disco de ~19 px): decisão do dono em 20/11/2026. A versão mini fica só para o favicon e o `icon.svg`.
 - **Recap** (`src/lib/canvas/brandmark.ts`, no rodapé): disco e "s" desenhados no canvas com o mesmo contorno do SVG (não depende da fonte); o "ulco" usa a DM Sans já carregada antes do desenho. Abaixo de 32 px reais sai a mini.
 - **Grade:** sem logo (decisão de 16/11/2026: a grade é só das capas).
 - **Prévia do link:** `public/brand/lockup-escuro.svg`.
