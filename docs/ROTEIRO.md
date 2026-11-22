@@ -170,12 +170,20 @@ Pedido de um usuário no X: uma versão da grade para a tela dos Stories do Inst
 - [x] nome do arquivo termina em `-stories` (ex.: `grade-user-7day-3x5-stories.png`)
 - [x] conferido em 360 px, sem rolagem lateral
 
+## Comparação com o período anterior nas listas (22/11/2026)
+
+Pedido do dono do projeto: indicar nas 4 listas de "O que mais tocou" (Artistas, Músicas, Álbuns e Gêneros) quem subiu, caiu ou apareceu pela primeira vez em relação ao período anterior.
+
+- [x] seta verde (`▲`), seta vermelha (`▼`), bolinha azul (`●`) de primeira vez e traço neutro (`–`) ao lado da posição, com detalhe no mouse/leitor de tela
+- [x] funciona em todos os períodos móveis (`7day`–`12month`), meses fechados e anos (sem setas em "Todo o tempo" ou quando o período anterior está vazio/antes do cadastro)
+- [x] carregamento progressivo em segundo plano sem atrasar a página nem passar de 4 chamadas simultâneas ao Last.fm
+- [x] tokens de cor com contraste AA nos modos claro, escuro e pílula escura no cartão terracota de Gêneros, com legenda discreta em PT/EN/ES
+
 ---
 
 ## Ideias para depois
 
 - Formato quadrado 1080x1080.
 - Temas de cor para o recap.
-- Comparação com o mês anterior ("subiu", "novo no top").
 - Outros tamanhos de grade e grade de artistas.
 - Login com Spotify, se as regras da API mudarem.

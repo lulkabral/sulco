@@ -13,10 +13,30 @@ import { VinylLoader } from "./VinylLoader";
 import { aggregateScrobbles, type MonthTops } from "@/lib/aggregate";
 import { formatNumber } from "@/lib/format";
 import type { Genre } from "@/lib/genres";
-import type { ErrorCode } from "@/lib/lastfm/types";
+import type { ErrorCode, TopAlbum, TopArtist, TopTrack } from "@/lib/lastfm/types";
 import { MAX_SCROBBLE_PAGES } from "@/lib/lastfm/validate";
-import { ApiCallError, loadGenres, loadMonthScrobbles, loadYearTops, type MonthProgress } from "@/lib/month-loader";
-import { monthRange, parseYearId, yearRange } from "@/lib/months";
+import {
+  ApiCallError,
+  loadChartSnapshot,
+  loadGenres,
+  loadMonthScrobbles,
+  loadQuickGenres,
+  loadYearTops,
+  type MonthProgress,
+} from "@/lib/month-loader";
+import { monthLabel, monthRange, parseYearId, yearRange } from "@/lib/months";
+import {
+  computeGenreRankChanges,
+  computeRankChanges,
+  hasAnyRankChange,
+  PREV_CHART_LIMIT,
+  PREV_GENRE_ARTISTS,
+  PREV_GENRE_LIMIT,
+  previousHistoryPeriod,
+  previousMonthId,
+  rankKey,
+  type RankChange,
+} from "@/lib/rank-change";
 import type { Tab } from "@/lib/tabs";
 
 type Props = {
@@ -26,6 +46,16 @@ type Props = {
   /** Nome do período para a tela e a imagem: "Outubro de 2026", "2026 até agora". */
   label: string;
   tab: Tab;
+  /** Data de cadastro no Last.fm (evita buscar período anterior a ela). */
+  registeredAt?: number;
+};
+
+type TrendPromises = {
+  artists: Promise<(RankChange | null)[] | null>;
+  tracks: Promise<(RankChange | null)[] | null>;
+  albums: Promise<(RankChange | null)[] | null>;
+  genres: Promise<(RankChange | null)[] | null>;
+  hasAny: Promise<boolean>;
 };
 
 type State =
@@ -37,6 +67,7 @@ type State =
       range: { from: number; to: number };
       truncated: boolean;
       genres: Promise<Genre[] | null>;
+      trends: TrendPromises | null;
     };
 
 const LIST_LIMIT = 10;
@@ -54,7 +85,7 @@ const GRID_LIMIT = 25;
  * - Ano: 3 chamadas de gráfico + as capas dos álbuns que aparecem (ver loadYearTops).
  * O servidor não guarda nem soma nada. Depois, mostra recap, grade e listas.
  */
-export function MonthView({ username, period, label, tab }: Props) {
+export function MonthView({ username, period, label, tab, registeredAt = 0 }: Props) {
   const { lang, t } = useI18n();
   const [state, setState] = useState<State>({ status: "loading", progress: null });
   const [genreList, setGenreList] = useState<Genre[] | null | undefined>(undefined);
@@ -68,8 +99,9 @@ export function MonthView({ username, period, label, tab }: Props) {
     const { signal } = controller;
     const onProgress = (progress: MonthProgress) => setState({ status: "loading", progress });
     // Começo e fim do mês ou do ano no fuso deste aparelho.
+    const nowSeconds = Date.now() / 1000;
     const year = parseYearId(period);
-    const range = year ? yearRange(year, Date.now() / 1000) : monthRange(period);
+    const range = year ? yearRange(year, nowSeconds) : monthRange(period);
     if (!range) return;
 
     (async () => {
@@ -86,7 +118,97 @@ export function MonthView({ username, period, label, tab }: Props) {
         }
         const genres = loadGenres(tops.artists, signal);
         genres.then((g) => !signal.aborted && setGenreList(g));
-        setState({ status: "ready", tops, range: { from: range.from, to: range.to }, truncated, genres });
+
+        // Comparação com o mês ou ano anterior em segundo plano (1 chamada por vez,
+        // somada às 3 de gêneros = máx. 4 simultâneas; nunca derruba a tela se falhar).
+        const prev = previousHistoryPeriod(period, nowSeconds, registeredAt);
+        let trends: TrendPromises | null = null;
+        if (prev && tops.total > 0) {
+          const prevArtistsP = loadChartSnapshot(username, "artists", prev.range, PREV_CHART_LIMIT, signal)
+            .then((items) => items as TopArtist[] | null)
+            .catch(() => null);
+          const prevTracksP = prevArtistsP.then(() =>
+            signal.aborted
+              ? null
+              : loadChartSnapshot(username, "tracks", prev.range, PREV_CHART_LIMIT, signal)
+                  .then((items) => items as TopTrack[] | null)
+                  .catch(() => null),
+          );
+          const prevAlbumsP = prevTracksP.then(() =>
+            signal.aborted
+              ? null
+              : loadChartSnapshot(username, "albums", prev.range, PREV_CHART_LIMIT, signal)
+                  .then((items) => items as TopAlbum[] | null)
+                  .catch(() => null),
+          );
+
+          const displayedArtists = tops.artists.slice(0, LIST_LIMIT);
+          const displayedTracks = tops.tracks.slice(0, LIST_LIMIT);
+          const displayedAlbums = tops.albums.slice(0, LIST_LIMIT);
+
+          const artists = prevArtistsP.then((p) =>
+            p
+              ? computeRankChanges(
+                  displayedArtists,
+                  p,
+                  (a) => rankKey(a.name),
+                  (a) => rankKey(a.name),
+                  (a) => a.rank,
+                  (a) => a.rank,
+                )
+              : null,
+          );
+          const tracks = prevTracksP.then((p) =>
+            p
+              ? computeRankChanges(
+                  displayedTracks,
+                  p,
+                  (tr) => rankKey(tr.artist, tr.name),
+                  (tr) => rankKey(tr.artist, tr.name),
+                  (tr) => tr.rank,
+                  (tr) => tr.rank,
+                )
+              : null,
+          );
+          const albums = prevAlbumsP.then((p) =>
+            p
+              ? computeRankChanges(
+                  displayedAlbums,
+                  p,
+                  (a) => rankKey(a.artist, a.name),
+                  (a) => rankKey(a.artist, a.name),
+                  (a) => a.rank,
+                  (a) => a.rank,
+                )
+              : null,
+          );
+          const genreTrends = Promise.all([genres, prevArtistsP]).then(async ([curr, prevArtists]) => {
+            if (signal.aborted || !curr || curr.length === 0 || !prevArtists || prevArtists.length === 0) {
+              return null;
+            }
+            const prevGenres = await loadQuickGenres(
+              prevArtists.slice(0, PREV_GENRE_ARTISTS).map((a) => ({ name: a.name, playcount: a.playcount })),
+              signal,
+              PREV_GENRE_LIMIT,
+            ).catch(() => null);
+            return prevGenres ? computeGenreRankChanges(curr, prevGenres) : null;
+          });
+          const hasAny = artists.then(async (a) => {
+            if (hasAnyRankChange(a)) return true;
+            const [tr, al] = await Promise.all([tracks, albums]);
+            return hasAnyRankChange(tr) || hasAnyRankChange(al);
+          });
+          trends = { artists, tracks, albums, genres: genreTrends, hasAny };
+        }
+
+        setState({
+          status: "ready",
+          tops,
+          range: { from: range.from, to: range.to },
+          truncated,
+          genres,
+          trends,
+        });
       } catch (err) {
         if (signal.aborted) return;
         setState({ status: "error", code: err instanceof ApiCallError ? err.code : "LASTFM_DOWN" });
@@ -95,7 +217,7 @@ export function MonthView({ username, period, label, tab }: Props) {
 
     // Saiu da página ou trocou de mês: cancela os pedidos que ainda estão no ar.
     return () => controller.abort();
-  }, [username, period, coversNeeded, attempt]);
+  }, [username, period, coversNeeded, registeredAt, attempt]);
 
   function retry() {
     setState({ status: "loading", progress: null });
@@ -132,6 +254,13 @@ export function MonthView({ username, period, label, tab }: Props) {
     };
   }, [ready]);
 
+  const compareLabel = useMemo(() => {
+    const year = parseYearId(period);
+    if (year !== null) return year > 2002 ? String(year - 1) : undefined;
+    const prevId = previousMonthId(period);
+    return prevId ? monthLabel(prevId, lang) : undefined;
+  }, [period, lang]);
+
   if (state.status === "loading") {
     return <MonthProgressBar label={label} progress={state.progress} />;
   }
@@ -139,7 +268,7 @@ export function MonthView({ username, period, label, tab }: Props) {
     return <ErrorState code={state.code} username={username} onRetry={retry} />;
   }
 
-  const { tops, range, truncated, genres } = state;
+  const { tops, range, truncated, genres, trends } = state;
   const artistPics = artistPictures(tops.artists, tops.albums, tops.tracks);
   const artistPicsByName = Object.fromEntries(tops.artists.map((a, i) => [a.name, artistPics[i]]));
   if (tops.total === 0 || !recapData) {
@@ -178,11 +307,14 @@ export function MonthView({ username, period, label, tab }: Props) {
       )}
 
       <ProfileLists
+        compareLabel={trends ? compareLabel : undefined}
+        hasTrends={trends?.hasAny}
         artists={
           <TopList
             title={t.lists.artists}
             icon="artists"
             shape="round"
+            changes={trends?.artists}
             items={tops.artists.slice(0, LIST_LIMIT).map((a, i) => ({
               rank: a.rank,
               name: a.name,
@@ -197,6 +329,7 @@ export function MonthView({ username, period, label, tab }: Props) {
           <TopList
             title={t.lists.tracks}
             icon="tracks"
+            changes={trends?.tracks}
             items={tops.tracks.slice(0, LIST_LIMIT).map((t) => ({
               rank: t.rank,
               name: t.name,
@@ -212,6 +345,7 @@ export function MonthView({ username, period, label, tab }: Props) {
           <TopList
             title={t.lists.albums}
             icon="albums"
+            changes={trends?.albums}
             items={tops.albums.slice(0, LIST_LIMIT).map((a) => ({
               rank: a.rank,
               name: a.name,
@@ -225,7 +359,7 @@ export function MonthView({ username, period, label, tab }: Props) {
         }
         genres={
           <GenreListView>
-            <GenreItems genres={genreList} images={artistPicsByName} />
+            <GenreItems genres={genreList} images={artistPicsByName} changes={trends?.genres} />
           </GenreListView>
         }
       />

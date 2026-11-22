@@ -36,6 +36,12 @@
   --color-amber-hover: var(--accent-hover);
   --color-amber-ink: var(--accent-ink);
   --color-danger: var(--ui-danger); /* mensagem de erro do formulário */
+  --color-trend-up: var(--ui-trend-up); /* seta verde: subiu no ranking */
+  --color-trend-down: var(--ui-trend-down); /* seta vermelha: caiu no ranking */
+  --color-trend-new: var(--ui-trend-new); /* bolinha azul: primeira vez no período */
+  --color-trend-up-stage: #3ecf7c; /* seta verde sobre pílula escura (cartão terracota) */
+  --color-trend-down-stage: #f46666; /* seta vermelha sobre pílula escura */
+  --color-trend-new-stage: #5ca4ff; /* bolinha azul sobre pílula escura */
   --color-vinyl: #0b0a09; /* sulco escuro dos discos */
   --color-vinyl-groove: #1b1714; /* sulco claro dos discos */
 
@@ -170,6 +176,9 @@
   --ui-stage-soft: #b5aba0;
   --ui-stage-faint: #958b7f;
   --ui-danger: #b8321c;
+  --ui-trend-up: #147538;
+  --ui-trend-down: #c92a2a;
+  --ui-trend-new: #1d64d8;
   --focus-ring: #b83e16;
   --accent: #e8a13a;
   --accent-hover: #f0b257;
@@ -205,6 +214,9 @@
     --ui-stage-soft: #b5aba0;
     --ui-stage-faint: #9d9286;
     --ui-danger: #ff9b85;
+    --ui-trend-up: #3ecf7c;
+    --ui-trend-down: #f46666;
+    --ui-trend-new: #5ca4ff;
     --focus-ring: var(--accent);
   }
 }
@@ -237,6 +249,9 @@
   --ui-stage-soft: #b5aba0;
   --ui-stage-faint: #958b7f;
   --ui-danger: #b8321c;
+  --ui-trend-up: #147538;
+  --ui-trend-down: #c92a2a;
+  --ui-trend-new: #1d64d8;
   --focus-ring: #b83e16;
 }
 
@@ -267,6 +282,9 @@
   --ui-stage-soft: #b5aba0;
   --ui-stage-faint: #9d9286;
   --ui-danger: #ff9b85;
+  --ui-trend-up: #3ecf7c;
+  --ui-trend-down: #f46666;
+  --ui-trend-new: #5ca4ff;
   --focus-ring: var(--accent);
 }
 

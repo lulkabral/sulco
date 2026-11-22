@@ -7,6 +7,7 @@ import type { ArtistPicture } from "@/lib/artist-image";
 import { CoverThumb } from "./CoverThumb";
 import { ListIcon } from "./ListIcons";
 import { GenresSkeleton } from "./ProfileSkeleton";
+import { RankTrend, useResolvedRankChanges, type RankChangesInput } from "./RankTrend";
 
 /** Moldura da lista "Gêneros" (cartão terracota vibrante). Serve no servidor e no navegador. */
 export function GenreListView({ children }: { children: ReactNode }) {
@@ -36,11 +37,14 @@ export function GenreListView({ children }: { children: ReactNode }) {
 export function GenreItems({
   genres,
   images = {},
+  changes,
 }: {
   genres: Genre[] | null | undefined;
   images?: Record<string, ArtistPicture>;
+  changes?: RankChangesInput;
 }) {
   const { t } = useI18n();
+  const { changes: resolved, reserve } = useResolvedRankChanges(changes);
   if (genres === undefined) return <GenresSkeleton />;
   if (genres === null) {
     return <p className="text-sm text-terra-ink/90">{t.lists.genresError}</p>;
@@ -66,10 +70,17 @@ export function GenreItems({
                 animationDelay: `${i * 50}ms`,
               }}
             />
-            <div className="relative flex items-center gap-3 px-3.5 py-2.5">
-              <span className="w-5 shrink-0 text-right font-mono text-xs font-semibold text-terra-ink/80 tabular-nums">
-                {String(i + 1).padStart(2, "0")}
-              </span>
+            <div className="relative flex items-center gap-2.5 px-3.5 py-2.5">
+              {reserve ? (
+                <span className="flex w-10 shrink-0 items-center justify-end gap-1.5 font-mono text-xs font-semibold text-terra-ink/85 tabular-nums">
+                  <RankTrend change={resolved?.[i]} surface="terra" />
+                  <span>{String(i + 1).padStart(2, "0")}</span>
+                </span>
+              ) : (
+                <span className="w-5 shrink-0 text-right font-mono text-xs font-semibold text-terra-ink/80 tabular-nums">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+              )}
               <div className="min-w-0 flex-1">
                 <a
                   href={`https://www.last.fm/tag/${encodeURIComponent(genre.name)}`}

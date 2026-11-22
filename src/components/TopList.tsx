@@ -5,6 +5,7 @@ import { formatPlays } from "@/lib/format";
 import type { CoverLookup } from "@/lib/artist-image";
 import { CoverThumb } from "./CoverThumb";
 import { ListIcon, type ListIconName } from "./ListIcons";
+import { RankTrend, useResolvedRankChanges, type RankChangesInput } from "./RankTrend";
 
 export type TopListItem = {
   rank: number;
@@ -25,14 +26,17 @@ type Props = {
   items: TopListItem[];
   /** Formato da miniatura: redonda (artistas) ou quadrada (músicas e álbuns). */
   shape?: "round" | "square";
+  /** Variação de posição em relação ao período anterior (síncrona ou Promise). */
+  changes?: RankChangesInput;
 };
 
 /**
  * Lista numerada de um top, num cartão. Cada item leva para a página no Last.fm
  * e tem uma barrinha proporcional ao 1º colocado (que cresce ao aparecer).
  */
-export function TopList({ title, icon, items, shape = "square" }: Props) {
+export function TopList({ title, icon, items, shape = "square", changes }: Props) {
   const { lang, t } = useI18n();
+  const { changes: resolved, reserve } = useResolvedRankChanges(changes);
   const top = items[0]?.playcount || 1;
   return (
     <section
@@ -55,9 +59,16 @@ export function TopList({ title, icon, items, shape = "square" }: Props) {
               key={`${item.rank}-${item.name}`}
               className={`flex gap-3 ${item.image !== undefined ? "items-center" : "items-baseline"}`}
             >
-              <span className="w-6 shrink-0 text-right font-mono text-xs font-semibold text-ink-faint tabular-nums">
-                {String(item.rank).padStart(2, "0")}
-              </span>
+              {reserve ? (
+                <span className="flex w-9 shrink-0 items-center justify-end gap-1.5 font-mono text-xs font-semibold text-ink-faint tabular-nums">
+                  <RankTrend change={resolved?.[i]} />
+                  <span>{String(item.rank).padStart(2, "0")}</span>
+                </span>
+              ) : (
+                <span className="w-6 shrink-0 text-right font-mono text-xs font-semibold text-ink-faint tabular-nums">
+                  {String(item.rank).padStart(2, "0")}
+                </span>
+              )}
               {item.image !== undefined && (
                 <CoverThumb name={item.name} image={item.image} shape={shape} lookup={item.lookup} />
               )}

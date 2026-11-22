@@ -2,7 +2,7 @@
 // (o navegador nunca chama o Last.fm direto).
 
 import type { MonthTops } from "@/lib/aggregate";
-import { computeCheckedGenres, GENRE_ARTISTS, mapWithLimit, type Genre } from "@/lib/genres";
+import { computeCheckedGenres, computeTopGenres, GENRE_ARTISTS, mapWithLimit, type Genre } from "@/lib/genres";
 import {
   ERROR_CODES,
   type ArtistTagsResponse,
@@ -12,7 +12,9 @@ import {
   type ScrobblePage,
   type TopAlbum,
   type TopArtist,
+  type TopItem,
   type TopTrack,
+  type TopType,
 } from "@/lib/lastfm/types";
 import { MAX_SCROBBLE_PAGES } from "@/lib/lastfm/validate";
 
@@ -123,6 +125,56 @@ export async function loadGenres(
     top.map((a, i) => ({ ...a, tags: tags[i] ?? [] })),
     isGenre,
   );
+}
+
+/**
+ * Versão rápida para comparar posições de gêneros com o período anterior: usa só as tags
+ * dos artistas (reaproveitando o cache de 7 dias) sem disparar chamadas extras de `tag.getInfo`.
+ */
+export async function loadQuickGenres(
+  artists: { name: string; playcount: number }[],
+  signal: AbortSignal,
+  limit: number,
+): Promise<Genre[] | null> {
+  const tags = await mapWithLimit(artists, CONCURRENCY, async (artist) => {
+    try {
+      const url = `/api/lastfm/tags?${new URLSearchParams({ artist: artist.name })}`;
+      return (await getJson<ArtistTagsResponse>(url, signal)).tags;
+    } catch {
+      return null;
+    }
+  });
+  if (artists.length > 0 && tags.every((t) => t === null)) return null;
+  return computeTopGenres(
+    artists.map((a, i) => ({ ...a, tags: tags[i] ?? [] })),
+    limit,
+  );
+}
+
+/**
+ * Gráfico de um intervalo via `/api/lastfm/chart`, usado para comparar posições com o
+ * período anterior. Se falhar (sem ser cancelamento), devolve null sem derrubar a tela.
+ */
+export async function loadChartSnapshot(
+  username: string,
+  type: TopType,
+  range: { from: number; to: number },
+  limit: number,
+  signal: AbortSignal,
+): Promise<TopItem[] | null> {
+  const url = `/api/lastfm/chart?${new URLSearchParams({
+    user: username,
+    type,
+    from: String(range.from),
+    to: String(range.to),
+    limit: String(limit),
+  })}`;
+  try {
+    return (await getJson<ChartResponse>(url, signal)).items;
+  } catch (err) {
+    if (signal.aborted) throw err;
+    return null;
+  }
 }
 
 /**

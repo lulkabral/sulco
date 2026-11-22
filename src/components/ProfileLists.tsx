@@ -2,6 +2,7 @@
 
 import { useState, type ReactNode } from "react";
 import { useI18n } from "@/i18n/client";
+import { TrendLegend } from "./RankTrend";
 
 const LIST_KEYS = ["artists", "tracks", "albums", "genres"] as const;
 type ListKey = (typeof LIST_KEYS)[number];
@@ -11,6 +12,10 @@ type Props = {
   tracks: ReactNode;
   albums: ReactNode;
   genres: ReactNode;
+  /** Nome do período anterior comparado (ex.: "30 dias anteriores", "setembro de 2026"). */
+  compareLabel?: string;
+  /** Só mostra a legenda quando houver ao menos uma lista comparada com dados reais. */
+  hasTrends?: Promise<boolean> | boolean;
 };
 
 /**
@@ -19,7 +24,7 @@ type Props = {
  *   e Gêneros sem rolagem infinita;
  * - no computador (md+), todas aparecem num grid 2×2 largo para os nomes respirarem.
  */
-export function ProfileLists({ artists, tracks, albums, genres }: Props) {
+export function ProfileLists({ artists, tracks, albums, genres, compareLabel, hasTrends }: Props) {
   const { t } = useI18n();
   const [active, setActive] = useState<ListKey>("artists");
 
@@ -27,11 +32,14 @@ export function ProfileLists({ artists, tracks, albums, genres }: Props) {
 
   return (
     <section aria-labelledby="listas-titulo" className="flex flex-col gap-3.5">
-      <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h2 id="listas-titulo" className="text-xl font-extrabold tracking-tight text-ink">
-          {t.profile.topHeading}
-        </h2>
-        <p className="font-mono text-xs text-ink-faint">{t.profile.topHint}</p>
+      <div className="flex flex-col gap-1.5">
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <h2 id="listas-titulo" className="text-xl font-extrabold tracking-tight text-ink">
+            {t.profile.topHeading}
+          </h2>
+          <p className="font-mono text-xs text-ink-faint">{t.profile.topHint}</p>
+        </div>
+        <TrendLegend label={compareLabel} ready={hasTrends} />
       </div>
 
       {/* Filtro em pílulas só no celular */}

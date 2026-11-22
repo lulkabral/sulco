@@ -39,6 +39,9 @@ export function validatePeriod(raw: string | null): Validated<Period> {
   return { ok: false, message: `period deve ser um de: ${PERIODS.join(", ")}.` };
 }
 
+export const DEFAULT_CHART_LIMIT = 50;
+export const MAX_CHART_LIMIT = 200;
+
 export function validateLimit(raw: string | null): Validated<number> {
   if (raw === null || raw === "") return { ok: true, value: DEFAULT_LIMIT };
   if (!/^\d+$/.test(raw)) {
@@ -47,6 +50,19 @@ export function validateLimit(raw: string | null): Validated<number> {
   const value = Number(raw);
   if (value < 1 || value > MAX_LIMIT) {
     return { ok: false, message: `limit deve ser um número de 1 a ${MAX_LIMIT}.` };
+  }
+  return { ok: true, value };
+}
+
+/** Limite de itens devolvidos pela rota de gráfico (padrão 50, máximo 200). */
+export function validateChartLimit(raw: string | null): Validated<number> {
+  if (raw === null || raw === "") return { ok: true, value: DEFAULT_CHART_LIMIT };
+  if (!/^\d+$/.test(raw)) {
+    return { ok: false, message: `limit deve ser um número de 1 a ${MAX_CHART_LIMIT}.` };
+  }
+  const value = Number(raw);
+  if (value < 1 || value > MAX_CHART_LIMIT) {
+    return { ok: false, message: `limit deve ser um número de 1 a ${MAX_CHART_LIMIT}.` };
   }
   return { ok: true, value };
 }

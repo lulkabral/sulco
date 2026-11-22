@@ -20,7 +20,7 @@ import { TopList } from "@/components/TopList";
 import { UserHeader } from "@/components/UserHeader";
 import { getI18n } from "@/i18n/server";
 import { GENRE_ARTISTS } from "@/lib/genres";
-import { getScrobbleTotal, getTop, getTopGenres, getUserInfo } from "@/lib/lastfm/client";
+import { getChart, getQuickTopGenres, getScrobbleTotal, getTop, getTopGenres, getUserInfo } from "@/lib/lastfm/client";
 import { LastfmError } from "@/lib/lastfm/errors";
 import type { ErrorCode, TopAlbum, TopArtist, TopTrack } from "@/lib/lastfm/types";
 import { validateUsername } from "@/lib/lastfm/validate";
@@ -33,6 +33,16 @@ import {
   UI_PERIODS,
   type UiPeriod,
 } from "@/lib/periods";
+import {
+  computeGenreRankChanges,
+  computeRankChanges,
+  hasAnyRankChange,
+  PREV_CHART_LIMIT,
+  PREV_GENRE_ARTISTS,
+  PREV_GENRE_LIMIT,
+  previousUiPeriodRange,
+  rankKey,
+} from "@/lib/rank-change";
 import { currentMonthsSince, currentYearsSince, monthLabel, parseYearId, yearLabel } from "@/lib/months";
 import { parseTab, type Tab } from "@/lib/tabs";
 
@@ -154,7 +164,14 @@ async function Profile({ params, searchParams }: Pick<PageProps<"/[lang]/u/[user
       </div>
       {history ? (
         // Mês ou ano escolhido no calendário: os dados são montados no navegador (SPEC, "Mês fechado").
-        <MonthView key={history} username={user.username} period={history} label={historyLabel} tab={tab} />
+        <MonthView
+          key={history}
+          username={user.username}
+          period={history}
+          label={historyLabel}
+          tab={tab}
+          registeredAt={user.registeredAt}
+        />
       ) : (
         // key: ao trocar de período mostra o esqueleto; ao trocar de aba, a tela atual fica até a nova chegar
         <Suspense key={period} fallback={<ListsSkeleton />}>
@@ -215,7 +232,8 @@ async function TopLists({ username, period, tab, registeredAt, lifetimeTotal }: 
 
   const albumItems = albums.items as TopAlbum[];
   const artistItems = artists.items as TopArtist[];
-  const artistPics = artistPictures(artistItems, albumItems, tracks.items as TopTrack[]);
+  const trackItems = tracks.items as TopTrack[];
+  const artistPics = artistPictures(artistItems, albumItems, trackItems);
   // Para as bolinhas dos gêneros: os artistas que entram no cálculo (até 20).
   const artistPicsByName = Object.fromEntries(artistItems.map((a, i) => [a.name, artistPics[i]]));
 
@@ -224,6 +242,95 @@ async function TopLists({ username, period, tab, registeredAt, lifetimeTotal }: 
   const genres = getTopGenres(
     artistItems.map((a) => ({ name: a.name, playcount: a.playcount })),
   );
+
+  // Comparação com o período anterior (em segundo plano, sem atrasar a tela).
+  // Roda 1 gráfico por vez (somado às 3 de gêneros = máx. 4 simultâneas); os gêneros
+  // anteriores só começam depois dos atuais, reaproveitando as tags já em cache.
+  const prevRange = previousUiPeriodRange(period, range, registeredAt);
+  const compareLabel = prevRange ? t.periods.previous[period] : undefined;
+  const displayedArtists = artistItems.slice(0, LIST_LIMIT);
+  const displayedTracks = trackItems.slice(0, LIST_LIMIT);
+  const displayedAlbums = albumItems.slice(0, LIST_LIMIT);
+
+  const prevArtistsP = prevRange
+    ? getChart(username, "artists", prevRange.from, prevRange.to, PREV_CHART_LIMIT)
+        .then((r) => r.items as TopArtist[])
+        .catch(() => null)
+    : null;
+  const prevTracksP = prevArtistsP
+    ? prevArtistsP.then(() =>
+        getChart(username, "tracks", prevRange!.from, prevRange!.to, PREV_CHART_LIMIT)
+          .then((r) => r.items as TopTrack[])
+          .catch(() => null),
+      )
+    : null;
+  const prevAlbumsP = prevTracksP
+    ? prevTracksP.then(() =>
+        getChart(username, "albums", prevRange!.from, prevRange!.to, PREV_CHART_LIMIT)
+          .then((r) => r.items as TopAlbum[])
+          .catch(() => null),
+      )
+    : null;
+
+  const artistChanges = prevArtistsP
+    ? prevArtistsP.then((prev) =>
+        prev
+          ? computeRankChanges(
+              displayedArtists,
+              prev,
+              (a) => rankKey(a.name),
+              (a) => rankKey(a.name),
+              (a) => a.rank,
+              (a) => a.rank,
+            )
+          : null,
+      )
+    : undefined;
+  const trackChanges = prevTracksP
+    ? prevTracksP.then((prev) =>
+        prev
+          ? computeRankChanges(
+              displayedTracks,
+              prev,
+              (tr) => rankKey(tr.artist, tr.name),
+              (tr) => rankKey(tr.artist, tr.name),
+              (tr) => tr.rank,
+              (tr) => tr.rank,
+            )
+          : null,
+      )
+    : undefined;
+  const albumChanges = prevAlbumsP
+    ? prevAlbumsP.then((prev) =>
+        prev
+          ? computeRankChanges(
+              displayedAlbums,
+              prev,
+              (a) => rankKey(a.artist, a.name),
+              (a) => rankKey(a.artist, a.name),
+              (a) => a.rank,
+              (a) => a.rank,
+            )
+          : null,
+      )
+    : undefined;
+  const genreChanges = prevArtistsP
+    ? Promise.all([genres, prevArtistsP]).then(async ([curr, prevArtists]) => {
+        if (!curr || curr.length === 0 || !prevArtists || prevArtists.length === 0) return null;
+        const prevGenres = await getQuickTopGenres(
+          prevArtists.slice(0, PREV_GENRE_ARTISTS).map((a) => ({ name: a.name, playcount: a.playcount })),
+          PREV_GENRE_LIMIT,
+        );
+        return prevGenres ? computeGenreRankChanges(curr, prevGenres) : null;
+      })
+    : undefined;
+  const hasTrends = artistChanges
+    ? artistChanges.then(async (a) => {
+        if (hasAnyRankChange(a)) return true;
+        const [tr, al] = await Promise.all([trackChanges, albumChanges]);
+        return hasAnyRankChange(tr) || hasAnyRankChange(al);
+      })
+    : undefined;
 
   return (
     <>
@@ -251,10 +358,10 @@ async function TopLists({ username, period, tab, registeredAt, lifetimeTotal }: 
           artists={artistItems
             .slice(0, RECAP_ARTISTS)
             .map((a) => ({ name: a.name, playcount: a.playcount }))}
-          tracks={(tracks.items as TopTrack[])
+          tracks={trackItems
             .slice(0, RECAP_TRACKS)
             .map((t) => ({ name: t.name, artist: t.artist, playcount: t.playcount }))}
-          minuteSample={(tracks.items as TopTrack[])
+          minuteSample={trackItems
             .slice(0, MINUTE_SAMPLE)
             .map((t) => ({ name: t.name, artist: t.artist, playcount: t.playcount }))}
           albums={albumItems.slice(0, RECAP_ALBUMS).map((a) => ({
@@ -266,12 +373,15 @@ async function TopLists({ username, period, tab, registeredAt, lifetimeTotal }: 
         />
       )}
       <ProfileLists
+        compareLabel={compareLabel}
+        hasTrends={hasTrends}
         artists={
           <TopList
             title={t.lists.artists}
             icon="artists"
             shape="round"
-            items={artistItems.slice(0, LIST_LIMIT).map((a, i) => ({
+            changes={artistChanges}
+            items={displayedArtists.map((a, i) => ({
               rank: a.rank,
               name: a.name,
               playcount: a.playcount,
@@ -285,7 +395,8 @@ async function TopLists({ username, period, tab, registeredAt, lifetimeTotal }: 
           <TopList
             title={t.lists.tracks}
             icon="tracks"
-            items={(tracks.items as TopTrack[]).map((t) => ({
+            changes={trackChanges}
+            items={displayedTracks.map((t) => ({
               rank: t.rank,
               name: t.name,
               detail: t.artist,
@@ -300,7 +411,8 @@ async function TopLists({ username, period, tab, registeredAt, lifetimeTotal }: 
           <TopList
             title={t.lists.albums}
             icon="albums"
-            items={albumItems.slice(0, LIST_LIMIT).map((a) => ({
+            changes={albumChanges}
+            items={displayedAlbums.map((a) => ({
               rank: a.rank,
               name: a.name,
               detail: a.artist,
@@ -311,7 +423,7 @@ async function TopLists({ username, period, tab, registeredAt, lifetimeTotal }: 
             }))}
           />
         }
-        genres={<GenreList genres={genres} images={artistPicsByName} />}
+        genres={<GenreList genres={genres} images={artistPicsByName} changes={genreChanges} />}
       />
     </>
   );

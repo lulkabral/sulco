@@ -123,6 +123,13 @@ export const en: Dict = {
       "6month": "6 MONTHS",
       "12month": "1 YEAR",
     },
+    previous: {
+      "7day": "previous 7 days",
+      "1month": "previous 30 days",
+      "3month": "previous 3 months",
+      "6month": "previous 6 months",
+      "12month": "previous 12 months",
+    },
     monthsShort: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
     yearOngoing: (year: number) => `${year} so far`,
     wholeYear: (year: number) => `All of ${year}`,
@@ -167,6 +174,16 @@ export const en: Dict = {
     empty: "Nothing in this period.",
     genresError: "Couldn't work this out right now. Try reloading the page.",
     genresNoTags: "The artists in this period don't have enough tags on Last.fm.",
+    trend: {
+      vs: (label: string) => `vs. ${label}`,
+      legendUp: "up",
+      legendDown: "down",
+      legendNew: "new",
+      up: (delta: number, prev: number) => `Up ${delta} ${delta === 1 ? "spot" : "spots"} (was #${prev})`,
+      down: (delta: number, prev: number) => `Down ${delta} ${delta === 1 ? "spot" : "spots"} (was #${prev})`,
+      same: (prev: number) => `Same position (#${prev})`,
+      firstTime: "First time in this period",
+    },
   },
   errors: {
     BAD_REQUEST: {

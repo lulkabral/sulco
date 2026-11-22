@@ -3,7 +3,7 @@
 import "server-only";
 
 import { cacheLife } from "next/cache";
-import { computeCheckedGenres, looksLikeGenre, mapWithLimit, type Genre } from "@/lib/genres";
+import { computeCheckedGenres, computeTopGenres, looksLikeGenre, mapWithLimit, type Genre } from "@/lib/genres";
 import vitrine from "@/data/vitrine.json";
 import { parseShowcase } from "@/lib/showcase";
 import { rankTrendingAlbums, type TrendingCover } from "@/lib/trending";
@@ -266,6 +266,28 @@ export async function getTopGenres(
   );
 }
 
+/**
+ * Versão rápida para comparar gêneros com o período anterior: reaproveita o cache de 7 dias
+ * das tags dos artistas e ordena em memória sem chamadas extras de `tag.getInfo`.
+ */
+export async function getQuickTopGenres(
+  artists: { name: string; playcount: number }[],
+  limit: number,
+): Promise<Genre[] | null> {
+  const tags = await mapWithLimit(artists, TAGS_CONCURRENCY, async (artist) => {
+    try {
+      return (await getArtistTags(artist.name)).tags;
+    } catch {
+      return null;
+    }
+  });
+  if (artists.length > 0 && tags.every((t) => t === null)) return null;
+  return computeTopGenres(
+    artists.map((a, i) => ({ ...a, tags: tags[i] ?? [] })),
+    limit,
+  );
+}
+
 /** Scrobbles por página (máximo documentado do `user.getRecentTracks`). */
 const SCROBBLES_PER_PAGE = 200;
 
@@ -313,14 +335,20 @@ const CHART_LIMIT = 50;
  * com `from`/`to` livres (não documentado, mas testado: a soma bate com o total de
  * scrobbles; ver docs/LASTFM.md). Intervalo encerrado fica 1 dia em cache.
  */
-export async function getChart(username: string, type: TopType, from: number, to: number): Promise<ChartResponse> {
+export async function getChart(
+  username: string,
+  type: TopType,
+  from: number,
+  to: number,
+  limit = CHART_LIMIT,
+): Promise<ChartResponse> {
   const closed = isClosedRange(to, Date.now() / 1000);
   const raw = await callLastfm(
     CHART_METHODS[type],
     { user: username, from: String(from), to: String(to) },
     closed ? "day" : "short",
   );
-  return { type, from, to, items: normalizeChart(type, raw, CHART_LIMIT), totalPlays: sumChartPlays(type, raw) };
+  return { type, from, to, items: normalizeChart(type, raw, limit), totalPlays: sumChartPlays(type, raw) };
 }
 
 /**

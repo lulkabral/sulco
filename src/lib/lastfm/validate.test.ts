@@ -4,6 +4,7 @@ import {
   MAX_YEAR_RANGE_SECONDS,
   validateAlbumName,
   validateArtistName,
+  validateChartLimit,
   validateLimit,
   validatePage,
   validateRange,
@@ -64,6 +65,15 @@ describe("validateLimit", () => {
 
   it.each(["0", "51", "-1", "2.5", "abc", "1e2"])("recusa %s", (raw) => {
     expect(validateLimit(raw).ok).toBe(false);
+  });
+});
+
+describe("validateChartLimit", () => {
+  it("usa 50 quando não vem nada e aceita de 1 a 200", () => {
+    expect(validateChartLimit(null)).toEqual({ ok: true, value: 50 });
+    expect(validateChartLimit("200")).toEqual({ ok: true, value: 200 });
+    expect(validateChartLimit("201").ok).toBe(false);
+    expect(validateChartLimit("0").ok).toBe(false);
   });
 });
 

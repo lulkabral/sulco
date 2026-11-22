@@ -123,6 +123,14 @@ export const pt = {
       "6month": "6 MESES",
       "12month": "1 ANO",
     } as Record<string, string>,
+    /** Nome do bloco anterior usado na legenda das setas ("vs. 30 dias anteriores"). */
+    previous: {
+      "7day": "7 dias anteriores",
+      "1month": "30 dias anteriores",
+      "3month": "3 meses anteriores",
+      "6month": "6 meses anteriores",
+      "12month": "12 meses anteriores",
+    } as Record<string, string>,
     monthsShort: ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"],
     yearOngoing: (year: number) => `${year} até agora`,
     wholeYear: (year: number) => `Ano inteiro de ${year}`,
@@ -167,6 +175,16 @@ export const pt = {
     empty: "Nada neste período.",
     genresError: "Não deu para calcular agora. Tente recarregar a página.",
     genresNoTags: "Os artistas deste período não têm tags suficientes no Last.fm.",
+    trend: {
+      vs: (label: string) => `vs. ${label.toLowerCase()}`,
+      legendUp: "subiu",
+      legendDown: "caiu",
+      legendNew: "primeira vez",
+      up: (delta: number, prev: number) => `Subiu ${delta} ${delta === 1 ? "posição" : "posições"} (era #${prev})`,
+      down: (delta: number, prev: number) => `Caiu ${delta} ${delta === 1 ? "posição" : "posições"} (era #${prev})`,
+      same: (prev: number) => `Mesma posição (#${prev})`,
+      firstTime: "Primeira vez neste período",
+    },
   },
   errors: {
     BAD_REQUEST: {
