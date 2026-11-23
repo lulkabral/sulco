@@ -58,10 +58,12 @@ export function trackInfo(artist: string, name: string, priority: Priority = "lo
   );
 }
 
-/** Capa de um álbum, de uma música ou do álbum mais popular de um artista; sem capa, tenta o `fallback`. */
+/** Capa de um álbum, música ou foto de artista; sem imagem, usa `fallbackUrl` ou busca `fallback`. */
 export async function findCover(lookup: CoverLookup, priority: Priority = "low"): Promise<string | null> {
   const url = await findOne(lookup, priority);
-  return url ?? (lookup.fallback ? findCover(lookup.fallback, priority) : null);
+  if (url) return url;
+  if (lookup.fallbackUrl) return lookup.fallbackUrl;
+  return lookup.fallback ? findCover(lookup.fallback, priority) : null;
 }
 
 function findOne(lookup: CoverLookup, priority: Priority): Promise<string | null> {

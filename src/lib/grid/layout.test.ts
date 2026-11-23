@@ -38,11 +38,14 @@ describe("gridLayout", () => {
 
 describe("coverUrl", () => {
   const base = "https://lastfm-img.freetls.fastly.net/i/u";
+  const dz = "https://cdn-images.dzcdn.net/images/cover/07ecc6f1b09e9b7b972ec598aabb9762";
 
   it("troca o tamanho no endereço", () => {
     expect(coverUrl(`${base}/300x300/abc.jpg`, 600)).toBe(`${base}/600x600/abc.jpg`);
     expect(coverUrl(`${base}/174s/abc.png`, 300)).toBe(`${base}/300x300/abc.png`);
     expect(coverUrl(`${base}/300x300/abc.jpg`, "original")).toBe(`${base}/abc.jpg`);
+    expect(coverUrl(`${dz}/500x500-000000-80-0-0.jpg`, 600)).toBe(`${dz}/600x600-000000-80-0-0.jpg`);
+    expect(coverUrl(`${dz}/500x500-000000-80-0-0.jpg`, "original")).toBe(`${dz}/1000x1000-000000-80-0-0.jpg`);
   });
 
   it("deixa igual o endereço sem trecho de tamanho", () => {
@@ -52,10 +55,12 @@ describe("coverUrl", () => {
 
 describe("thumbUrl", () => {
   const base = "https://lastfm-img.freetls.fastly.net/i/u";
+  const dz = "https://cdn-images.dzcdn.net/images/artist/fbd45c09a10daa3d94efaae309f92af5";
 
-  it("pede a miniatura 174s", () => {
+  it("pede a miniatura 174s no Last.fm e 250x250 na Deezer", () => {
     expect(thumbUrl(`${base}/300x300/abc.jpg`)).toBe(`${base}/174s/abc.jpg`);
     expect(thumbUrl(`${base}/64s/abc.png`)).toBe(`${base}/174s/abc.png`);
+    expect(thumbUrl(`${dz}/500x500-000000-80-0-0.jpg`)).toBe(`${dz}/250x250-000000-80-0-0.jpg`);
   });
 
   it("deixa igual o endereço sem trecho de tamanho", () => {

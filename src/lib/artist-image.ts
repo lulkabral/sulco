@@ -6,27 +6,25 @@ export type CoverLookup = {
   type: "album" | "track" | "artist";
   artist: string;
   name: string;
+  /** Imagem já conhecida (ex.: capa do álbum mais ouvido) para usar direto se a busca falhar. */
+  fallbackUrl?: string;
   fallback?: CoverLookup;
 };
 
 export type ArtistPicture = {
   /** Capa já conhecida, ou null. */
   image: string | null;
-  /** Sem capa conhecida: o que buscar para ter uma. */
+  /** Sem foto já resolvida: o que buscar para ter uma. */
   lookup?: CoverLookup;
 };
 
 const key = (s: string) => s.toLocaleLowerCase("pt-BR");
 
 /**
- * "Foto" de cada artista a partir de capas: o Last.fm não tem mais fotos de artista
- * (armadilha 7 em docs/LASTFM.md). Usa o álbum mais ouvido daquele artista no período
- * (as listas já vêm do mais para o menos ouvido):
- * - se o álbum já tem capa, usa a capa;
- * - se não tem (no ano só as primeiras capas são buscadas), diz qual álbum buscar;
- * - sem álbum do artista na lista, busca a capa da música mais ouvida dele;
- * - se nada disso tiver capa, usa o álbum mais popular do artista no Last.fm (de todos os tempos).
- * Só se nem esse tiver capa a tela mostra a inicial.
+ * Foto de cada artista para "O que mais tocou" e as bolinhas de gêneros:
+ * tenta primeiro a foto oficial do artista (via /api/lastfm/artist -> Deezer, ou álbum
+ * mais popular no Last.fm). Só se não houver foto, cai para a capa já conhecida ou
+ * para a busca do álbum/música mais ouvidos do artista no período.
  */
 export function artistPictures(
   artists: { name: string }[],
@@ -49,17 +47,19 @@ export function artistPictures(
   return artists.map((a) => {
     const k = key(a.name);
     const cover = withCover.get(k);
-    if (cover) return { image: cover };
-    const byArtist: CoverLookup = { type: "artist", artist: a.name, name: a.name };
     const album = firstAlbum.get(k);
-    if (album) {
-      return { image: null, lookup: { type: "album", artist: album.artist, name: album.name, fallback: byArtist } };
-    }
     const track = firstTrack.get(k);
-    if (track?.imageUrl) return { image: track.imageUrl };
-    if (track) {
-      return { image: null, lookup: { type: "track", artist: track.artist, name: track.name, fallback: byArtist } };
+
+    const lookup: CoverLookup = { type: "artist", artist: a.name, name: a.name };
+    if (cover) {
+      lookup.fallbackUrl = cover;
+    } else if (album) {
+      lookup.fallback = { type: "album", artist: album.artist, name: album.name };
+    } else if (track?.imageUrl) {
+      lookup.fallbackUrl = track.imageUrl;
+    } else if (track) {
+      lookup.fallback = { type: "track", artist: track.artist, name: track.name };
     }
-    return { image: null, lookup: byArtist };
+    return { image: null, lookup };
   });
 }

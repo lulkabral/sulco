@@ -90,21 +90,31 @@ export function gridCells(size: GridSize, format: GridFormat): GridCell[] {
 /** Tamanhos de capa que o Last.fm entrega: 300, 600 ou a original (1200 a 3000 px, mais pesada). */
 export type CoverSize = 300 | 600 | "original";
 
+const DEEZER_SIZE_PATH = /^(https:\/\/[a-z0-9.-]*dzcdn\.net\/images\/(?:cover|artist)\/[0-9a-f]{32}\/)\d+x\d+(-\d+-\d+-\d+-\d+\.\w+)$/i;
+
 /**
- * Pede a capa no tamanho `px` trocando o trecho de tamanho no endereço
- * (ex.: `/300x300/` ou `/174s/` -> `/600x600/`); "original" tira o trecho.
- * Ver armadilha 9 em docs/LASTFM.md. Endereço sem trecho reconhecido volta igual.
+ * Pede a capa no tamanho `px` trocando o trecho de tamanho no endereço:
+ * - Last.fm: `/300x300/` ou `/174s/` -> `/600x600/` ("original" tira o trecho);
+ * - Deezer: `/500x500-...` -> `/600x600-...` ("original" usa `1000x1000`, máximo da CDN).
+ * Endereço sem trecho reconhecido volta igual.
  */
 export function coverUrl(url: string, px: CoverSize): string {
+  if (DEEZER_SIZE_PATH.test(url)) {
+    const dim = px === "original" ? "1000x1000" : `${px}x${px}`;
+    return url.replace(DEEZER_SIZE_PATH, `$1${dim}$2`);
+  }
   const size = px === "original" ? "" : `${px}x${px}/`;
   return url.replace(/\/i\/u\/(?:\d+x\d+|\d+s)\//, `/i/u/${size}`);
 }
 
 /**
- * Versão miniatura (174 px) da capa ou do avatar, para mostrar na tela (faixa do topo, avatar).
+ * Versão miniatura para tela (174s no Last.fm, 250x250 na Deezer — tamanho `medium` já em cache na CDN).
  * Atenção: o Last.fm só tem `174s`; `174x174` devolve o ORIGINAL (vários MB). Armadilha 9.
  */
 export function thumbUrl(url: string): string {
+  if (DEEZER_SIZE_PATH.test(url)) {
+    return url.replace(DEEZER_SIZE_PATH, "$1250x250$2");
+  }
   return url.replace(/\/i\/u\/(?:\d+x\d+|\d+s)\//, "/i/u/174s/");
 }
 
