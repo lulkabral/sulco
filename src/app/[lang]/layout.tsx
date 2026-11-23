@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import type { Viewport } from "next";
-import { DM_Mono, DM_Sans } from "next/font/google";
+import { DM_Sans } from "next/font/google";
 import { PrivateAnalytics } from "@/components/PrivateAnalytics";
 import { SiteFooter, X_AUTHOR, X_SITE } from "@/components/SiteFooter";
 import { LocaleProvider } from "@/i18n/client";
@@ -9,19 +9,11 @@ import { getI18n } from "@/i18n/server";
 import { THEME_INIT_SCRIPT } from "@/lib/theme-mode";
 import "../globals.css";
 
-// Interface e títulos (docs/MARCA.md). O canvas do recap e da grade usa a mesma fonte.
+// Fonte única da interface (textos, títulos e números com tabular-nums). O canvas usa a mesma fonte.
 const sans = DM_Sans({
   variable: "--font-dm-sans",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700", "800"],
-  display: "swap",
-});
-
-// Números, datas e metadados (sempre com tabular-nums).
-const mono = DM_Mono({
-  variable: "--font-dm-mono",
-  subsets: ["latin"],
-  weight: ["400", "500"],
   display: "swap",
 });
 
@@ -76,7 +68,11 @@ export const viewport: Viewport = {
 export default async function RootLayout({ children }: LayoutProps<"/[lang]">) {
   const { lang, t } = await getI18n();
   return (
-    <html lang={HTML_LANG[lang]} suppressHydrationWarning className={`${sans.variable} ${mono.variable} h-full antialiased`}>
+    <html
+      lang={HTML_LANG[lang]}
+      suppressHydrationWarning
+      className={`${sans.variable} h-full antialiased`}
+    >
       <head>
         <link rel="preconnect" href="https://lastfm-img.freetls.fastly.net" />
         <link rel="preconnect" href="https://lastfm-img.freetls.fastly.net" crossOrigin="anonymous" />

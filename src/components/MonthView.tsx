@@ -3,8 +3,10 @@
 import { artistPictures } from "@/lib/artist-image";
 import { useEffect, useMemo, useState } from "react";
 import { AlbumGrid } from "@/components/AlbumGrid";
+import { AlbumTopList } from "@/components/AlbumTopList";
 import { ErrorState } from "@/components/ErrorState";
 import { GenreItems, GenreListView } from "@/components/GenreListView";
+import { PeriodHighlights } from "@/components/PeriodHighlights";
 import { ProfileLists } from "@/components/ProfileLists";
 import { RecapImage } from "@/components/RecapImage";
 import { TopList } from "@/components/TopList";
@@ -24,16 +26,14 @@ import {
   loadYearTops,
   type MonthProgress,
 } from "@/lib/month-loader";
-import { monthLabel, monthRange, parseYearId, yearRange } from "@/lib/months";
+import { monthRange, parseYearId, yearRange } from "@/lib/months";
 import {
   computeGenreRankChanges,
   computeRankChanges,
-  hasAnyRankChange,
   PREV_CHART_LIMIT,
   PREV_GENRE_ARTISTS,
   PREV_GENRE_LIMIT,
   previousHistoryPeriod,
-  previousMonthId,
   rankKey,
   type RankChange,
 } from "@/lib/rank-change";
@@ -55,7 +55,6 @@ type TrendPromises = {
   tracks: Promise<(RankChange | null)[] | null>;
   albums: Promise<(RankChange | null)[] | null>;
   genres: Promise<(RankChange | null)[] | null>;
-  hasAny: Promise<boolean>;
 };
 
 type State =
@@ -71,6 +70,7 @@ type State =
     };
 
 const LIST_LIMIT = 10;
+const EXPANDED_LIMIT = 20;
 /** Itens na imagem do recap: até 15 artistas (Lineup), 5 músicas e 9 álbuns (Mosaico). */
 const RECAP_ARTISTS = 15;
 const RECAP_TRACKS = 5;
@@ -142,9 +142,9 @@ export function MonthView({ username, period, label, tab, registeredAt = 0 }: Pr
                   .catch(() => null),
           );
 
-          const displayedArtists = tops.artists.slice(0, LIST_LIMIT);
-          const displayedTracks = tops.tracks.slice(0, LIST_LIMIT);
-          const displayedAlbums = tops.albums.slice(0, LIST_LIMIT);
+          const displayedArtists = tops.artists.slice(0, EXPANDED_LIMIT);
+          const displayedTracks = tops.tracks.slice(0, EXPANDED_LIMIT);
+          const displayedAlbums = tops.albums.slice(0, EXPANDED_LIMIT);
 
           const artists = prevArtistsP.then((p) =>
             p
@@ -193,12 +193,7 @@ export function MonthView({ username, period, label, tab, registeredAt = 0 }: Pr
             ).catch(() => null);
             return prevGenres ? computeGenreRankChanges(curr, prevGenres) : null;
           });
-          const hasAny = artists.then(async (a) => {
-            if (hasAnyRankChange(a)) return true;
-            const [tr, al] = await Promise.all([tracks, albums]);
-            return hasAnyRankChange(tr) || hasAnyRankChange(al);
-          });
-          trends = { artists, tracks, albums, genres: genreTrends, hasAny };
+          trends = { artists, tracks, albums, genres: genreTrends };
         }
 
         setState({
@@ -254,13 +249,6 @@ export function MonthView({ username, period, label, tab, registeredAt = 0 }: Pr
     };
   }, [ready]);
 
-  const compareLabel = useMemo(() => {
-    const year = parseYearId(period);
-    if (year !== null) return year > 2002 ? String(year - 1) : undefined;
-    const prevId = previousMonthId(period);
-    return prevId ? monthLabel(prevId, lang) : undefined;
-  }, [period, lang]);
-
   if (state.status === "loading") {
     return <MonthProgressBar label={label} progress={state.progress} />;
   }
@@ -307,15 +295,15 @@ export function MonthView({ username, period, label, tab, registeredAt = 0 }: Pr
       )}
 
       <ProfileLists
-        compareLabel={trends ? compareLabel : undefined}
-        hasTrends={trends?.hasAny}
         artists={
           <TopList
             title={t.lists.artists}
             icon="artists"
             shape="round"
+            variant="artists"
+            initialLimit={LIST_LIMIT}
             changes={trends?.artists}
-            items={tops.artists.slice(0, LIST_LIMIT).map((a, i) => ({
+            items={tops.artists.slice(0, EXPANDED_LIMIT).map((a, i) => ({
               rank: a.rank,
               name: a.name,
               playcount: a.playcount,
@@ -329,8 +317,10 @@ export function MonthView({ username, period, label, tab, registeredAt = 0 }: Pr
           <TopList
             title={t.lists.tracks}
             icon="tracks"
+            variant="tracks"
+            initialLimit={LIST_LIMIT}
             changes={trends?.tracks}
-            items={tops.tracks.slice(0, LIST_LIMIT).map((t) => ({
+            items={tops.tracks.slice(0, EXPANDED_LIMIT).map((t) => ({
               rank: t.rank,
               name: t.name,
               detail: t.artist,
@@ -342,11 +332,10 @@ export function MonthView({ username, period, label, tab, registeredAt = 0 }: Pr
           />
         }
         albums={
-          <TopList
-            title={t.lists.albums}
-            icon="albums"
+          <AlbumTopList
+            initialLimit={LIST_LIMIT}
             changes={trends?.albums}
-            items={tops.albums.slice(0, LIST_LIMIT).map((a) => ({
+            items={tops.albums.slice(0, EXPANDED_LIMIT).map((a) => ({
               rank: a.rank,
               name: a.name,
               detail: a.artist,
@@ -361,6 +350,37 @@ export function MonthView({ username, period, label, tab, registeredAt = 0 }: Pr
           <GenreListView>
             <GenreItems genres={genreList} images={artistPicsByName} changes={trends?.genres} />
           </GenreListView>
+        }
+        highlights={
+          <PeriodHighlights
+            artists={tops.artists.slice(0, EXPANDED_LIMIT).map((a) => ({
+              rank: a.rank,
+              name: a.name,
+              playcount: a.playcount,
+            }))}
+            tracks={tops.tracks.slice(0, EXPANDED_LIMIT).map((tr) => ({
+              rank: tr.rank,
+              name: tr.name,
+              artist: tr.artist,
+              playcount: tr.playcount,
+            }))}
+            albums={tops.albums.slice(0, EXPANDED_LIMIT).map((al) => ({
+              rank: al.rank,
+              name: al.name,
+              artist: al.artist,
+              playcount: al.playcount,
+            }))}
+            totalScrobbles={tops.total}
+            changes={
+              trends
+                ? {
+                    artists: trends.artists,
+                    tracks: trends.tracks,
+                    albums: trends.albums,
+                  }
+                : undefined
+            }
+          />
         }
       />
     </>

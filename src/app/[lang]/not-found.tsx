@@ -28,7 +28,7 @@ export default async function NotFound() {
 
       <div className="mx-auto flex w-full max-w-xl flex-1 flex-col justify-center gap-6 px-4 py-12 sm:px-6">
         <div className="flex flex-col gap-2">
-          <p className="font-mono text-xs font-semibold tracking-[0.16em] text-terra-text uppercase">{t.notFound.eyebrow}</p>
+          <p className="text-xs font-bold tracking-[0.14em] text-terra-text uppercase">{t.notFound.eyebrow}</p>
           <h1 className="text-4xl font-extrabold tracking-tight text-ink">{t.notFound.heading}</h1>
           <p className="text-soft">{t.notFound.body}</p>
         </div>

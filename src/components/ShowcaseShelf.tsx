@@ -45,7 +45,7 @@ export function ShowcaseShelf({ covers, caption, activeIndex, vinylColors, onSel
             )}
           </div>
           {items.length >= 4 && (
-            <span className="rounded-full bg-black/20 px-3 py-1 font-mono text-xs font-medium tracking-[0.08em] uppercase tabular-nums">
+            <span className="rounded-full bg-black/20 px-3 py-1 text-xs font-semibold tracking-[0.06em] uppercase tabular-nums">
               {t.home.discCount(items.length)}
             </span>
           )}

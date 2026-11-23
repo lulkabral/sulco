@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useId, useRef, useState, type CSSProperties } from "react";
 import { useI18n } from "@/i18n/client";
 import { hasAnyRankChange, type RankChange } from "@/lib/rank-change";
 
@@ -58,7 +58,7 @@ export function useResolvedRankChanges(input: RankChangesInput): {
   return { changes: null, reserve: true };
 }
 
-type Surface = "card" | "terra";
+type Surface = "card" | "terra" | "stage";
 
 const GLYPH_COLOR: Record<Surface, Record<RankChange["status"], string>> = {
   card: {
@@ -68,6 +68,12 @@ const GLYPH_COLOR: Record<Surface, Record<RankChange["status"], string>> = {
     same: "text-ink-faint/45",
   },
   terra: {
+    up: "text-trend-up-terra",
+    down: "text-trend-down-terra",
+    new: "text-trend-new-terra",
+    same: "text-terra-ink/55",
+  },
+  stage: {
     up: "text-trend-up-stage",
     down: "text-trend-down-stage",
     new: "text-trend-new-stage",
@@ -88,7 +94,7 @@ export function TrendGlyph({
     <svg
       aria-hidden
       viewBox="0 0 10 8"
-      className={`h-2 w-2.5 shrink-0 ${color}`}
+      className={`h-2.5 w-3 shrink-0 ${color}`}
       fill="currentColor"
     >
       {status === "up" && <path d="M5 0.6L9.4 7.4H0.6L5 0.6Z" />}
@@ -99,10 +105,29 @@ export function TrendGlyph({
   );
 }
 
+/** Posiciona o balão acima do gatilho quando o navegador ainda não suporta CSS Anchor Positioning. */
+function positionFallback(trigger: HTMLElement, tip: HTMLElement) {
+  const rect = trigger.getBoundingClientRect();
+  const margin = 8;
+  tip.dataset.anchored = "js";
+  // Medição rápida fora de fluxo (o elemento já está visível no top layer após abrir ou via rAF).
+  const tipWidth = tip.offsetWidth || 180;
+  const tipHeight = tip.offsetHeight || 28;
+  const center = rect.left + rect.width / 2;
+  const left = Math.min(Math.max(margin, center - tipWidth / 2), window.innerWidth - tipWidth - margin);
+  const above = rect.top - tipHeight - 6;
+  const top = above >= margin ? above : Math.min(window.innerHeight - tipHeight - margin, rect.bottom + 6);
+  tip.style.left = `${Math.round(left)}px`;
+  tip.style.top = `${Math.round(top)}px`;
+}
+
 /**
- * Indicador de movimento ao lado da posição (`01`, `02`...) com descrição acessível no
- * mouse (`title`) e para leitores de tela (`aria-label`).
- * No cartão terracota (`surface="terra"`), entra numa mini pílula escura para manter contraste AA.
+ * Indicador interativo de movimento ao lado da posição (`01`, `02`...):
+ * - No celular: tocar abre o balãozinho com o detalhe ("Subiu 14 posições (era #15)"),
+ *   e tocar fora fecha sozinho (`popover="auto"` na camada superior, nunca cortado pelo cartão).
+ * - No computador: passar o mouse, focar pelo teclado ou clicar abre o mesmo balãozinho;
+ *   `Esc` fecha e o ponteiro pode descansar sobre o balão (WCAG 1.4.13).
+ * - No cartão terracota (`surface="terra"`), usa símbolos soltos em tons luminosos (sem bolha).
  */
 export function RankTrend({
   change,
@@ -112,13 +137,36 @@ export function RankTrend({
   surface?: Surface;
 }) {
   const { t } = useI18n();
+  const tipId = useId();
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const tipRef = useRef<HTMLDivElement>(null);
+  const hoverOpenedRef = useRef(false);
+  const closeTimerRef = useRef<number | null>(null);
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    const tip = tipRef.current;
+    if (!tip) return;
+
+    const onToggle = (ev: Event) => {
+      const isOpen = (ev as ToggleEvent).newState === "open";
+      setOpen(isOpen);
+      if (!isOpen) {
+        hoverOpenedRef.current = false;
+      } else if (buttonRef.current && !CSS.supports("position-area: block-start")) {
+        positionFallback(buttonRef.current, tip);
+      }
+    };
+
+    tip.addEventListener("toggle", onToggle);
+    return () => {
+      tip.removeEventListener("toggle", onToggle);
+      if (closeTimerRef.current !== null) window.clearTimeout(closeTimerRef.current);
+    };
+  }, [change]);
+
   if (!change) {
-    return (
-      <span
-        aria-hidden
-        className={surface === "terra" ? "inline-flex size-4 shrink-0" : "inline-flex w-2.5 shrink-0"}
-      />
-    );
+    return <span aria-hidden className="inline-flex w-2.5 shrink-0" />;
   }
 
   const label =
@@ -130,71 +178,100 @@ export function RankTrend({
           ? t.lists.trend.same(change.prevRank)
           : t.lists.trend.firstTime;
 
-  return (
-    <span
-      role="img"
-      aria-label={label}
-      title={label}
-      className={
-        surface === "terra"
-          ? "inline-flex size-4 shrink-0 items-center justify-center rounded-full bg-stage/85 motion-safe:animate-disc-in"
-          : "inline-flex w-2.5 shrink-0 items-center justify-center motion-safe:animate-disc-in"
+  const clearCloseTimer = () => {
+    if (closeTimerRef.current !== null) {
+      window.clearTimeout(closeTimerRef.current);
+      closeTimerRef.current = null;
+    }
+  };
+
+  const openFromHover = () => {
+    clearCloseTimer();
+    const tip = tipRef.current;
+    const btn = buttonRef.current;
+    if (!tip || !btn || typeof tip.showPopover !== "function") return;
+    if (tip.matches(":popover-open")) return;
+    try {
+      // Passa o gatilho como âncora implícita (suportado em navegadores modernos) com fallback seguro.
+      (tip as HTMLElement & { showPopover: (opts?: { source?: HTMLElement }) => void }).showPopover({
+        source: btn,
+      });
+    } catch {
+      try {
+        tip.showPopover();
+      } catch {
+        return;
       }
-    >
-      <TrendGlyph status={change.status} surface={surface} />
-    </span>
-  );
-}
+    }
+    hoverOpenedRef.current = true;
+  };
 
-/**
- * Legenda discreta no topo de "O que mais tocou" indicando o período comparado e o significado
- * de cada símbolo (só aparece quando há dados do período anterior para comparar).
- */
-export function TrendLegend({
-  label,
-  ready,
-}: {
-  label?: string;
-  ready?: Promise<boolean> | boolean;
-}) {
-  const { t } = useI18n();
-  const promise = isPromise<boolean>(ready) ? ready : null;
-  const [resolved, setResolved] = useState<{ source: Promise<boolean>; value: boolean } | null>(null);
+  const scheduleHoverClose = () => {
+    if (!hoverOpenedRef.current) return;
+    clearCloseTimer();
+    closeTimerRef.current = window.setTimeout(() => {
+      const tip = tipRef.current;
+      if (hoverOpenedRef.current && tip && tip.matches(":popover-open")) {
+        try {
+          tip.hidePopover();
+        } catch {
+          // Ignora se já fechado.
+        }
+      }
+    }, 120);
+  };
 
-  useEffect(() => {
-    if (!promise) return;
-    let alive = true;
-    promise.then(
-      (value) => {
-        if (alive) setResolved({ source: promise, value });
-      },
-      () => {
-        if (alive) setResolved({ source: promise, value: false });
-      },
-    );
-    return () => {
-      alive = false;
-    };
-  }, [promise]);
-
-  const show = Boolean(label) && (promise ? resolved?.source === promise && resolved.value : Boolean(ready));
-  if (!show || !label) return null;
+  const anchorName = `--trend-${tipId.replace(/[^a-zA-Z0-9_-]/g, "")}`;
 
   return (
-    <p className="flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[11px] text-ink-faint motion-safe:animate-disc-in">
-      <span>{t.lists.trend.vs(label)}</span>
-      <span className="inline-flex items-center gap-1">
-        <TrendGlyph status="up" />
-        {t.lists.trend.legendUp}
-      </span>
-      <span className="inline-flex items-center gap-1">
-        <TrendGlyph status="down" />
-        {t.lists.trend.legendDown}
-      </span>
-      <span className="inline-flex items-center gap-1">
-        <TrendGlyph status="new" />
-        {t.lists.trend.legendNew}
-      </span>
-    </p>
+    <>
+      <button
+        ref={buttonRef}
+        type="button"
+        popoverTarget={tipId}
+        popoverTargetAction="toggle"
+        aria-label={label}
+        aria-expanded={open}
+        aria-controls={tipId}
+        title={label}
+        style={{ anchorName } as CSSProperties}
+        onPointerEnter={(e) => {
+          if (e.pointerType === "mouse") openFromHover();
+        }}
+        onPointerLeave={(e) => {
+          if (e.pointerType === "mouse") scheduleHoverClose();
+        }}
+        onClick={(e) => {
+          // Se o mouse acabou de abrir via hover, clicar mantém aberto em vez de fechar.
+          if (hoverOpenedRef.current && tipRef.current?.matches(":popover-open")) {
+            e.preventDefault();
+            hoverOpenedRef.current = false;
+          }
+        }}
+        className={
+          "-mx-1 inline-flex h-5 w-4.5 shrink-0 cursor-pointer items-center justify-center rounded-full transition-colors duration-150 ease-smooth active:scale-90 motion-safe:animate-disc-in " +
+          (surface === "terra" ? "hover:bg-white/15" : "hover:bg-card-2")
+        }
+      >
+        <TrendGlyph status={change.status} surface={surface} />
+      </button>
+      <div
+        ref={tipRef}
+        id={tipId}
+        popover="auto"
+        role="tooltip"
+        style={{ positionAnchor: anchorName } as CSSProperties}
+        onPointerEnter={clearCloseTimer}
+        onPointerLeave={(e) => {
+          if (e.pointerType === "mouse") scheduleHoverClose();
+        }}
+        className="trend-tip max-w-[calc(100vw-16px)] rounded-xl border border-stage-line bg-stage px-2.5 py-1.5 font-sans text-xs font-semibold leading-snug text-stage-ink shadow-lg shadow-black/30"
+      >
+        <span className="inline-flex items-center gap-1.5">
+          <TrendGlyph status={change.status} surface="stage" />
+          <span>{label}</span>
+        </span>
+      </div>
+    </>
   );
 }

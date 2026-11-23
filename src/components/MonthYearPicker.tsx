@@ -39,7 +39,7 @@ export function MonthYearPicker({ username, tab, current, months, years }: Props
   return (
     <section aria-labelledby="escolher-mes-ano" className="border-t border-rule pt-4 sm:max-w-md">
       <div className="flex items-center justify-between">
-        <h2 id="escolher-mes-ano" className="font-mono text-xs font-semibold uppercase tracking-[0.12em] text-ink-faint">
+        <h2 id="escolher-mes-ano" className="text-xs font-bold uppercase tracking-[0.1em] text-ink-faint">
           {t.profile.pickerHeading}
         </h2>
         <div className="flex items-center gap-1">
@@ -52,7 +52,7 @@ export function MonthYearPicker({ username, tab, current, months, years }: Props
           >
             ‹
           </button>
-          <p className="min-w-12 text-center font-mono text-base font-extrabold text-ink tabular-nums" aria-live="polite">
+          <p className="min-w-12 text-center text-base font-bold text-ink tabular-nums" aria-live="polite">
             {year}
           </p>
           <button

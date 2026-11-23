@@ -293,28 +293,28 @@ export function RecapImage(props: Props) {
         </div>
 
         <div className="flex flex-col gap-5 rounded-2xl border border-stage-line bg-stage-card p-4 sm:p-5 lg:p-6">
-          {/* Ficha técnica: período e números em mono, alinhados, com linhas finas. */}
-          <div className="font-mono text-sm tabular-nums">
-            <p className="border-b border-stage-line pb-2 text-xs font-semibold uppercase tracking-[0.14em] text-amber">
+          {/* Ficha técnica: período em DM Sans e números em Space Grotesk alinhados. */}
+          <div className="text-sm">
+            <p className="border-b border-stage-line pb-2 text-xs font-bold uppercase tracking-[0.12em] text-amber">
               {periodLabel}
             </p>
             <dl className="divide-y divide-stage-line border-b border-stage-line">
               <div className="flex items-baseline justify-between gap-3 py-2">
                 <dt className="text-stage-soft">{t.units.scrobbles}</dt>
-                <dd className="font-semibold text-stage-ink">{formatNumber(total, lang)}</dd>
+                <dd className="font-bold text-stage-ink tabular-nums">{formatNumber(total, lang)}</dd>
               </div>
               {minutesValue !== null && (
                 <div className="flex items-baseline justify-between gap-3 py-2">
                   <dt className="text-stage-soft">{t.units.minutes}</dt>
-                  <dd className="font-semibold text-stage-ink">{formatNumber(minutesValue, lang)}</dd>
+                  <dd className="font-bold text-stage-ink tabular-nums">{formatNumber(minutesValue, lang)}</dd>
                 </div>
               )}
             </dl>
-            {minutesValue !== null && <p className="mt-2 font-sans text-xs text-stage-faint">{t.recap.minutesNote}</p>}
+            {minutesValue !== null && <p className="mt-2 text-xs text-stage-faint">{t.recap.minutesNote}</p>}
           </div>
 
           <fieldset>
-            <legend className="mb-2.5 font-mono text-xs font-semibold uppercase tracking-[0.14em] text-stage-faint">
+            <legend className="mb-2.5 text-xs font-bold uppercase tracking-[0.12em] text-stage-faint">
               {t.recap.format}
             </legend>
             <div className="relative grid grid-cols-2 rounded-2xl border border-stage-line bg-stage p-1 lg:grid-cols-4 lg:rounded-full">
@@ -348,7 +348,7 @@ export function RecapImage(props: Props) {
           </fieldset>
 
           <fieldset>
-            <legend className="mb-2.5 flex w-full items-center justify-between font-mono text-xs font-semibold uppercase tracking-[0.14em] text-stage-faint">
+            <legend className="mb-2.5 flex w-full items-center justify-between text-xs font-bold uppercase tracking-[0.12em] text-stage-faint">
               <span>{t.recap.color}</span>
               <span className="text-stage-ink">{activePaletteLabel}</span>
             </legend>

@@ -39,14 +39,18 @@
   --color-trend-up: var(--ui-trend-up); /* seta verde: subiu no ranking */
   --color-trend-down: var(--ui-trend-down); /* seta vermelha: caiu no ranking */
   --color-trend-new: var(--ui-trend-new); /* bolinha azul: primeira vez no período */
-  --color-trend-up-stage: #3ecf7c; /* seta verde sobre pílula escura (cartão terracota) */
-  --color-trend-down-stage: #f46666; /* seta vermelha sobre pílula escura */
-  --color-trend-new-stage: #5ca4ff; /* bolinha azul sobre pílula escura */
+  --color-trend-up-stage: #24ef7c; /* seta verde vibrante sobre fundo escuro */
+  --color-trend-down-stage: #ff4f5e; /* seta vermelha vibrante sobre fundo escuro */
+  --color-trend-new-stage: #3baaff; /* bolinha azul vibrante sobre fundo escuro */
+  --color-trend-up-terra: #8cf7b5; /* seta verde-menta solta sobre o cartão terracota */
+  --color-trend-down-terra: #ffc4be; /* seta coral clara solta sobre o cartão terracota */
+  --color-trend-new-terra: #a6d4ff; /* bolinha azul-céu solta sobre o cartão terracota */
+  --color-bar-fill: var(--ui-bar-fill); /* preenchimento proporcional suave nos cartões neutros */
+  --color-bar-fill-hover: var(--ui-bar-fill-hover); /* preenchimento proporcional no hover */
   --color-vinyl: #0b0a09; /* sulco escuro dos discos */
   --color-vinyl-groove: #1b1714; /* sulco claro dos discos */
 
   --font-sans: var(--font-dm-sans);
-  --font-mono: var(--font-dm-mono);
 
   --ease-smooth: cubic-bezier(0.22, 1, 0.36, 1);
 
@@ -179,6 +183,8 @@
   --ui-trend-up: #147538;
   --ui-trend-down: #c92a2a;
   --ui-trend-new: #1d64d8;
+  --ui-bar-fill: rgba(25, 21, 18, 0.065);
+  --ui-bar-fill-hover: rgba(25, 21, 18, 0.105);
   --focus-ring: #b83e16;
   --accent: #e8a13a;
   --accent-hover: #f0b257;
@@ -217,6 +223,8 @@
     --ui-trend-up: #3ecf7c;
     --ui-trend-down: #f46666;
     --ui-trend-new: #5ca4ff;
+    --ui-bar-fill: rgba(244, 238, 230, 0.075);
+    --ui-bar-fill-hover: rgba(244, 238, 230, 0.12);
     --focus-ring: var(--accent);
   }
 }
@@ -252,6 +260,8 @@
   --ui-trend-up: #147538;
   --ui-trend-down: #c92a2a;
   --ui-trend-new: #1d64d8;
+  --ui-bar-fill: rgba(25, 21, 18, 0.065);
+  --ui-bar-fill-hover: rgba(25, 21, 18, 0.105);
   --focus-ring: #b83e16;
 }
 
@@ -285,6 +295,8 @@
   --ui-trend-up: #3ecf7c;
   --ui-trend-down: #f46666;
   --ui-trend-new: #5ca4ff;
+  --ui-bar-fill: rgba(244, 238, 230, 0.075);
+  --ui-bar-fill-hover: rgba(244, 238, 230, 0.12);
   --focus-ring: var(--accent);
 }
 
@@ -357,3 +369,45 @@ body {
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
+/*
+ * Balão das setas de ranking (RankTrend): usa Popover nativo na camada superior
+ * para nunca ser cortado por bordas/overflow dos cartões. Onde Anchor Positioning
+ * existe, ancora direto no botão; sem suporte, o componente posiciona em beforetoggle.
+ */
+@keyframes tip-pop {
+  from {
+    opacity: 0;
+    transform: translateY(4px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.trend-tip {
+  overflow: visible;
+}
+
+@supports (position-area: block-start) {
+  .trend-tip[popover] {
+    inset: auto;
+    margin: 0 0 6px 0;
+    position-area: block-start;
+    position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
+  }
+}
+
+.trend-tip[data-anchored="js"] {
+  inset: auto;
+  margin: 0;
+  position: fixed;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .trend-tip:popover-open {
+    animation: tip-pop 160ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+}
+

@@ -50,7 +50,7 @@ export function NoLastfmGuide() {
         </div>
         <ol className="divide-y divide-rule px-6 text-sm leading-relaxed text-soft">
           <li className="grid grid-cols-[2rem_1fr] py-4">
-            <span className="font-mono font-semibold text-terra-text tabular-nums">01</span>
+            <span className="font-bold text-terra-text tabular-nums">01</span>
             <span>
               {t.home.noLastfmJoin}{" "}
               <a
@@ -66,7 +66,7 @@ export function NoLastfmGuide() {
           </li>
           {t.home.noLastfmSteps.map((step, i) => (
             <li key={step} className="grid grid-cols-[2rem_1fr] py-4">
-              <span className="font-mono font-semibold text-terra-text tabular-nums">{String(i + 2).padStart(2, "0")}</span>
+              <span className="font-bold text-terra-text tabular-nums">{String(i + 2).padStart(2, "0")}</span>
               <span>{step}</span>
             </li>
           ))}

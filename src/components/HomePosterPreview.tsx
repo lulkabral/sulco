@@ -271,7 +271,7 @@ export function HomePosterPreview({ covers, images, offset, vinylColor = null, o
       {/* 3. Barra compacta de cores, vinil colorido e troca de disco logo abaixo da imagem */}
       <div className="flex min-h-[50px] flex-wrap items-center justify-between gap-2.5 rounded-2xl border border-stage-line bg-stage-card px-3 py-2 sm:px-3.5">
         {isGrid ? (
-          <span className="font-mono text-xs tracking-[0.08em] text-stage-soft uppercase">{t.home.gridClean}</span>
+          <span className="text-xs font-semibold tracking-[0.06em] text-stage-soft uppercase">{t.home.gridClean}</span>
         ) : (
           <div role="group" aria-label={t.home.stagePalettes} className="flex items-center gap-2 lg:gap-1.5">
             {STAGE_PALETTES.map((id) => {

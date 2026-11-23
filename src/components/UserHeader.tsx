@@ -42,17 +42,18 @@ export async function UserHeader({ user, covers }: Props) {
               className="inline-flex items-baseline gap-1.5 transition-colors duration-200 ease-smooth hover:text-terra-text"
             >
               <span className="truncate">{user.username}</span>
-              <span aria-hidden className="font-mono text-xs font-medium text-ink-faint">
+              <span aria-hidden className="text-xs font-medium text-ink-faint">
                 ↗
               </span>
             </a>
           </h1>
-          <ul className="mt-1.5 flex flex-wrap items-center gap-2 font-mono text-xs tabular-nums">
+          <ul className="mt-1.5 flex flex-wrap items-center gap-2 text-xs">
             <li className="rounded-full bg-card-2 px-3 py-1 text-soft">
-              <span className="font-semibold text-ink">{formatNumber(user.playcount, lang)}</span> {t.units.scrobbles}
+              <span className="font-bold text-ink tabular-nums">{formatNumber(user.playcount, lang)}</span>{" "}
+              {t.units.scrobbles}
             </li>
             {since && (
-              <li className="rounded-full border border-line px-3 py-1 text-soft">
+              <li className="rounded-full border border-line px-3 py-1 text-soft tabular-nums">
                 {t.profile.sinceYear(since)}
               </li>
             )}

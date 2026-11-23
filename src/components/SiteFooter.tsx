@@ -19,7 +19,7 @@ export async function SiteFooter() {
         <p className="text-ink-faint">
           <span className="font-extrabold tracking-tight text-ink">sulco</span> · {t.footer.line}
         </p>
-        <div className="flex flex-wrap items-center gap-x-5 gap-y-2 font-mono text-xs tracking-[0.06em]">
+        <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs font-medium">
           <FooterLink href={`https://x.com/${X_SITE}`} external label={t.footer.onX(X_SITE)}>
             @{X_SITE}
           </FooterLink>

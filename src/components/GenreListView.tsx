@@ -9,17 +9,17 @@ import { ListIcon } from "./ListIcons";
 import { GenresSkeleton } from "./ProfileSkeleton";
 import { RankTrend, useResolvedRankChanges, type RankChangesInput } from "./RankTrend";
 
-/** Moldura da lista "Gêneros" (cartão terracota vibrante). Serve no servidor e no navegador. */
+/** Moldura da lista "Gêneros" (palco escuro unificado). Serve no servidor e no navegador. */
 export function GenreListView({ children }: { children: ReactNode }) {
   const { t } = useI18n();
   return (
     <section
       aria-labelledby="top-generos"
-      className="min-w-0 rounded-[24px] bg-terra p-5 text-terra-ink shadow-md motion-safe:animate-rise"
+      className="min-w-0 rounded-[24px] border border-stage-line bg-stage p-5 text-stage-ink"
     >
       <h3
         id="top-generos"
-        className="mb-4 flex items-center gap-2 border-b border-white/20 pb-3 font-mono text-xs font-semibold uppercase tracking-[0.14em] text-terra-ink"
+        className="mb-4 flex items-center gap-2 border-b border-stage-line pb-3 text-xs font-bold uppercase tracking-[0.12em] text-amber"
       >
         <ListIcon name="genres" />
         {t.lists.genres}
@@ -47,37 +47,39 @@ export function GenreItems({
   const { changes: resolved, reserve } = useResolvedRankChanges(changes);
   if (genres === undefined) return <GenresSkeleton />;
   if (genres === null) {
-    return <p className="text-sm text-terra-ink/90">{t.lists.genresError}</p>;
+    return <p className="text-sm text-stage-soft">{t.lists.genresError}</p>;
   }
   if (genres.length === 0) {
-    return <p className="text-sm text-terra-ink/90">{t.lists.genresNoTags}</p>;
+    return <p className="text-sm text-stage-soft">{t.lists.genresNoTags}</p>;
   }
 
   const top = genres[0].weight;
   return (
-    <ol className="flex flex-col gap-2.5">
+    <ol className="flex flex-col gap-2">
       {genres.map((genre, i) => {
         const artists = genre.artists ?? [];
         return (
-          <li key={genre.name} className="relative overflow-hidden rounded-2xl bg-black/20">
+          <li
+            key={genre.name}
+            className="group relative overflow-hidden rounded-xl border border-stage-line/80 bg-stage-card/70"
+          >
             {/* Preenchimento proporcional ao peso do 1º gênero. */}
             <div
               aria-hidden
-              className="absolute inset-y-0 left-0 origin-left bg-white motion-safe:animate-grow"
+              className="pointer-events-none absolute inset-y-0 left-0 origin-left bg-white/[0.085] transition-colors duration-200 group-hover:bg-white/[0.13] motion-safe:animate-grow"
               style={{
                 width: `${Math.max(10, Math.round((genre.weight / top) * 100))}%`,
-                opacity: i === 0 ? 0.22 : 0.12,
                 animationDelay: `${i * 50}ms`,
               }}
             />
-            <div className="relative flex items-center gap-2.5 px-3.5 py-2.5">
+            <div className="relative flex items-center gap-3 px-3.5 py-2.5">
               {reserve ? (
-                <span className="flex w-10 shrink-0 items-center justify-end gap-1.5 font-mono text-xs font-semibold text-terra-ink/85 tabular-nums">
-                  <RankTrend change={resolved?.[i]} surface="terra" />
+                <span className="flex w-9 shrink-0 items-center justify-end gap-1.5 text-[13px] font-semibold text-stage-soft tabular-nums">
+                  <RankTrend change={resolved?.[i]} surface="stage" />
                   <span>{String(i + 1).padStart(2, "0")}</span>
                 </span>
               ) : (
-                <span className="w-5 shrink-0 text-right font-mono text-xs font-semibold text-terra-ink/80 tabular-nums">
+                <span className="w-6 shrink-0 text-right text-[13px] font-semibold text-stage-soft tabular-nums">
                   {String(i + 1).padStart(2, "0")}
                 </span>
               )}
@@ -86,12 +88,12 @@ export function GenreItems({
                   href={`https://www.last.fm/tag/${encodeURIComponent(genre.name)}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className={`block truncate font-extrabold text-terra-ink underline-offset-4 hover:underline ${i === 0 ? "text-base" : "text-sm"}`}
+                  className={`block truncate font-extrabold text-stage-ink transition-colors duration-200 ease-smooth hover:text-amber ${i === 0 ? "text-base" : "text-sm"}`}
                 >
                   {genre.name}
                 </a>
                 {artists.length > 0 && (
-                  <p className="truncate text-xs text-terra-ink/85">{joinNames(artists, t.units.and)}</p>
+                  <p className="truncate text-xs text-stage-soft">{joinNames(artists, t.units.and)}</p>
                 )}
               </div>
               {artists.length > 0 && (

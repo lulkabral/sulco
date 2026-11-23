@@ -220,12 +220,12 @@ export function AlbumGrid({ username, period, periodLabel, albums }: Props) {
         </div>
 
         <div className="flex flex-col gap-5 rounded-2xl border border-stage-line bg-stage-card p-4 sm:p-5 lg:p-6">
-          <p className="border-b border-stage-line pb-2 font-mono text-xs font-semibold uppercase tracking-[0.14em] text-amber">
+          <p className="border-b border-stage-line pb-2 text-xs font-bold uppercase tracking-[0.12em] text-amber">
             {periodLabel}
           </p>
 
           <fieldset>
-            <legend className="mb-2.5 font-mono text-xs font-semibold uppercase tracking-[0.14em] text-stage-faint">
+            <legend className="mb-2.5 text-xs font-bold uppercase tracking-[0.12em] text-stage-faint">
               {t.grid.format}
             </legend>
             <div className="relative grid grid-cols-2 rounded-full border border-stage-line bg-stage p-1">
@@ -258,7 +258,7 @@ export function AlbumGrid({ username, period, periodLabel, albums }: Props) {
           </fieldset>
 
           <fieldset>
-            <legend className="mb-2.5 font-mono text-xs font-semibold uppercase tracking-[0.14em] text-stage-faint">
+            <legend className="mb-2.5 text-xs font-bold uppercase tracking-[0.12em] text-stage-faint">
               {t.grid.size}
             </legend>
             <div
@@ -283,7 +283,7 @@ export function AlbumGrid({ username, period, periodLabel, albums }: Props) {
                     onChange={() => setSize(s)}
                     className="peer sr-only"
                   />
-                  <span className="block rounded-full px-3 py-2 text-center font-mono text-sm font-bold text-stage-soft transition-colors duration-200 ease-smooth hover:text-stage-ink peer-checked:text-amber-ink peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-amber">
+                  <span className="block rounded-full px-3 py-2 text-center text-sm font-bold text-stage-soft transition-colors duration-200 ease-smooth hover:text-stage-ink peer-checked:text-amber-ink peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-amber tabular-nums">
                     {s}×{stories ? storiesRows(storiesColumns(s)) : s}
                   </span>
                 </label>
@@ -295,7 +295,7 @@ export function AlbumGrid({ username, period, periodLabel, albums }: Props) {
           </fieldset>
 
           <fieldset className="flex flex-col gap-2.5">
-            <legend className="mb-2 font-mono text-xs font-semibold uppercase tracking-[0.14em] text-stage-faint">
+            <legend className="mb-2 text-xs font-bold uppercase tracking-[0.12em] text-stage-faint">
               {t.grid.show}
             </legend>
             <label className="flex cursor-pointer items-center justify-between gap-3 rounded-2xl border border-stage-line p-3 transition-colors duration-200 ease-smooth hover:border-stage-faint has-[:checked]:border-amber/60 has-[:checked]:bg-amber/10">

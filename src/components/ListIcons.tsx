@@ -1,6 +1,6 @@
 /** Ícones dos títulos das listas (decorativos: o título já diz o que é). */
 
-export type ListIconName = "artists" | "tracks" | "albums" | "genres";
+export type ListIconName = "artists" | "tracks" | "albums" | "genres" | "insights";
 
 const iconProps = {
   "aria-hidden": true,
@@ -43,6 +43,12 @@ export function ListIcon({ name }: { name: ListIconName }) {
         <svg {...iconProps}>
           <path d="M3 12V4a1 1 0 0 1 1-1h8l9 9-9 9z" />
           <circle cx="7.5" cy="7.5" r="1.5" />
+        </svg>
+      );
+    case "insights": // ondas / pulso Hi-Fi
+      return (
+        <svg {...iconProps}>
+          <path d="M4 14v-4M8 18V6M12 15V9M16 20V4M20 14v-4" />
         </svg>
       );
   }

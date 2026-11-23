@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { CoverLookup } from "@/lib/artist-image";
-import { thumbUrl } from "@/lib/grid/layout";
+import { coverUrl, thumbUrl } from "@/lib/grid/layout";
 import { findCover } from "@/lib/lookups";
 
 type Props = {
@@ -12,16 +12,21 @@ type Props = {
   image: string | null;
   /** "round" para artistas, "square" para músicas e álbuns. */
   shape: "round" | "square";
+  /**
+   * "sm": bolinhas dos gêneros (28 px)
+   * "md": linhas padrão das listas (40 px)
+   * "lg": destaque #1 (64 px, usa versão 300 px para nitidez em retina)
+   * "fill": preenche o contêiner quadrado (prateleira de álbuns, cantos retos de LP)
+   */
+  size?: "sm" | "md" | "lg" | "fill";
   /** Sem imagem conhecida: álbum ou música cuja capa buscar pela nossa rota. */
   lookup?: CoverLookup;
-  /** "md" nas listas (40 px), "sm" nas bolinhas dos gêneros (28 px). */
-  size?: "md" | "sm";
 };
 
 /**
- * Miniatura das listas do top. Imagens vêm direto do Last.fm (versão 174 px).
- * Capa que não veio com a lista só é buscada quando o item fica perto da área visível
- * (no celular, abas escondidas não disparam pedidos à toa nem disputam rede com o recap/grade).
+ * Miniatura das listas do top. Imagens vêm direto do Last.fm (174 px nas linhas e
+ * 300 px nos destaques/prateleira). Capa que não veio com a lista só é buscada quando
+ * o item fica perto da área visível (no celular, abas escondidas não disparam pedidos à toa).
  */
 export function CoverThumb({ name, image, shape, lookup, size = "md" }: Props) {
   const [fetched, setFetched] = useState<string | null>(null);
@@ -58,10 +63,18 @@ export function CoverThumb({ name, image, shape, lookup, size = "md" }: Props) {
     };
   }, [image, lookup?.type, lookup?.artist, lookup?.name]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const px = size === "sm" ? 28 : 40;
+  const px = size === "sm" ? 28 : size === "md" ? 40 : size === "lg" ? 64 : 300;
+  const radius =
+    shape === "round" ? "rounded-full" : size === "fill" ? "rounded-[3px]" : size === "lg" ? "rounded-[4px]" : "rounded-lg";
   const box =
-    (size === "sm" ? "size-7 text-xs ring-2 ring-terra " : "size-10 ring-1 ring-line ") +
-    `shrink-0 ${shape === "round" ? "rounded-full" : "rounded-lg"}`;
+    size === "sm"
+      ? `size-7 shrink-0 text-xs ring-2 ring-terra ${radius}`
+      : size === "md"
+        ? `size-10 shrink-0 ring-1 ring-line ${radius}`
+        : size === "lg"
+          ? `size-16 shrink-0 text-lg ring-1 ring-line ${radius}`
+          : `size-full text-2xl ${radius}`;
+
   if (!url) {
     return (
       <span
@@ -73,10 +86,12 @@ export function CoverThumb({ name, image, shape, lookup, size = "md" }: Props) {
       </span>
     );
   }
+
+  const src = size === "lg" || size === "fill" ? coverUrl(url, 300) : thumbUrl(url);
   return (
     // eslint-disable-next-line @next/next/no-img-element
     <img
-      src={thumbUrl(url)}
+      src={src}
       alt=""
       width={px}
       height={px}

@@ -49,7 +49,7 @@ export function PeriodPicker({ label, children }: Props) {
         <div className="flex flex-col gap-4 p-5">
           <div aria-hidden className="mx-auto -mt-1 h-1 w-10 rounded-full bg-line sm:hidden" />
           <div className="flex items-center justify-between border-b border-rule pb-3">
-            <h2 className="font-mono text-xs font-semibold tracking-[0.14em] text-terra-text uppercase">
+            <h2 className="text-xs font-bold tracking-[0.12em] text-terra-text uppercase">
               {t.profile.periodHeading}
             </h2>
             <button

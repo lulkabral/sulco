@@ -4,11 +4,13 @@ import { connection } from "next/server";
 import { Suspense } from "react";
 import { AccentScope } from "@/components/AccentScope";
 import { AlbumGrid } from "@/components/AlbumGrid";
+import { AlbumTopList } from "@/components/AlbumTopList";
 import { ErrorState } from "@/components/ErrorState";
 import { GenreList } from "@/components/GenreList";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { LogoLink } from "@/components/Logo";
 import { MonthView } from "@/components/MonthView";
+import { PeriodHighlights } from "@/components/PeriodHighlights";
 import { PeriodSelector } from "@/components/PeriodSelector";
 import { ProfileLists } from "@/components/ProfileLists";
 import { ListsSkeleton, ProfileSkeleton } from "@/components/ProfileSkeleton";
@@ -36,7 +38,6 @@ import {
 import {
   computeGenreRankChanges,
   computeRankChanges,
-  hasAnyRankChange,
   PREV_CHART_LIMIT,
   PREV_GENRE_ARTISTS,
   PREV_GENRE_LIMIT,
@@ -46,8 +47,10 @@ import {
 import { currentMonthsSince, currentYearsSince, monthLabel, parseYearId, yearLabel } from "@/lib/months";
 import { parseTab, type Tab } from "@/lib/tabs";
 
+/** Quantos itens abrem por padrão nas listas; o botão "Ver até o #20" expande até EXPANDED_LIMIT. */
 const LIST_LIMIT = 10;
-/** Álbuns buscados: o bastante para a grade 5x5. As listas mostram só LIST_LIMIT. */
+const EXPANDED_LIMIT = 20;
+/** Álbuns buscados: o bastante para a grade 5x5. */
 const ALBUM_LIMIT = 25;
 /** Itens na imagem do recap: até 15 artistas (Lineup), 5 músicas e 9 álbuns (Mosaico). */
 const RECAP_ARTISTS = 15;
@@ -211,9 +214,9 @@ async function TopLists({ username, period, tab, registeredAt, lifetimeTotal }: 
   try {
     // Até 4 chamadas ao mesmo tempo (limite do projeto). O total só é preciso no recap.
     [artists, tracks, albums, total] = await Promise.all([
-      // 20 artistas: a lista mostra 10, o cálculo de gêneros usa todos.
+      // 20 artistas: a lista abre em 10 (expande até 20) e o cálculo de gêneros usa todos.
       getTop(username, "artists", period, GENRE_ARTISTS),
-      getTop(username, "tracks", period, LIST_LIMIT),
+      getTop(username, "tracks", period, EXPANDED_LIMIT),
       getTop(username, "albums", period, ALBUM_LIMIT),
       needsTotal ? getScrobbleTotal(username, range.from, range.to) : null,
     ]);
@@ -247,10 +250,9 @@ async function TopLists({ username, period, tab, registeredAt, lifetimeTotal }: 
   // Roda 1 gráfico por vez (somado às 3 de gêneros = máx. 4 simultâneas); os gêneros
   // anteriores só começam depois dos atuais, reaproveitando as tags já em cache.
   const prevRange = previousUiPeriodRange(period, range, registeredAt);
-  const compareLabel = prevRange ? t.periods.previous[period] : undefined;
-  const displayedArtists = artistItems.slice(0, LIST_LIMIT);
-  const displayedTracks = trackItems.slice(0, LIST_LIMIT);
-  const displayedAlbums = albumItems.slice(0, LIST_LIMIT);
+  const displayedArtists = artistItems.slice(0, EXPANDED_LIMIT);
+  const displayedTracks = trackItems.slice(0, EXPANDED_LIMIT);
+  const displayedAlbums = albumItems.slice(0, EXPANDED_LIMIT);
 
   const prevArtistsP = prevRange
     ? getChart(username, "artists", prevRange.from, prevRange.to, PREV_CHART_LIMIT)
@@ -324,13 +326,6 @@ async function TopLists({ username, period, tab, registeredAt, lifetimeTotal }: 
         return prevGenres ? computeGenreRankChanges(curr, prevGenres) : null;
       })
     : undefined;
-  const hasTrends = artistChanges
-    ? artistChanges.then(async (a) => {
-        if (hasAnyRankChange(a)) return true;
-        const [tr, al] = await Promise.all([trackChanges, albumChanges]);
-        return hasAnyRankChange(tr) || hasAnyRankChange(al);
-      })
-    : undefined;
 
   return (
     <>
@@ -373,13 +368,13 @@ async function TopLists({ username, period, tab, registeredAt, lifetimeTotal }: 
         />
       )}
       <ProfileLists
-        compareLabel={compareLabel}
-        hasTrends={hasTrends}
         artists={
           <TopList
             title={t.lists.artists}
             icon="artists"
             shape="round"
+            variant="artists"
+            initialLimit={LIST_LIMIT}
             changes={artistChanges}
             items={displayedArtists.map((a, i) => ({
               rank: a.rank,
@@ -395,6 +390,8 @@ async function TopLists({ username, period, tab, registeredAt, lifetimeTotal }: 
           <TopList
             title={t.lists.tracks}
             icon="tracks"
+            variant="tracks"
+            initialLimit={LIST_LIMIT}
             changes={trackChanges}
             items={displayedTracks.map((t) => ({
               rank: t.rank,
@@ -408,9 +405,8 @@ async function TopLists({ username, period, tab, registeredAt, lifetimeTotal }: 
           />
         }
         albums={
-          <TopList
-            title={t.lists.albums}
-            icon="albums"
+          <AlbumTopList
+            initialLimit={LIST_LIMIT}
             changes={albumChanges}
             items={displayedAlbums.map((a) => ({
               rank: a.rank,
@@ -424,6 +420,29 @@ async function TopLists({ username, period, tab, registeredAt, lifetimeTotal }: 
           />
         }
         genres={<GenreList genres={genres} images={artistPicsByName} changes={genreChanges} />}
+        highlights={
+          <PeriodHighlights
+            artists={displayedArtists.map((a) => ({ rank: a.rank, name: a.name, playcount: a.playcount }))}
+            tracks={displayedTracks.map((tr) => ({
+              rank: tr.rank,
+              name: tr.name,
+              artist: tr.artist,
+              playcount: tr.playcount,
+            }))}
+            albums={displayedAlbums.map((al) => ({
+              rank: al.rank,
+              name: al.name,
+              artist: al.artist,
+              playcount: al.playcount,
+            }))}
+            totalScrobbles={period === "overall" ? lifetimeTotal : total}
+            changes={{
+              artists: artistChanges,
+              tracks: trackChanges,
+              albums: albumChanges,
+            }}
+          />
+        }
       />
     </>
   );
