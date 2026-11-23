@@ -1,11 +1,12 @@
 // Logo "sulco" desenhado direto no canvas (para assinar as imagens geradas).
-// Mesmo desenho de public/brand/simbolo.svg (src/lib/brand-symbol.ts): disco âmbar com o "s"
-// da DM Sans 800 em contorno. Desenhar em vez de carregar o arquivo deixa o logo nítido em
-// qualquer tamanho e não espera download. O "ulco" usa a fonte da página, que quem chama
-// já esperou carregar (waitForFonts) antes de desenhar.
+// Mesmos desenhos de brand/logo-2026-11/ (src/lib/brand-symbol.ts): o símbolo sozinho
+// (simbolo.svg) e o logo completo (lockup-currentcolor.svg), com o "s" do mesmo tamanho e
+// na mesma linha de base de "ulco". Desenhar os contornos em vez de carregar o arquivo deixa
+// o logo nítido em qualquer tamanho e não depende de download nem da fonte.
 
 import {
   LOCKUP,
+  LOCKUP_SVG,
   SYMBOL_AMBER,
   SYMBOL_CENTER,
   SYMBOL_DARK,
@@ -48,43 +49,54 @@ export function drawSymbol(ctx: CanvasRenderingContext2D, x: number, y: number, 
   ctx.restore();
 }
 
-/** Mede o "ulco" em DM Sans 800 com o letter-spacing do lockup. */
-function measureUlco(ctx: CanvasRenderingContext2D, fontPx: number, font: string): number {
-  ctx.font = `800 ${fontPx}px ${font}`;
-  ctx.letterSpacing = `${fontPx * LOCKUP.letterSpacing}px`;
-  const w = ctx.measureText("ulco").width;
-  ctx.letterSpacing = "0px";
-  return w;
-}
-
-/** Largura total do logo (disco + espaço + "ulco") numa fonte de `fontPx`. */
-export function wordmarkWidth(ctx: CanvasRenderingContext2D, fontPx: number, font: string): number {
-  return fontPx * (LOCKUP.disc + LOCKUP.gap) + measureUlco(ctx, fontPx, font);
+/** Largura total do logo (disco + "ulco") para um "ulco" de `fontPx`. */
+export function wordmarkWidth(_ctx: CanvasRenderingContext2D, fontPx: number): number {
+  return (LOCKUP_SVG.width * fontPx) / LOCKUP_SVG.em;
 }
 
 /**
- * Logo completo: disco (o "s") + "ulco" em DM Sans 800, com as proporções do lockup
- * (docs/MARCA.md): disco de 0,787em, base 0,063em abaixo da linha de base `baseline`
- * (o topo cai no topo do "l"), 0,01em até o "u". `x` é a borda esquerda. Devolve a largura.
+ * Logo completo (lockup) com o "ulco" do tamanho `fontPx` e a linha de base em `baseline`:
+ * disco de 0,936em com a base 0,209em abaixo da linha de base (linha das descendentes), o "s"
+ * do mesmo tamanho e na mesma linha de "ulco". `x` é a borda esquerda; "ulco" sai em `inkColor`.
+ * Devolve a largura usada.
  */
 export function drawWordmark(
   ctx: CanvasRenderingContext2D,
   x: number,
   baseline: number,
   fontPx: number,
-  font: string,
+  _font: string,
   inkColor: string,
 ): number {
-  const disc = fontPx * LOCKUP.disc;
-  drawSymbol(ctx, x, baseline + fontPx * LOCKUP.belowBaseline - disc, disc);
-  const textX = x + disc + fontPx * LOCKUP.gap;
-  ctx.font = `800 ${fontPx}px ${font}`;
+  const L = LOCKUP_SVG;
+  const k = fontPx / L.em;
+  // A caixa do desenho vai do topo do disco à base dele (a linha das descendentes).
+  const top = baseline + fontPx * LOCKUP.belowBaseline - L.height * k;
+  const realDisc = L.disc.r * 2 * k * ctx.getTransform().a;
+  ctx.save();
+  ctx.translate(x, top);
+  ctx.scale(k, k);
+
+  ctx.fillStyle = SYMBOL_AMBER;
+  ctx.beginPath();
+  ctx.arc(L.disc.cx, L.disc.cy, L.disc.r, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = SYMBOL_DARK;
+  ctx.fill(new Path2D(L.sPath));
+
+  if (realDisc >= SYMBOL_MINI_BELOW_PX) {
+    ctx.beginPath();
+    ctx.arc(L.disc.cx, L.disc.cy, L.ringRadius, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = SYMBOL_AMBER;
+    ctx.beginPath();
+    ctx.arc(L.disc.cx, L.disc.cy, L.holeRadius, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
   ctx.fillStyle = inkColor;
-  ctx.textAlign = "left";
-  ctx.textBaseline = "alphabetic";
-  ctx.letterSpacing = `${fontPx * LOCKUP.letterSpacing}px`;
-  ctx.fillText("ulco", textX, baseline);
-  const w = ctx.measureText("ulco").width;
-  ctx.letterSpacing = "0px";
-  return textX - x + w;
+  ctx.fill(new Path2D(L.ulcoPath));
+  ctx.restore();
+  return L.width * k;
 }

@@ -159,7 +159,7 @@ const SIGNATURE_PX = 42;
  */
 export function footer(ctx: Ctx, p: Palette, f: string, siteHost: string, y = 1850) {
   text(ctx, "dados: Last.fm", M, y, { font: `500 26px ${f}`, color: p.inkFaint });
-  const logoW = wordmarkWidth(ctx, SIGNATURE_PX, f);
+  const logoW = wordmarkWidth(ctx, SIGNATURE_PX);
   drawWordmark(ctx, M + INNER - logoW, y + 2, SIGNATURE_PX, f, p.ink);
   text(ctx, siteHost, M + INNER - logoW - 18, y, {
     font: `600 24px ${f}`,

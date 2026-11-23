@@ -23,9 +23,9 @@ function dictFor(lang: string) {
   return DICTS[isLocale(lang) ? lang : DEFAULT_LOCALE];
 }
 
-/** Lockup de public/brand/lockup-escuro.svg (552 x 157, "ulco" com 200 px) reduzido para "ulco" com 64 px. */
-const LOCKUP_W = Math.round((552 * 64) / 200);
-const LOCKUP_H = Math.round((157 * 64) / 200);
+/** Lockup de public/brand/lockup-escuro.svg (582 x 187, "ulco" com 200 px) reduzido para "ulco" com 64 px. */
+const LOCKUP_W = Math.round((582 * 64) / 200);
+const LOCKUP_H = Math.round((187 * 64) / 200);
 
 /** Prateleira da vitrine, como na página inicial: 3 colunas x 2 linhas de capas retas. */
 const SHELF = { left: 618, top: 106, side: 176, gap: 14, columns: 3 };

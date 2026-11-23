@@ -1,16 +1,6 @@
 import Link from "next/link";
 import { getI18n } from "@/i18n/server";
-import {
-  LOCKUP,
-  SYMBOL_AMBER,
-  SYMBOL_CENTER,
-  SYMBOL_DARK,
-  SYMBOL_DISC_VIEWBOX,
-  SYMBOL_HOLE_RADIUS,
-  SYMBOL_RADIUS,
-  SYMBOL_RING_RADIUS,
-  SYMBOL_S_PATH,
-} from "@/lib/brand-symbol";
+import { LOCKUP, LOCKUP_SVG, SYMBOL_AMBER, SYMBOL_DARK } from "@/lib/brand-symbol";
 
 type Props = {
   /** "sm" para cabeçalhos, "lg" para a página inicial. */
@@ -23,37 +13,31 @@ const SIZES = {
 };
 
 /**
- * Logo "sulco" (novembro de 2026): o disco âmbar com o "s" é a primeira letra, seguido de
- * "ulco" como texto de verdade (DM Sans 800, minúsculas), na cor do texto do tema.
- * Proporções em docs/MARCA.md: disco de 0,787em, topo no topo do "l", base 0,063em abaixo
- * da linha de base, 0,01em até o "u". O disco é SVG embutido, sempre âmbar.
- * Sempre com o furo central (decisão do dono, 20/11/2026: também no cabeçalho, onde o disco
- * tem ~19 px). A versão mini, sem furo, fica só para o favicon. Leitores de tela leem "sulco".
+ * Logo "sulco" (lockup-currentcolor.svg do pacote de 22/11/2026) como SVG embutido: o disco
+ * âmbar com o "s" do mesmo tamanho e na mesma linha de base de "ulco". A palavra usa
+ * currentColor (segue o tema claro/escuro pelo `text-ink`); o disco é sempre âmbar.
+ * Só a altura é definida (0,936em, a do disco) e a largura sai automática; `vertical-align`
+ * de -0,209em põe a base do disco na linha das descendentes, como no texto ao redor.
+ * Leitores de tela leem só "sulco".
  */
 export function Logo({ size = "sm" }: Props) {
+  const L = LOCKUP_SVG;
   return (
-    <span className={`inline-block whitespace-nowrap font-extrabold leading-none text-ink ${SIZES[size]}`}>
+    <span className={`inline-block whitespace-nowrap leading-none text-ink ${SIZES[size]}`}>
       <span className="sr-only">sulco</span>
       <svg
-        viewBox={SYMBOL_DISC_VIEWBOX}
+        viewBox={L.viewBox}
         aria-hidden
         focusable="false"
-        className="inline-block"
-        style={{
-          width: `${LOCKUP.disc}em`,
-          height: `${LOCKUP.disc}em`,
-          verticalAlign: `-${LOCKUP.belowBaseline}em`,
-          marginRight: `${LOCKUP.gap}em`,
-        }}
+        className="inline-block w-auto"
+        style={{ height: `${LOCKUP.disc}em`, verticalAlign: `-${LOCKUP.belowBaseline}em` }}
       >
-        <circle cx={SYMBOL_CENTER} cy={SYMBOL_CENTER} r={SYMBOL_RADIUS} fill={SYMBOL_AMBER} />
-        <path d={SYMBOL_S_PATH} fill={SYMBOL_DARK} />
-        <circle cx={SYMBOL_CENTER} cy={SYMBOL_CENTER} r={SYMBOL_RING_RADIUS} fill={SYMBOL_DARK} />
-        <circle cx={SYMBOL_CENTER} cy={SYMBOL_CENTER} r={SYMBOL_HOLE_RADIUS} fill={SYMBOL_AMBER} />
+        <circle cx={L.disc.cx} cy={L.disc.cy} r={L.disc.r} fill={SYMBOL_AMBER} />
+        <path d={L.sPath} fill={SYMBOL_DARK} />
+        <circle cx={L.disc.cx} cy={L.disc.cy} r={L.ringRadius} fill={SYMBOL_DARK} />
+        <circle cx={L.disc.cx} cy={L.disc.cy} r={L.holeRadius} fill={SYMBOL_AMBER} />
+        <path d={L.ulcoPath} fill="currentColor" />
       </svg>
-      <span aria-hidden style={{ letterSpacing: `${LOCKUP.letterSpacing}em` }}>
-        ulco
-      </span>
     </span>
   );
 }

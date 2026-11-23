@@ -1,30 +1,45 @@
-// Símbolo da marca (logo de novembro de 2026, brand/GUIA.md e docs/MARCA.md): disco âmbar
-// com o "s" da DM Sans 800 dentro. O disco é a primeira letra: disco + "ulco" = "sulco".
-// Os desenhos vêm de public/brand/simbolo.svg (caixa de 200 x 200, disco de raio 96 no centro).
+// Logo do sulco (novembro de 2026, ajuste de 22/11/2026): disco âmbar com o "s" da DM Sans 800
+// dentro, seguido de "ulco". O "s" tem o mesmo tamanho e a mesma linha de base de "ulco"; o disco
+// é centrado no "s", com o topo na altura do "l" e a base na linha das descendentes.
+// Desenhos copiados de brand/logo-2026-11/ (simbolo.svg e lockup-currentcolor.svg).
 // Usado no HTML (components/Logo.tsx) e no canvas (lib/canvas/brandmark.ts).
 
 export const SYMBOL_AMBER = "#E8A13A";
 /** Cor do "s" e do anel central. */
 export const SYMBOL_DARK = "#14110E";
 
-/** O "s" (DM Sans 800 em contorno) na caixa de 200 x 200. */
+/** O "s" (DM Sans 800 em contorno) no símbolo sozinho, caixa de 200 x 200. */
 export const SYMBOL_S_PATH =
-  "M101.04 151.58Q87.75 151.58 78.06 147.31Q68.36 143.03 62.85 135.72Q57.34 128.4 56.39 119.09H83Q83.75 122.51 85.94 125.27Q88.12 128.02 91.83 129.73Q95.53 131.44 100.66 131.44Q105.6 131.44 108.74 130.01Q111.88 128.59 113.49 126.31Q115.11 124.03 115.11 121.37Q115.11 117.57 112.82 115.48Q110.54 113.39 106.17 112.06Q101.81 110.73 95.72 109.59Q88.88 108.07 82.33 106.17Q75.78 104.27 70.55 101.14Q65.32 98 62.28 93.25Q59.24 88.5 59.24 81.47Q59.24 72.92 63.9 66.08Q68.55 59.24 77.39 55.25Q86.22 51.26 98.57 51.26Q116.05 51.26 126.22 59.15Q136.38 67.03 138.28 80.52H113.2Q112.25 76.34 108.45 74.06Q104.66 71.78 98.38 71.78Q91.92 71.78 88.41 74.06Q84.89 76.34 84.89 80.14Q84.89 82.61 87.17 84.61Q89.45 86.6 93.73 88.03Q98 89.45 104.28 90.78Q115.48 93.06 123.84 96.01Q132.2 98.95 136.95 104.37Q141.7 109.78 141.7 120.04Q141.89 129.16 136.86 136.38Q131.82 143.6 122.7 147.59Q113.58 151.58 101.04 151.58Z";
+  "M101.13 155.69Q86.77 155.69 76.31 151.08Q65.85 146.46 59.9 138.56Q53.95 130.67 52.92 120.62H81.64Q82.46 124.31 84.82 127.28Q87.18 130.26 91.18 132.1Q95.18 133.95 100.72 133.95Q106.05 133.95 109.44 132.41Q112.82 130.87 114.56 128.41Q116.31 125.95 116.31 123.08Q116.31 118.97 113.85 116.72Q111.38 114.46 106.67 113.03Q101.95 111.59 95.38 110.36Q88 108.72 80.92 106.67Q73.85 104.62 68.21 101.23Q62.56 97.85 59.28 92.72Q56 87.59 56 80Q56 70.77 61.03 63.38Q66.05 56 75.59 51.69Q85.13 47.38 98.46 47.38Q117.33 47.38 128.31 55.9Q139.28 64.41 141.33 78.97H114.26Q113.23 74.46 109.13 72Q105.03 69.54 98.26 69.54Q91.28 69.54 87.49 72Q83.69 74.46 83.69 78.56Q83.69 81.23 86.15 83.38Q88.62 85.54 93.23 87.08Q97.85 88.62 104.62 90.05Q116.72 92.51 125.74 95.69Q134.77 98.87 139.9 104.72Q145.03 110.56 145.03 121.64Q145.23 131.49 139.79 139.28Q134.36 147.08 124.51 151.38Q114.67 155.69 101.13 155.69Z";
 
 /** Centro e raio do disco na caixa de 200; anel escuro e furo âmbar do centro. */
 export const SYMBOL_CENTER = 100;
 export const SYMBOL_RADIUS = 96;
 export const SYMBOL_RING_RADIUS = 13;
 export const SYMBOL_HOLE_RADIUS = 5.5;
-/** Recorte da caixa que contém só o disco (de 4 a 196). */
-export const SYMBOL_DISC_VIEWBOX = "4 4 192 192";
-
-/**
- * Proporções do lockup, em "em" da fonte do "ulco" (DM Sans 800, letter-spacing -0,05em):
- * diâmetro do disco, quanto a base do disco desce abaixo da linha de base e o espaço até o "u".
- * Com isso o topo do disco fica alinhado ao topo do "l".
- */
-export const LOCKUP = { disc: 0.787, belowBaseline: 0.063, gap: 0.01, letterSpacing: -0.05 } as const;
 
 /** Abaixo de 32 px o furo central vira ruído: usa a versão mini (sem furo). */
 export const SYMBOL_MINI_BELOW_PX = 32;
+
+/**
+ * Proporções do logo completo, em "em" da fonte do "ulco" (DM Sans 800):
+ * disco de 0,936em, base do disco 0,209em abaixo da linha de base (na linha das descendentes),
+ * 0,01em entre o disco e o "u". No desenho do lockup, 1em = 200 unidades.
+ */
+export const LOCKUP = { disc: 0.936, belowBaseline: 0.209, gap: 0.01 } as const;
+
+/** Desenho do logo completo (lockup-currentcolor.svg): caixa, disco, "s" e "ulco". */
+export const LOCKUP_SVG = {
+  viewBox: "0 0 582 187",
+  width: 582,
+  height: 187,
+  /** Unidades do desenho por em do "ulco". */
+  em: 200,
+  disc: { cx: 93.6, cy: 93.7, r: 93.6 },
+  ringRadius: 12.68,
+  holeRadius: 5.36,
+  sPath:
+    "M94.7 148Q80.7 148 70.5 143.5Q60.3 139 54.5 131.3Q48.7 123.6 47.7 113.8H75.7Q76.5 117.4 78.8 120.3Q81.1 123.2 85 125Q88.9 126.8 94.3 126.8Q99.5 126.8 102.8 125.3Q106.1 123.8 107.8 121.4Q109.5 119 109.5 116.2Q109.5 112.2 107.1 110Q104.7 107.8 100.1 106.4Q95.5 105 89.1 103.8Q81.9 102.2 75 100.2Q68.1 98.2 62.6 94.9Q57.1 91.6 53.9 86.6Q50.7 81.6 50.7 74.2Q50.7 65.2 55.6 58Q60.5 50.8 69.8 46.6Q79.1 42.4 92.1 42.4Q110.5 42.4 121.2 50.7Q131.9 59 133.9 73.2H107.5Q106.5 68.8 102.5 66.4Q98.5 64 91.9 64Q85.1 64 81.4 66.4Q77.7 68.8 77.7 72.8Q77.7 75.4 80.1 77.5Q82.5 79.6 87 81.1Q91.5 82.6 98.1 84Q109.9 86.4 118.7 89.5Q127.5 92.6 132.5 98.3Q137.5 104 137.5 114.8Q137.7 124.4 132.4 132Q127.1 139.6 117.5 143.8Q107.9 148 94.7 148Z",
+  ulcoPath:
+    "M240 148Q227.8 148 219.1 142.9Q210.4 137.8 205.8 127.8Q201.2 117.8 201.2 103.2V44.8H229.2V100.4Q229.2 112.2 234.1 118.3Q239 124.4 249.4 124.4Q256 124.4 261.2 121.4Q266.4 118.4 269.3 112.7Q272.2 107 272.2 98.6V44.8H300.2V145.6H275.6L273.4 129.4Q269 137.8 260.5 142.9Q252 148 240 148ZM316.6 145.6V1.6H344.6V145.6ZM409.8 148Q394.6 148 382.8 141.2Q371 134.4 364.3 122.6Q357.6 110.8 357.6 95.6Q357.6 80 364.3 68.1Q371 56.2 382.8 49.3Q394.6 42.4 410 42.4Q429.4 42.4 442.7 52.7Q456 63 459.6 81H429.8Q428.2 74.2 422.7 70.3Q417.2 66.4 409.6 66.4Q402.8 66.4 397.5 69.9Q392.2 73.4 389.2 79.8Q386.2 86.2 386.2 95.2Q386.2 102 387.9 107.3Q389.6 112.6 392.7 116.4Q395.8 120.2 400.2 122.2Q404.6 124.2 409.6 124.2Q414.8 124.2 418.8 122.5Q422.8 120.8 425.8 117.5Q428.8 114.2 429.8 109.6H459.6Q456 127.2 442.6 137.6Q429.2 148 409.8 148ZM520.6 148Q506.2 148 494.6 141.3Q483 134.6 476.3 122.6Q469.6 110.6 469.6 95.4Q469.6 79.8 476.3 67.8Q483 55.8 494.6 49.1Q506.2 42.4 520.8 42.4Q535.4 42.4 547 49.1Q558.6 55.8 565.3 67.7Q572 79.6 572 95.2Q572 110.8 565.2 122.7Q558.4 134.6 546.9 141.3Q535.4 148 520.6 148ZM520.6 123.8Q527.2 123.8 532.2 120.6Q537.2 117.4 540.3 111Q543.4 104.6 543.4 95.2Q543.4 85.8 540.4 79.4Q537.4 73 532.3 69.8Q527.2 66.6 520.8 66.6Q514.6 66.6 509.4 69.8Q504.2 73 501.2 79.4Q498.2 85.8 498.2 95.2Q498.2 104.6 501.2 111Q504.2 117.4 509.3 120.6Q514.4 123.8 520.6 123.8Z",
+} as const;

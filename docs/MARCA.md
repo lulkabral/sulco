@@ -40,6 +40,8 @@ O disco do logo é sempre âmbar.
 
 O "s" é a própria letra da DM Sans 800, em `#14110E`, dentro de um disco âmbar (`#E8A13A`). O disco funciona como a primeira letra da palavra: disco + "ulco" lê-se **"sulco"**, sempre em minúsculas. (Antes, o "S" era um traço desenhado dentro do disco.)
 
+**Regra de alinhamento (22/11/2026):** o "s" tem o mesmo tamanho e a mesma linha de base de "ulco"; o disco é centrado no "s", com o topo na altura do "l" e a base na linha das descendentes. (Na versão anterior o "s" ficava menor e mais alto que "ulco".)
+
 **Versões do símbolo** (originais em `brand/logo-2026-11/`, fora do git):
 
 | Arquivo | Como é | Uso |
@@ -47,23 +49,24 @@ O "s" é a própria letra da DM Sans 800, em `#14110E`, dentro de um disco âmba
 | `simbolo.svg` (copiado para `public/brand/`) | disco + "s" + anel escuro com furo âmbar no centro | interface e avatar, a partir de 32 px |
 | `simbolo-mini.svg` | sem o furo central | abaixo de 32 px; `src/app/icon.svg` e `favicon.ico` (16/32/48/64) já são esta versão |
 | `simbolo-completo.svg` | com dois sulcos finos | a partir de 48 px |
-| `lockup-escuro.svg` / `lockup-claro.svg` | logo horizontal em contorno | o escuro está em `public/brand/` e assina a prévia do link (`src/app/og`) |
+| `lockup-currentcolor.svg` | logo horizontal em contorno, "ulco" em `currentColor` | fonte do logo do cabeçalho e do canvas (contornos copiados para `LOCKUP_SVG` em `src/lib/brand-symbol.ts`) |
+| `lockup-escuro.svg` / `lockup-claro.svg` | logo horizontal em contorno, cores fixas | o escuro está em `public/brand/` e assina a prévia do link (`src/app/og`) |
 | `apple-icon.png` | 180 x 180, fundo `#14110E` | `src/app/apple-icon.png` |
 
 **Proporções do lockup**, em em da fonte do "ulco" (em `LOCKUP`, `src/lib/brand-symbol.ts`):
 
-- diâmetro do disco: **0,787em**;
-- topo do disco alinhado ao topo do "l";
-- base do disco **0,063em abaixo da linha de base** (`vertical-align: -0.063em`);
-- espaço entre o disco e o "u": **0,01em** de margem (dá ~0,07em de respiro visual, pelo recuo da letra);
-- "ulco" em DM Sans 800, `letter-spacing: -0.05em`.
+- diâmetro do disco: **0,936em**;
+- topo do disco na altura do "l"; base do disco na **linha das descendentes**, **0,209em abaixo da linha de base** (`vertical-align: -0.209em`);
+- o "s" dentro do disco na **mesma fonte e tamanho** do "ulco", na mesma linha de base;
+- espaço entre o disco e o "u": **0,01em** de margem;
+- "ulco" em DM Sans 800. No desenho do lockup, 1em = 200 unidades (caixa de 582 × 187).
 
 **Cores:** no modo escuro a palavra fica em `var(--ink)` (`#F4EEE6`); no claro, em `#191512` (o `text-ink` de cada tema). O disco é sempre âmbar.
 
 **Onde aparece:**
 
-- **Cabeçalho** (`src/components/Logo.tsx`): disco como SVG embutido e "ulco" como texto real, na cor do tema. Sempre com o furo central, também no cabeçalho (disco de ~19 px): decisão do dono em 20/11/2026. A versão mini fica só para o favicon e o `icon.svg`.
-- **Recap** (`src/lib/canvas/brandmark.ts`, no rodapé): disco e "s" desenhados no canvas com o mesmo contorno do SVG (não depende da fonte); o "ulco" usa a DM Sans já carregada antes do desenho. Abaixo de 32 px reais sai a mini.
+- **Cabeçalho** (`src/components/Logo.tsx`): o lockup inteiro como SVG embutido (`lockup-currentcolor.svg`), com altura de 0,936em, largura automática e "ulco" em `currentColor` (segue o tema pelo `text-ink`). Sempre com o furo central, também no cabeçalho (disco de ~19 px): decisão do dono em 20/11/2026. A versão mini fica só para o favicon e o `icon.svg`.
+- **Recap** (`src/lib/canvas/brandmark.ts`, no rodapé): o lockup desenhado no canvas com os mesmos contornos do SVG (disco, "s" e "ulco"; não depende da fonte), nas mesmas proporções. Abaixo de 32 px reais o disco sai sem o furo.
 - **Grade:** sem logo (decisão de 16/11/2026: a grade é só das capas).
 - **Prévia do link:** `public/brand/lockup-escuro.svg`.
 - O banner do X (`npm run banner`, ferramenta local) ainda usa o símbolo antigo `brand/simbolo-800.png`.
