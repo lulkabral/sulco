@@ -39,11 +39,11 @@ export function ProfileTabs({ username, current, period }: Props) {
 
   return (
     <nav aria-label={dict.profile.tabsLabel} className="flex-1 sm:flex-none">
-      <ul className="relative grid grid-cols-2 rounded-full border border-line bg-card-2 p-1 sm:inline-grid sm:w-68">
+      <ul className="relative grid grid-cols-3 rounded-full border border-line bg-card-2 p-1 sm:inline-grid sm:w-[22rem]">
         {/* Destaque que desliza para a aba escolhida. */}
         <li
           aria-hidden
-          className="pointer-events-none absolute inset-y-1 left-1 z-0 w-[calc(50%-0.25rem)] rounded-full bg-cta shadow-sm transition-transform duration-300 ease-smooth motion-reduce:transition-none"
+          className="pointer-events-none absolute inset-y-1 left-1 z-0 w-[calc((100%-0.5rem)/3)] rounded-full bg-cta shadow-sm transition-transform duration-300 ease-smooth motion-reduce:transition-none"
           style={{ transform: `translateX(${index * 100}%)` }}
         />
         {TABS.map((t) => {
@@ -57,11 +57,11 @@ export function ProfileTabs({ username, current, period }: Props) {
                 aria-current={active ? "page" : undefined}
                 scroll={false}
                 className={
-                  "flex items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-bold transition-colors duration-200 ease-smooth " +
+                  "flex items-center justify-center gap-1.5 rounded-full px-1.5 py-2 text-[11px] font-bold whitespace-nowrap transition-colors duration-200 ease-smooth min-[400px]:text-xs sm:gap-2 sm:px-3.5 sm:text-sm " +
                   (active ? "text-cta-ink" : "text-soft hover:text-ink")
                 }
               >
-                {t.value === "recap" ? <StoryIcon /> : <GridIcon />}
+                {t.value === "recap" ? <StoryIcon /> : t.value === "grade" ? <GridIcon /> : <TopsIcon />}
                 {dict.profile.tabs[t.value]}
               </Link>
             </li>
@@ -75,7 +75,7 @@ export function ProfileTabs({ username, current, period }: Props) {
 const iconProps = {
   "aria-hidden": true,
   viewBox: "0 0 24 24",
-  className: "size-4 shrink-0",
+  className: "hidden size-3.5 shrink-0 min-[420px]:block sm:size-4",
   fill: "none",
   stroke: "currentColor",
   strokeWidth: 2.2,
@@ -101,6 +101,18 @@ function GridIcon() {
       <rect x="13.5" y="3.5" width="7" height="7" rx="1.5" />
       <rect x="3.5" y="13.5" width="7" height="7" rx="1.5" />
       <rect x="13.5" y="13.5" width="7" height="7" rx="1.5" />
+    </svg>
+  );
+}
+
+/** Três barras de ranking (cartões de tops). */
+function TopsIcon() {
+  return (
+    <svg {...iconProps}>
+      <path d="M4 19.5h16" />
+      <rect x="5" y="10" width="3.5" height="6.5" rx="0.8" />
+      <rect x="10.25" y="5" width="3.5" height="11.5" rx="0.8" />
+      <rect x="15.5" y="12" width="3.5" height="4.5" rx="0.8" />
     </svg>
   );
 }

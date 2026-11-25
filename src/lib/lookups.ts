@@ -4,11 +4,11 @@
 
 import type { CoverLookup } from "./artist-image";
 
-export type TrackInfo = { imageUrl: string | null; durationSec: number | null };
+export type TrackInfo = { imageUrl: string | null; durationSec: number | null; album: string | null };
 
 type Priority = "high" | "low";
 
-const EMPTY: TrackInfo = { imageUrl: null, durationSec: null };
+const EMPTY: TrackInfo = { imageUrl: null, durationSec: null, album: null };
 const MAX_PARALLEL = 3;
 let running = 0;
 const highQueue: (() => void)[] = [];
@@ -52,7 +52,9 @@ export function trackInfo(artist: string, name: string, priority: Priority = "lo
     `track\u0000${artist}\u0000${name}`,
     async () => {
       const data = await getJson<Partial<TrackInfo>>(`/api/lastfm/track?${new URLSearchParams({ artist, track: name })}`);
-      return data ? { imageUrl: data.imageUrl ?? null, durationSec: data.durationSec ?? null } : EMPTY;
+      return data
+        ? { imageUrl: data.imageUrl ?? null, durationSec: data.durationSec ?? null, album: data.album ?? null }
+        : EMPTY;
     },
     priority,
   );

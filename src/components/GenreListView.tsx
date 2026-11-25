@@ -4,26 +4,30 @@ import type { ReactNode } from "react";
 import { useI18n } from "@/i18n/client";
 import type { Genre } from "@/lib/genres";
 import type { ArtistPicture } from "@/lib/artist-image";
+import { CardShortcut } from "./CardShortcut";
 import { CoverThumb } from "./CoverThumb";
 import { ListIcon } from "./ListIcons";
 import { GenresSkeleton } from "./ProfileSkeleton";
 import { RankTrend, useResolvedRankChanges, type RankChangesInput } from "./RankTrend";
 
 /** Moldura da lista "Gêneros" (palco escuro unificado). Serve no servidor e no navegador. */
-export function GenreListView({ children }: { children: ReactNode }) {
+export function GenreListView({ children, cardHref }: { children: ReactNode; cardHref?: string }) {
   const { t } = useI18n();
   return (
     <section
       aria-labelledby="top-generos"
       className="min-w-0 rounded-[24px] border border-stage-line bg-stage p-5 text-stage-ink"
     >
-      <h3
-        id="top-generos"
-        className="mb-4 flex items-center gap-2 border-b border-stage-line pb-3 text-xs font-bold uppercase tracking-[0.12em] text-amber"
-      >
-        <ListIcon name="genres" />
-        {t.lists.genres}
-      </h3>
+      <div className="mb-4 flex items-center justify-between gap-2 border-b border-stage-line pb-3">
+        <h3
+          id="top-generos"
+          className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.12em] text-amber"
+        >
+          <ListIcon name="genres" />
+          {t.lists.genres}
+        </h3>
+        {cardHref && <CardShortcut href={cardHref} listName={t.lists.genres} />}
+      </div>
       {children}
     </section>
   );

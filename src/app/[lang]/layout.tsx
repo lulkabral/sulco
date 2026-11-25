@@ -7,6 +7,7 @@ import { LocaleProvider } from "@/i18n/client";
 import { HTML_LANG, LOCALES, OG_LOCALE } from "@/i18n/config";
 import { getI18n } from "@/i18n/server";
 import { THEME_INIT_SCRIPT } from "@/lib/theme-mode";
+import { SITE_URL } from "@/lib/site";
 import "../globals.css";
 
 // Fonte única da interface (textos, títulos e números com tabular-nums). O canvas usa a mesma fonte.
@@ -16,11 +17,6 @@ const sans = DM_Sans({
   weight: ["400", "500", "600", "700", "800"],
   display: "swap",
 });
-
-// Endereço oficial do site: completa os endereços absolutos (ex.: da imagem de
-// compartilhamento). Sem isso, o Next usava um domínio interno da Vercel que dava 404.
-// Se o domínio mudar, troque aqui.
-const SITE_URL = "https://www.sulcofm.com.br";
 
 // Nome da marca: sempre em minúsculas (brand/GUIA.md).
 const NAME = "sulco";

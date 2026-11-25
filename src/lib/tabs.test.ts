@@ -5,6 +5,7 @@ describe("parseTab", () => {
   it("aceita as abas conhecidas", () => {
     expect(parseTab("grade")).toBe("grade");
     expect(parseTab("recap")).toBe("recap");
+    expect(parseTab("tops")).toBe("tops");
   });
 
   it("valor ausente ou desconhecido vira recap", () => {
@@ -19,8 +20,9 @@ describe("userPageHref", () => {
     expect(userPageHref("rj", "recap")).toBe("/u/rj");
   });
 
-  it("inclui aba e período", () => {
+  it("inclui aba, período e cartão quando informados", () => {
     expect(userPageHref("rj", "grade", "7day")).toBe("/u/rj?tab=grade&period=7day");
     expect(userPageHref("rj", "recap", "3month")).toBe("/u/rj?period=3month");
+    expect(userPageHref("rj", "tops", "1month", "pt", "artists")).toBe("/u/rj?tab=tops&period=1month&card=artists");
   });
 });

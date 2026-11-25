@@ -12,15 +12,17 @@ type Props = {
   images?: Record<string, ArtistPicture>;
   /** Variação de posição dos gêneros em relação ao período anterior (chega depois). */
   changes?: RankChangesInput;
+  /** Endereço para abrir a aba Tops já em Gêneros. */
+  cardHref?: string;
 };
 
 /**
  * Lista "Gêneros" da página com períodos do Last.fm. O título aparece na hora; os itens
  * chegam quando o cálculo termina no servidor (streaming), sem atrasar as outras listas.
  */
-export function GenreList({ genres, images, changes }: Props) {
+export function GenreList({ genres, images, changes, cardHref }: Props) {
   return (
-    <GenreListView>
+    <GenreListView cardHref={cardHref}>
       <Suspense fallback={<GenresSkeleton />}>
         <AwaitGenres genres={genres} images={images} changes={changes} />
       </Suspense>

@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
+import { ArrowUpRightIcon } from "./Icons";
 import { useI18n } from "@/i18n/client";
 import { validateUsername } from "@/lib/lastfm/validate";
 
@@ -70,9 +71,9 @@ export function UsernameForm({ defaultValue = "", compact = false, onSubmitted }
           {!sending && (
             <span
               aria-hidden
-              className="inline-flex size-5 items-center justify-center rounded-full bg-cta-badge text-xs text-cta-badge-ink transition-transform duration-200 ease-smooth group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+              className="inline-flex size-5 items-center justify-center rounded-full bg-cta-badge text-cta-badge-ink transition-transform duration-200 ease-smooth group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
             >
-              ↗
+              <ArrowUpRightIcon className="size-3" />
             </span>
           )}
         </button>

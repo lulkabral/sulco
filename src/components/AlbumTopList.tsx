@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useI18n } from "@/i18n/client";
 import { formatNumber, formatPlays } from "@/lib/format";
 import { VINYL_GROOVES, VINYL_SHEEN } from "@/lib/vinyl-color";
+import { CardShortcut } from "./CardShortcut";
 import { CoverThumb } from "./CoverThumb";
 import { ListIcon } from "./ListIcons";
 import { RankTrend, useResolvedRankChanges, type RankChangesInput } from "./RankTrend";
@@ -15,6 +16,8 @@ type Props = {
   initialLimit?: number;
   /** Variação de posição em relação ao período anterior (síncrona ou Promise). */
   changes?: RankChangesInput;
+  /** Endereço para abrir a aba Tops já em Álbuns. */
+  cardHref?: string;
 };
 
 type ViewMode = "shelf" | "list";
@@ -25,7 +28,7 @@ type ViewMode = "shelf" | "list";
  *   posição + seta abaixo da capa, reproduções em destaque e #04+ com preenchimento colorido.
  * - "Lista": #1 em destaque com vinil lateral + #02 em diante com preenchimento colorido.
  */
-export function AlbumTopList({ items, initialLimit = 10, changes }: Props) {
+export function AlbumTopList({ items, initialLimit = 10, changes, cardHref }: Props) {
   const { lang, t } = useI18n();
   const [mode, setMode] = useState<ViewMode>("shelf");
   const [expanded, setExpanded] = useState(false);
@@ -49,7 +52,7 @@ export function AlbumTopList({ items, initialLimit = 10, changes }: Props) {
       aria-labelledby="top-albuns"
       className="min-w-0 rounded-[24px] border border-stage-line bg-stage p-5 text-stage-ink"
     >
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-2 border-b border-stage-line pb-3">
+      <div className="mb-4 flex items-center justify-between gap-2 border-b border-stage-line pb-3">
         <h3
           id="top-albuns"
           className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.12em] text-amber"
@@ -58,33 +61,36 @@ export function AlbumTopList({ items, initialLimit = 10, changes }: Props) {
           {t.lists.albums}
         </h3>
 
-        {items.length >= 2 && (
-          <div
-            role="group"
-            aria-label={t.lists.viewModeLabel}
-            className="inline-flex items-center rounded-full border border-stage-line bg-stage-card p-0.5"
-          >
-            {(["shelf", "list"] as const).map((option) => {
-              const on = mode === option;
-              return (
-                <button
-                  key={option}
-                  type="button"
-                  aria-pressed={on}
-                  onClick={() => setMode(option)}
-                  className={
-                    "cursor-pointer rounded-full px-2.5 py-1 text-[11px] font-semibold transition duration-200 ease-smooth active:scale-[0.97] " +
-                    (on
-                      ? "bg-amber text-amber-ink shadow-xs"
-                      : "text-stage-soft hover:text-stage-ink")
-                  }
-                >
-                  {option === "shelf" ? t.lists.viewShelf : t.lists.viewList}
-                </button>
-              );
-            })}
-          </div>
-        )}
+        <div className="flex shrink-0 items-center gap-1.5">
+          {items.length >= 2 && (
+            <div
+              role="group"
+              aria-label={t.lists.viewModeLabel}
+              className="inline-flex items-center rounded-full border border-stage-line bg-stage-card p-0.5"
+            >
+              {(["shelf", "list"] as const).map((option) => {
+                const on = mode === option;
+                return (
+                  <button
+                    key={option}
+                    type="button"
+                    aria-pressed={on}
+                    onClick={() => setMode(option)}
+                    className={
+                      "cursor-pointer rounded-full px-2 py-1 text-[11px] font-semibold transition duration-200 ease-smooth active:scale-[0.97] sm:px-2.5 " +
+                      (on
+                        ? "bg-amber text-amber-ink shadow-xs"
+                        : "text-stage-soft hover:text-stage-ink")
+                    }
+                  >
+                    {option === "shelf" ? t.lists.viewShelf : t.lists.viewList}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+          {cardHref && items.length > 0 && <CardShortcut href={cardHref} listName={t.lists.albums} />}
+        </div>
       </div>
 
       {items.length === 0 ? (

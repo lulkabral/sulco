@@ -1,6 +1,7 @@
 import { getI18n } from "@/i18n/server";
 import { formatNumber, yearOf } from "@/lib/format";
 import type { UserInfo } from "@/lib/lastfm/types";
+import { ArrowUpRightIcon } from "./Icons";
 import { Marquee } from "./Marquee";
 import { VinylAvatar } from "./VinylAvatar";
 
@@ -39,12 +40,10 @@ export async function UserHeader({ user, covers }: Props) {
               href={user.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-baseline gap-1.5 transition-colors duration-200 ease-smooth hover:text-terra-text"
+              className="inline-flex items-center gap-1.5 transition-colors duration-200 ease-smooth hover:text-terra-text"
             >
               <span className="truncate">{user.username}</span>
-              <span aria-hidden className="text-xs font-medium text-ink-faint">
-                ↗
-              </span>
+              <ArrowUpRightIcon className="size-3.5 shrink-0 text-ink-faint" />
             </a>
           </h1>
           <ul className="mt-1.5 flex flex-wrap items-center gap-2 text-xs">

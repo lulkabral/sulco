@@ -14,10 +14,16 @@ export async function GET(request: NextRequest) {
   if (!track.ok) return jsonError("BAD_REQUEST", track.message);
 
   try {
-    const { imageUrl, durationSec } = await getTrackInfo(artist.value, track.value);
+    const { imageUrl, durationSec, album } = await getTrackInfo(artist.value, track.value);
     const finalImageUrl = imageUrl ?? (await getDeezerTrackCover(artist.value, track.value));
     return jsonOk(
-      { artist: artist.value, track: track.value, imageUrl: finalImageUrl, durationSec },
+      {
+        artist: artist.value,
+        track: track.value,
+        imageUrl: finalImageUrl,
+        durationSec,
+        album: album?.title ?? null,
+      },
       finalImageUrl ? CACHE_SECONDS.month : CACHE_SECONDS.day,
       CACHE_SECONDS.day,
     );

@@ -5,6 +5,7 @@ import { useI18n } from "@/i18n/client";
 import { formatNumber, formatPlays } from "@/lib/format";
 import type { CoverLookup } from "@/lib/artist-image";
 import { VINYL_GROOVES, VINYL_SHEEN } from "@/lib/vinyl-color";
+import { CardShortcut } from "./CardShortcut";
 import { CoverThumb } from "./CoverThumb";
 import { ListIcon, type ListIconName } from "./ListIcons";
 import { RankTrend, useResolvedRankChanges, type RankChangesInput } from "./RankTrend";
@@ -39,12 +40,14 @@ type Props = {
   initialLimit?: number;
   /** Variação de posição em relação ao período anterior (síncrona ou Promise). */
   changes?: RankChangesInput;
+  /** Endereço para abrir a aba Tops já nesta categoria. */
+  cardHref?: string;
 };
 
 /**
  * Lista numerada de um top, num cartão editorial.
  * A proporção em relação ao #1 aparece como preenchimento quente (`bg-bar-fill`) atrás de
- * cada linha, e os números de reproduções ficam em destaque na coluna direita em Space Grotesk.
+ * cada linha, e os números de reproduções ficam em destaque na coluna direita.
  */
 export function TopList({
   title,
@@ -54,6 +57,7 @@ export function TopList({
   variant = "default",
   initialLimit = 10,
   changes,
+  cardHref,
 }: Props) {
   const { lang, t } = useI18n();
   const [expanded, setExpanded] = useState(false);
@@ -76,13 +80,16 @@ export function TopList({
       aria-labelledby={`top-${title}`}
       className="min-w-0 rounded-[24px] border border-stage-line bg-stage p-5 text-stage-ink"
     >
-      <h3
-        id={`top-${title}`}
-        className="mb-4 flex items-center gap-2 border-b border-stage-line pb-3 text-xs font-bold uppercase tracking-[0.12em] text-amber"
-      >
-        <ListIcon name={icon} />
-        {title}
-      </h3>
+      <div className="mb-4 flex items-center justify-between gap-2 border-b border-stage-line pb-3">
+        <h3
+          id={`top-${title}`}
+          className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.12em] text-amber"
+        >
+          <ListIcon name={icon} />
+          {title}
+        </h3>
+        {cardHref && items.length > 0 && <CardShortcut href={cardHref} listName={title} />}
+      </div>
 
       {items.length === 0 ? (
         <p className="text-sm text-stage-soft">{t.lists.empty}</p>

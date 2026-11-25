@@ -19,6 +19,7 @@ import { QuickUserSwitch } from "@/components/QuickUserSwitch";
 import { RecapImage } from "@/components/RecapImage";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { TopList } from "@/components/TopList";
+import { TopsImage } from "@/components/TopsImage";
 import { UserHeader } from "@/components/UserHeader";
 import { getI18n } from "@/i18n/server";
 import { GENRE_ARTISTS } from "@/lib/genres";
@@ -45,7 +46,8 @@ import {
   rankKey,
 } from "@/lib/rank-change";
 import { currentMonthsSince, currentYearsSince, monthLabel, parseYearId, yearLabel } from "@/lib/months";
-import { parseTab, type Tab } from "@/lib/tabs";
+import { parseTab, userPageHref, type Tab } from "@/lib/tabs";
+import { parseTopsCard, type TopsCardKind } from "@/lib/tops-card/prefs";
 
 /** Quantos itens abrem por padrão nas listas; o botão "Ver até o #20" expande até EXPANDED_LIMIT. */
 const LIST_LIMIT = 10;
@@ -113,6 +115,7 @@ async function Profile({ params, searchParams }: Pick<PageProps<"/[lang]/u/[user
   const { username: rawUsername } = await params;
   const query = await searchParams;
   const tab = parseTab(query.tab);
+  const card = parseTopsCard(query.card);
   const rawPeriod = Array.isArray(query.period) ? query.period[0] : query.period;
   const period = parseUiPeriod(query.period, tab === "grade" ? DEFAULT_GRID_PERIOD : DEFAULT_UI_PERIOD);
 
@@ -173,6 +176,7 @@ async function Profile({ params, searchParams }: Pick<PageProps<"/[lang]/u/[user
           period={history}
           label={historyLabel}
           tab={tab}
+          initialCard={card}
           registeredAt={user.registeredAt}
         />
       ) : (
@@ -182,6 +186,7 @@ async function Profile({ params, searchParams }: Pick<PageProps<"/[lang]/u/[user
             username={user.username}
             period={period}
             tab={tab}
+            initialCard={card}
             registeredAt={user.registeredAt}
             lifetimeTotal={user.playcount}
           />
@@ -195,13 +200,14 @@ type TopListsProps = {
   username: string;
   period: UiPeriod;
   tab: Tab;
+  initialCard: TopsCardKind | null;
   /** Data de cadastro (início de "Todo o tempo"). */
   registeredAt: number;
   /** Total de scrobbles da vida inteira (já vem no perfil). */
   lifetimeTotal: number;
 };
 
-async function TopLists({ username, period, tab, registeredAt, lifetimeTotal }: TopListsProps) {
+async function TopLists({ username, period, tab, initialCard, registeredAt, lifetimeTotal }: TopListsProps) {
   const { lang, t } = await getI18n();
   const label = periodLabel(period, lang);
   // O intervalo depende da hora atual: `connection()` diz ao Next que isto roda a cada pedido.
@@ -327,6 +333,8 @@ async function TopLists({ username, period, tab, registeredAt, lifetimeTotal }: 
       })
     : undefined;
 
+  const cardHref = (kind: TopsCardKind) => `${userPageHref(username, "tops", period, lang, kind)}#palco`;
+
   return (
     <>
       {tab === "grade" ? (
@@ -340,6 +348,29 @@ async function TopLists({ username, period, tab, registeredAt, lifetimeTotal }: 
             playcount: a.playcount,
             imageUrl: a.imageUrl,
           }))}
+        />
+      ) : tab === "tops" ? (
+        <TopsImage
+          username={username}
+          period={period}
+          periodLabel={label}
+          initialCard={initialCard}
+          artists={displayedArtists.map((a) => ({ rank: a.rank, name: a.name, playcount: a.playcount }))}
+          tracks={displayedTracks.map((tr) => ({
+            rank: tr.rank,
+            name: tr.name,
+            artist: tr.artist,
+            playcount: tr.playcount,
+            imageUrl: tr.imageUrl,
+          }))}
+          albums={displayedAlbums.map((al) => ({
+            rank: al.rank,
+            name: al.name,
+            artist: al.artist,
+            playcount: al.playcount,
+            imageUrl: al.imageUrl,
+          }))}
+          genres={genres}
         />
       ) : (
         <RecapImage
@@ -376,6 +407,7 @@ async function TopLists({ username, period, tab, registeredAt, lifetimeTotal }: 
             variant="artists"
             initialLimit={LIST_LIMIT}
             changes={artistChanges}
+            cardHref={cardHref("artists")}
             items={displayedArtists.map((a, i) => ({
               rank: a.rank,
               name: a.name,
@@ -393,6 +425,7 @@ async function TopLists({ username, period, tab, registeredAt, lifetimeTotal }: 
             variant="tracks"
             initialLimit={LIST_LIMIT}
             changes={trackChanges}
+            cardHref={cardHref("tracks")}
             items={displayedTracks.map((t) => ({
               rank: t.rank,
               name: t.name,
@@ -408,6 +441,7 @@ async function TopLists({ username, period, tab, registeredAt, lifetimeTotal }: 
           <AlbumTopList
             initialLimit={LIST_LIMIT}
             changes={albumChanges}
+            cardHref={cardHref("albums")}
             items={displayedAlbums.map((a) => ({
               rank: a.rank,
               name: a.name,
@@ -419,7 +453,7 @@ async function TopLists({ username, period, tab, registeredAt, lifetimeTotal }: 
             }))}
           />
         }
-        genres={<GenreList genres={genres} images={artistPicsByName} changes={genreChanges} />}
+        genres={<GenreList genres={genres} images={artistPicsByName} changes={genreChanges} cardHref={cardHref("genres")} />}
         highlights={
           <PeriodHighlights
             artists={displayedArtists.map((a) => ({ rank: a.rank, name: a.name, playcount: a.playcount }))}

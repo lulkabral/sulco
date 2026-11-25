@@ -10,6 +10,7 @@ import { PeriodHighlights } from "@/components/PeriodHighlights";
 import { ProfileLists } from "@/components/ProfileLists";
 import { RecapImage } from "@/components/RecapImage";
 import { TopList } from "@/components/TopList";
+import { TopsImage } from "@/components/TopsImage";
 import { useI18n } from "@/i18n/client";
 import { VinylLoader } from "./VinylLoader";
 import { aggregateScrobbles, type MonthTops } from "@/lib/aggregate";
@@ -37,7 +38,8 @@ import {
   rankKey,
   type RankChange,
 } from "@/lib/rank-change";
-import type { Tab } from "@/lib/tabs";
+import { userPageHref, type Tab } from "@/lib/tabs";
+import type { TopsCardKind } from "@/lib/tops-card/prefs";
 
 type Props = {
   username: string;
@@ -46,6 +48,8 @@ type Props = {
   /** Nome do período para a tela e a imagem: "Outubro de 2026", "2026 até agora". */
   label: string;
   tab: Tab;
+  /** Categoria pré-selecionada para a aba Tops (?card=...). */
+  initialCard?: TopsCardKind | null;
   /** Data de cadastro no Last.fm (evita buscar período anterior a ela). */
   registeredAt?: number;
 };
@@ -85,7 +89,7 @@ const GRID_LIMIT = 25;
  * - Ano: 3 chamadas de gráfico + as capas dos álbuns que aparecem (ver loadYearTops).
  * O servidor não guarda nem soma nada. Depois, mostra recap, grade e listas.
  */
-export function MonthView({ username, period, label, tab, registeredAt = 0 }: Props) {
+export function MonthView({ username, period, label, tab, initialCard = null, registeredAt = 0 }: Props) {
   const { lang, t } = useI18n();
   const [state, setState] = useState<State>({ status: "loading", progress: null });
   const [genreList, setGenreList] = useState<Genre[] | null | undefined>(undefined);
@@ -268,6 +272,8 @@ export function MonthView({ username, period, label, tab, registeredAt = 0 }: Pr
     );
   }
 
+  const cardHref = (kind: TopsCardKind) => `${userPageHref(username, "tops", period, lang, kind)}#palco`;
+
   return (
     <>
       {truncated && (
@@ -278,6 +284,17 @@ export function MonthView({ username, period, label, tab, registeredAt = 0 }: Pr
 
       {tab === "grade" ? (
         <AlbumGrid username={username} period={period} periodLabel={label} albums={recapData.grid} />
+      ) : tab === "tops" ? (
+        <TopsImage
+          username={username}
+          period={period}
+          periodLabel={label}
+          initialCard={initialCard}
+          artists={tops.artists}
+          tracks={tops.tracks}
+          albums={tops.albums}
+          genres={genres}
+        />
       ) : (
         <RecapImage
           username={username}
@@ -303,6 +320,7 @@ export function MonthView({ username, period, label, tab, registeredAt = 0 }: Pr
             variant="artists"
             initialLimit={LIST_LIMIT}
             changes={trends?.artists}
+            cardHref={cardHref("artists")}
             items={tops.artists.slice(0, EXPANDED_LIMIT).map((a, i) => ({
               rank: a.rank,
               name: a.name,
@@ -320,6 +338,7 @@ export function MonthView({ username, period, label, tab, registeredAt = 0 }: Pr
             variant="tracks"
             initialLimit={LIST_LIMIT}
             changes={trends?.tracks}
+            cardHref={cardHref("tracks")}
             items={tops.tracks.slice(0, EXPANDED_LIMIT).map((t) => ({
               rank: t.rank,
               name: t.name,
@@ -335,6 +354,7 @@ export function MonthView({ username, period, label, tab, registeredAt = 0 }: Pr
           <AlbumTopList
             initialLimit={LIST_LIMIT}
             changes={trends?.albums}
+            cardHref={cardHref("albums")}
             items={tops.albums.slice(0, EXPANDED_LIMIT).map((a) => ({
               rank: a.rank,
               name: a.name,
@@ -347,7 +367,7 @@ export function MonthView({ username, period, label, tab, registeredAt = 0 }: Pr
           />
         }
         genres={
-          <GenreListView>
+          <GenreListView cardHref={cardHref("genres")}>
             <GenreItems genres={genreList} images={artistPicsByName} changes={trends?.genres} />
           </GenreListView>
         }
