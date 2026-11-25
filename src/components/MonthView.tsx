@@ -1,16 +1,15 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { artistPictures } from "@/lib/artist-image";
 import { useEffect, useMemo, useState } from "react";
-import { AlbumGrid } from "@/components/AlbumGrid";
 import { AlbumTopList } from "@/components/AlbumTopList";
 import { ErrorState } from "@/components/ErrorState";
 import { GenreItems, GenreListView } from "@/components/GenreListView";
 import { PeriodHighlights } from "@/components/PeriodHighlights";
 import { ProfileLists } from "@/components/ProfileLists";
-import { RecapImage } from "@/components/RecapImage";
+import { ListsSkeleton } from "@/components/ProfileSkeleton";
 import { TopList } from "@/components/TopList";
-import { TopsImage } from "@/components/TopsImage";
 import { useI18n } from "@/i18n/client";
 import { VinylLoader } from "./VinylLoader";
 import { aggregateScrobbles, type MonthTops } from "@/lib/aggregate";
@@ -40,6 +39,11 @@ import {
 } from "@/lib/rank-change";
 import { userPageHref, type Tab } from "@/lib/tabs";
 import type { TopsCardKind } from "@/lib/tops-card/prefs";
+
+const stageLoading = () => <ListsSkeleton />;
+const AlbumGrid = dynamic(() => import("@/components/AlbumGrid").then((m) => m.AlbumGrid), { loading: stageLoading });
+const RecapImage = dynamic(() => import("@/components/RecapImage").then((m) => m.RecapImage), { loading: stageLoading });
+const TopsImage = dynamic(() => import("@/components/TopsImage").then((m) => m.TopsImage), { loading: stageLoading });
 
 type Props = {
   username: string;

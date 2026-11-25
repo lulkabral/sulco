@@ -1,25 +1,22 @@
 import type { Metadata } from "next";
+import dynamic from "next/dynamic";
 import { artistPictures } from "@/lib/artist-image";
 import { connection } from "next/server";
 import { Suspense } from "react";
 import { AccentScope } from "@/components/AccentScope";
-import { AlbumGrid } from "@/components/AlbumGrid";
 import { AlbumTopList } from "@/components/AlbumTopList";
 import { ErrorState } from "@/components/ErrorState";
 import { GenreList } from "@/components/GenreList";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { LogoLink } from "@/components/Logo";
-import { MonthView } from "@/components/MonthView";
 import { PeriodHighlights } from "@/components/PeriodHighlights";
 import { PeriodSelector } from "@/components/PeriodSelector";
 import { ProfileLists } from "@/components/ProfileLists";
 import { ListsSkeleton, ProfileSkeleton } from "@/components/ProfileSkeleton";
 import { ProfileTabs } from "@/components/ProfileTabs";
 import { QuickUserSwitch } from "@/components/QuickUserSwitch";
-import { RecapImage } from "@/components/RecapImage";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { TopList } from "@/components/TopList";
-import { TopsImage } from "@/components/TopsImage";
 import { UserHeader } from "@/components/UserHeader";
 import { getI18n } from "@/i18n/server";
 import { GENRE_ARTISTS } from "@/lib/genres";
@@ -48,6 +45,13 @@ import {
 import { currentMonthsSince, currentYearsSince, monthLabel, parseYearId, yearLabel } from "@/lib/months";
 import { parseTab, userPageHref, type Tab } from "@/lib/tabs";
 import { parseTopsCard, type TopsCardKind } from "@/lib/tops-card/prefs";
+
+// Cada aba do palco e a vista de mês/ano carregam sob demanda para o navegador só baixar o que está aberto.
+const stageLoading = () => <ListsSkeleton />;
+const AlbumGrid = dynamic(() => import("@/components/AlbumGrid").then((m) => m.AlbumGrid), { loading: stageLoading });
+const MonthView = dynamic(() => import("@/components/MonthView").then((m) => m.MonthView), { loading: stageLoading });
+const RecapImage = dynamic(() => import("@/components/RecapImage").then((m) => m.RecapImage), { loading: stageLoading });
+const TopsImage = dynamic(() => import("@/components/TopsImage").then((m) => m.TopsImage), { loading: stageLoading });
 
 /** Quantos itens abrem por padrão nas listas; o botão "Ver até o #20" expande até EXPANDED_LIMIT. */
 const LIST_LIMIT = 10;
@@ -129,13 +133,15 @@ async function Profile({ params, searchParams }: Pick<PageProps<"/[lang]/u/[user
   let covers: string[] = [];
   try {
     // 2 chamadas juntas: dados do usuário e capas do último ano para a faixa do topo
-    // (a faixa não muda ao trocar de período). Se só as capas falharem, segue sem elas.
+    // (a faixa não muda ao trocar de período). Pede ALBUM_LIMIT (25) para bater no mesmo
+    // cache de TopLists quando o período escolhido for "Último ano".
     const [info, topAlbums] = await Promise.all([
       getUserInfo(username.value),
-      getTop(username.value, "albums", "12month", HEADER_COVERS).catch(() => null),
+      getTop(username.value, "albums", "12month", ALBUM_LIMIT).catch(() => null),
     ]);
     user = info;
     covers = ((topAlbums?.items ?? []) as TopAlbum[])
+      .slice(0, HEADER_COVERS)
       .map((a) => a.imageUrl)
       .filter((url): url is string => url !== null);
   } catch (err) {

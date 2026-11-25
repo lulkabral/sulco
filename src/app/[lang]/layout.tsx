@@ -72,6 +72,8 @@ export default async function RootLayout({ children }: LayoutProps<"/[lang]">) {
       <head>
         <link rel="preconnect" href="https://lastfm-img.freetls.fastly.net" />
         <link rel="preconnect" href="https://lastfm-img.freetls.fastly.net" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://cdn-images.dzcdn.net" />
+        <link rel="preconnect" href="https://cdn-images.dzcdn.net" crossOrigin="anonymous" />
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
       </head>
       <body className="flex min-h-full flex-col bg-room text-ink">
