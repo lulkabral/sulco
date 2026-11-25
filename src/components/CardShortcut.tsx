@@ -21,7 +21,7 @@ export function CardShortcut({ href, listName }: Props) {
       href={href}
       aria-label={label}
       title={label}
-      className="inline-flex size-8 shrink-0 items-center justify-center rounded-full border border-stage-line bg-stage-card text-stage-soft transition duration-200 ease-smooth hover:border-amber/50 hover:text-amber active:scale-[0.95]"
+      className="inline-flex size-9 shrink-0 items-center justify-center rounded-full border border-amber/50 bg-amber/15 text-amber shadow-xs transition duration-200 ease-smooth hover:border-amber hover:bg-amber hover:text-amber-ink active:scale-[0.95]"
     >
       <svg
         aria-hidden="true"
@@ -29,7 +29,7 @@ export function CardShortcut({ href, listName }: Props) {
         className="size-4 shrink-0"
         fill="none"
         stroke="currentColor"
-        strokeWidth="2.1"
+        strokeWidth="2.2"
         strokeLinecap="round"
         strokeLinejoin="round"
       >

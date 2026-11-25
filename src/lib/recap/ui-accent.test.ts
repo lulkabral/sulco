@@ -9,13 +9,29 @@ describe("uiAccentFor", () => {
   });
 
   it("paletas escuras levam o destaque delas para a interface", () => {
-    for (const id of ["meia-noite", "vinho", "lilas"]) {
+    for (const id of ["meia-noite", "vinho", "lilas", "esmeralda"]) {
       expect(uiAccentFor(paletteById(id))?.accent).toBe(paletteById(id).accent);
     }
   });
 
-  it("Papel (destaque escuro) não passa sobre o fundo do site e volta ao âmbar", () => {
-    expect(uiAccentFor(paletteById("papel"))).toBeNull();
+  it("paletas claras levam a cor do cartão para a interface com contraste AA", () => {
+    for (const id of ["papel", "rosa", "menta", "ceu", "solar"]) {
+      const p = paletteById(id);
+      const ui = uiAccentFor(p);
+      expect(ui).not.toBeNull();
+      expect(ui?.accent).toBe(p.room);
+      expect(ui?.ink).toBe(p.ink);
+      for (const bg of [THEME.room, THEME.card, THEME.card2]) {
+        expect(contrastRatio(ui!.accent, bg)).toBeGreaterThanOrEqual(AA);
+      }
+      expect(contrastRatio(ui!.ink, ui!.accent)).toBeGreaterThanOrEqual(AA);
+      expect(contrastRatio(ui!.ink, ui!.hover)).toBeGreaterThanOrEqual(AA);
+    }
+  });
+
+  it("paleta sem contraste suficiente volta ao âmbar (null)", () => {
+    const darkLowContrast = { ...paletteById("ambar"), id: "custom", room: "#1B1714", accent: "#3A322C" };
+    expect(uiAccentFor(darkLowContrast)).toBeNull();
   });
 
   it("o que for aceito sempre passa no AA, inclusive cores tiradas de capas", () => {

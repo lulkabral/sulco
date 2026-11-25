@@ -27,18 +27,23 @@ function lighten(hex: string, amount: number): string {
   return rgbToHex({ r: mix(r), g: mix(g), b: mix(b) });
 }
 
+function buildUiAccent(accent: string, ink: string): UiAccent | null {
+  const backgrounds = [THEME.room, THEME.card, THEME.card2];
+  if (backgrounds.some((bg) => contrastRatio(accent, bg) < AA)) return null;
+  if (contrastRatio(ink, accent) < AA) return null;
+  // O hover clareia um pouco; se o texto do botão deixar de passar, o hover fica igual.
+  const hover = lighten(accent, 0.15);
+  return { accent, hover: contrastRatio(ink, hover) >= AA ? hover : accent, ink };
+}
+
 /**
  * Destaque da paleta para a interface, ou null se não passar no contraste AA:
  * o destaque precisa de 4,5:1 sobre o fundo e sobre os cartões do site (aparece como
  * texto e como contorno), e o texto do botão precisa de 4,5:1 sobre o destaque.
+ * Em paletas claras (Papel, Rosa, Menta, Céu, Solar), o destaque do cartão é escuro
+ * demais para o palco escuro — então usamos a própria cor de fundo do cartão (`room`).
  */
 export function uiAccentFor(palette: Palette): UiAccent | null {
-  const { accent, accentInk } = palette;
-  const backgrounds = [THEME.room, THEME.card, THEME.card2];
-  if (backgrounds.some((bg) => contrastRatio(accent, bg) < AA)) return null;
-  if (contrastRatio(accentInk, accent) < AA) return null;
   if (palette.id === "ambar") return DEFAULT_UI_ACCENT;
-  // O hover clareia um pouco; se o texto do botão deixar de passar, o hover fica igual.
-  const hover = lighten(accent, 0.15);
-  return { accent, hover: contrastRatio(accentInk, hover) >= AA ? hover : accent, ink: accentInk };
+  return buildUiAccent(palette.accent, palette.accentInk) ?? buildUiAccent(palette.room, palette.ink);
 }

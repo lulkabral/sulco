@@ -161,7 +161,7 @@ async function Profile({ params, searchParams }: Pick<PageProps<"/[lang]/u/[user
 
   return (
     // O destaque do palco segue a paleta escolhida para a imagem (quando passa no contraste).
-    <AccentScope>
+    <AccentScope tab={tab}>
       <UserHeader user={user} covers={covers} />
       {/* Abas e período numa linha só (o calendário fica guardado na gaveta do botão de período). */}
       <div className="flex items-center gap-2.5">
