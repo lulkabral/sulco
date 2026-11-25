@@ -1058,7 +1058,7 @@ function drawTracksPoster(
   const stories = o.format === "stories";
   const heroItem = d.items[0];
   const topPlaycount = heroItem?.playcount || 1;
-  const heroArtistNorm = (heroItem?.detail ?? "").trim().toLocaleLowerCase("pt-BR");
+  const artistColor = hexAlpha(p.ink, 0.82);
 
   if (heroItem) {
     const h = layout.hero;
@@ -1073,7 +1073,7 @@ function drawTracksPoster(
     const lh = Math.round(nameSize * 1.03);
     const chipH = stories ? 52 : 39;
     const chipGap = stories ? 22 : 14;
-    const arSize = stories ? 34 : 26;
+    const arSize = stories ? 36 : 26;
     const arGap = stories ? 14 : 8;
     const plSize = stories ? 36 : 26;
     const plGap = stories ? 14 : 8;
@@ -1103,7 +1103,7 @@ function drawTracksPoster(
 
     if (heroItem.detail) {
       const arY = bottomY + arGap + Math.round(arSize * 0.82);
-      text(ctx, heroItem.detail, h.textX, arY, { font: `500 ${arSize}px ${f}`, color: p.inkSoft, maxWidth: maxW });
+      text(ctx, heroItem.detail, h.textX, arY, { font: `600 ${arSize}px ${f}`, color: artistColor, maxWidth: maxW });
       bottomY = arY + Math.round(arSize * 0.22);
     }
 
@@ -1133,24 +1133,26 @@ function drawTracksPoster(
     );
   }
 
-  // Lista #02–#05 (ou #10) sem miniaturas repetidas; artista aparece só se for diferente do #01
+  // Lista #02–#05 (ou #10) sem miniaturas repetidas, sempre exibindo o artista com destaque claro
   layout.rows.forEach((slot) => {
     const item = d.items[slot.rank - 1];
     if (!item) return;
     const isCompact = slot.compact;
+    const inlineArtist = !stories && isCompact; // Quadrado Top 10 (rowH = 54) mantém artista na mesma linha
+    const artistName = (item.detail ?? "").trim();
     const numW = stories ? (isCompact ? 76 : 92) : isCompact ? 56 : 70;
     const numSize = stories ? (isCompact ? 32 : 48) : isCompact ? 24 : 34;
-    const titleSize = stories ? (isCompact ? 36 : 58) : isCompact ? 26 : 38;
-    const countSize = stories ? (isCompact ? 32 : 54) : isCompact ? 24 : 34;
-    const barH = stories ? (isCompact ? 9 : 14) : isCompact ? 6 : 10;
-    const barGap = stories ? (isCompact ? 16 : 24) : isCompact ? 9 : 14;
+    const titleSize = stories ? (isCompact ? 32 : 52) : isCompact ? 26 : 34;
+    const artistSize = stories ? (isCompact ? 23 : 32) : isCompact ? 21 : 23;
+    const artistGap = stories ? (isCompact ? 5 : 8) : 5;
+    const countSize = stories ? (isCompact ? 30 : 50) : isCompact ? 24 : 32;
+    const barH = stories ? (isCompact ? 8 : 14) : isCompact ? 6 : 9;
+    const barGap = stories ? (isCompact ? 10 : 16) : isCompact ? 9 : 10;
     const ratio = topPlaycount > 0 ? Math.max(0.06, Math.min(1, item.playcount / topPlaycount)) : 0;
 
-    const itemArtistNorm = (item.detail ?? "").trim().toLocaleLowerCase("pt-BR");
-    const showArtist = Boolean(item.detail && itemArtistNorm && itemArtistNorm !== heroArtistNorm);
-
-    const blockH = titleSize + (o.showNumbers ? barGap + barH : 0);
-    const titleY = slot.y + Math.max(4, (slot.h - blockH) / 2) + Math.round(titleSize * 0.86);
+    const stackedArtistH = !inlineArtist && artistName ? artistGap + artistSize : 0;
+    const blockH = titleSize + stackedArtistH + (o.showNumbers ? barGap + barH : 0);
+    const titleY = slot.y + Math.max(4, (slot.h - blockH) / 2) + Math.round(titleSize * 0.84);
     const numY = titleY - Math.round((titleSize - numSize) * 0.12);
 
     text(ctx, String(item.rank).padStart(2, "0"), slot.x, numY, {
@@ -1174,40 +1176,44 @@ function drawTracksPoster(
     const titleX = slot.x + numW;
     const maxTitleW = Math.max(120, rightLimit - titleX);
     const titleSpacing = -titleSize * 0.025;
+    let contentBottomY = titleY + Math.round(titleSize * 0.18);
 
-    if (showArtist && item.detail) {
-      const artistSize = stories ? (isCompact ? 24 : 28) : isCompact ? 19 : 24;
-      const artistSuffix = ` · ${item.detail}`;
+    if (inlineArtist && artistName) {
+      const sep = " · ";
       ctx.save();
       ctx.font = `700 ${titleSize}px ${f}`;
       ctx.letterSpacing = `${titleSpacing}px`;
       const rawTitleW = ctx.measureText(item.name).width;
       ctx.letterSpacing = "0px";
-      ctx.font = `500 ${artistSize}px ${f}`;
-      const rawArtistW = ctx.measureText(artistSuffix).width;
+      ctx.font = `700 ${artistSize}px ${f}`;
+      const sepW = ctx.measureText(sep).width;
+      ctx.font = `600 ${artistSize}px ${f}`;
+      const rawArtistW = ctx.measureText(artistName).width;
       ctx.restore();
 
-      if (rawTitleW + rawArtistW <= maxTitleW) {
+      const artistY = titleY - Math.round((titleSize - artistSize) * 0.08);
+      if (rawTitleW + sepW + rawArtistW <= maxTitleW) {
         text(ctx, item.name, titleX, titleY, { font: `700 ${titleSize}px ${f}`, color: p.ink, spacing: titleSpacing });
-        text(ctx, artistSuffix, titleX + rawTitleW + 4, titleY - Math.round((titleSize - artistSize) * 0.1), {
-          font: `500 ${artistSize}px ${f}`,
-          color: p.inkSoft,
+        text(ctx, sep, titleX + rawTitleW, artistY, { font: `700 ${artistSize}px ${f}`, color: p.accent });
+        text(ctx, artistName, titleX + rawTitleW + sepW, artistY, {
+          font: `600 ${artistSize}px ${f}`,
+          color: artistColor,
         });
       } else {
-        const artistMaxW = Math.min(rawArtistW, Math.round(maxTitleW * 0.4));
-        const clippedTitleW = Math.max(90, maxTitleW - artistMaxW - 8);
+        const artistMaxW = Math.min(rawArtistW, Math.round(maxTitleW * 0.42));
+        const clippedTitleW = Math.max(90, maxTitleW - sepW - artistMaxW);
         text(ctx, item.name, titleX, titleY, {
           font: `700 ${titleSize}px ${f}`,
           color: p.ink,
           maxWidth: clippedTitleW,
           spacing: titleSpacing,
         });
-        ctx.font = `700 ${titleSize}px ${f}`;
-        const actualW = Math.min(clippedTitleW, ctx.measureText(item.name).width);
-        text(ctx, artistSuffix, titleX + actualW + 4, titleY - Math.round((titleSize - artistSize) * 0.1), {
-          font: `500 ${artistSize}px ${f}`,
-          color: p.inkSoft,
-          maxWidth: Math.max(50, maxTitleW - actualW - 4),
+        const actualW = Math.min(clippedTitleW, rawTitleW);
+        text(ctx, sep, titleX + actualW, artistY, { font: `700 ${artistSize}px ${f}`, color: p.accent });
+        text(ctx, artistName, titleX + actualW + sepW, artistY, {
+          font: `600 ${artistSize}px ${f}`,
+          color: artistColor,
+          maxWidth: Math.max(50, maxTitleW - actualW - sepW),
         });
       }
     } else {
@@ -1217,10 +1223,20 @@ function drawTracksPoster(
         maxWidth: maxTitleW,
         spacing: titleSpacing,
       });
+
+      if (artistName) {
+        const artistY = contentBottomY + artistGap + Math.round(artistSize * 0.8);
+        text(ctx, artistName, titleX, artistY, {
+          font: `600 ${artistSize}px ${f}`,
+          color: artistColor,
+          maxWidth: maxTitleW,
+        });
+        contentBottomY = artistY + Math.round(artistSize * 0.2);
+      }
     }
 
     if (o.showNumbers) {
-      const barY = titleY + Math.round(titleSize * 0.22) + (isCompact ? 8 : stories ? 14 : 10);
+      const barY = contentBottomY + barGap;
       const barW = slot.w - numW;
       ctx.fillStyle = p.line;
       roundRect(ctx, titleX, barY, barW, barH, barH / 2);
