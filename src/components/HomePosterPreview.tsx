@@ -176,8 +176,9 @@ export function HomePosterPreview({ covers, images, offset, vinylColor = null, o
   return (
     <div
       id="palco"
+      tabIndex={-1}
       aria-labelledby="palco-titulo"
-      className="flex flex-col gap-3.5 overflow-hidden rounded-[26px] border border-stage-line bg-stage p-3.5 text-stage-ink shadow-xl sm:gap-4 sm:p-5"
+      className="flex flex-col gap-3.5 overflow-hidden rounded-2xl border border-stage-line bg-stage p-3.5 text-stage-ink sm:gap-4 sm:p-5"
     >
       <h2 id="palco-titulo" className="sr-only">
         {t.home.stageHeading}
@@ -220,7 +221,7 @@ export function HomePosterPreview({ covers, images, offset, vinylColor = null, o
       </div>
 
       {/* 2. A imagem real gerada — dois slots com crossfade suave e altura estável */}
-      <div className="relative h-[min(24rem,52dvh)] w-full sm:h-[min(28rem,58dvh)]">
+      <div className="relative h-[min(24rem,52dvh)] w-full sm:h-[min(30rem,58dvh)]">
         {([0, 1] as const).map((slot) => {
           const isActive = slot === stage.active;
           const slotTab = stage.tabs[slot];
@@ -269,11 +270,11 @@ export function HomePosterPreview({ covers, images, offset, vinylColor = null, o
       </div>
 
       {/* 3. Barra compacta de cores, vinil colorido e troca de disco logo abaixo da imagem */}
-      <div className="flex min-h-[50px] flex-wrap items-center justify-between gap-2.5 rounded-2xl border border-stage-line bg-stage-card px-3 py-2 sm:px-3.5">
+      <div className="flex min-h-[50px] flex-wrap items-center justify-between gap-2 border-t border-stage-line pt-2">
         {isGrid ? (
           <span className="text-xs font-semibold tracking-[0.06em] text-stage-soft uppercase">{t.home.gridClean}</span>
         ) : (
-          <div role="group" aria-label={t.home.stagePalettes} className="flex items-center gap-2 lg:gap-1.5">
+          <div role="group" aria-label={t.home.stagePalettes} className="flex flex-wrap items-center">
             {STAGE_PALETTES.map((id) => {
               const p = paletteById(id);
               return (

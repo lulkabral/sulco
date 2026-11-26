@@ -1,3 +1,4 @@
+import { ChooseAnotherPeriod } from "@/components/PeriodPicker";
 import type { Metadata } from "next";
 import dynamic from "next/dynamic";
 import { artistPictures } from "@/lib/artist-image";
@@ -241,6 +242,7 @@ async function TopLists({ username, period, tab, initialCard, registeredAt, life
       <div className="rounded-[24px] border border-line bg-card p-6">
         <h2 className="text-lg font-extrabold tracking-tight text-ink">{t.profile.noMusicTitle}</h2>
         <p className="mt-1 text-soft">{t.profile.noMusicBody(label)}</p>
+        <ChooseAnotherPeriod />
       </div>
     );
   }

@@ -21,7 +21,7 @@ export function GenreListView({ children, cardHref }: { children: ReactNode; car
       <div className="mb-4 flex items-center justify-between gap-2 border-b border-stage-line pb-3">
         <h3
           id="top-generos"
-          className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.12em] text-amber"
+          className="flex items-center gap-2 text-lg font-bold leading-tight tracking-tight text-stage-ink sm:text-xl"
         >
           <ListIcon name="genres" />
           {t.lists.genres}
@@ -59,18 +59,18 @@ export function GenreItems({
 
   const top = genres[0].weight;
   return (
-    <ol className="flex flex-col gap-2">
+    <ol className="flex flex-col">
       {genres.map((genre, i) => {
         const artists = genre.artists ?? [];
         return (
           <li
             key={genre.name}
-            className="group relative overflow-hidden rounded-xl border border-stage-line/80 bg-stage-card/70"
+            className="relative border-b border-stage-line last:border-b-0"
           >
-            {/* Preenchimento proporcional ao peso do 1º gênero. */}
+            {/* Linha proporcional ao peso do 1º gênero. */}
             <div
               aria-hidden
-              className="pointer-events-none absolute inset-y-0 left-0 origin-left bg-white/[0.085] transition-colors duration-200 group-hover:bg-white/[0.13] motion-safe:animate-grow"
+              className="ranking-meter motion-safe:animate-grow"
               style={{
                 width: `${Math.max(10, Math.round((genre.weight / top) * 100))}%`,
                 animationDelay: `${i * 50}ms`,

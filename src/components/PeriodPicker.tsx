@@ -41,6 +41,7 @@ export function PeriodPicker({ label, children }: Props) {
       </button>
 
       <dialog
+        id="profile-period-picker"
         ref={dialog}
         onClick={onDialogClick}
         aria-label={t.profile.periodDialog}
@@ -65,5 +66,25 @@ export function PeriodPicker({ label, children }: Props) {
         </div>
       </dialog>
     </>
+  );
+}
+
+
+/** Reabre o seletor do perfil a partir de um período vazio. */
+export function ChooseAnotherPeriod() {
+  const { t } = useI18n();
+  return (
+    <button
+      type="button"
+      aria-haspopup="dialog"
+      aria-controls="profile-period-picker"
+      className="mt-3 min-h-11 font-bold text-terra-text underline underline-offset-4"
+      onClick={() => {
+        const dialog = document.getElementById("profile-period-picker");
+        if (dialog instanceof HTMLDialogElement) dialog.showModal();
+      }}
+    >
+      {t.profile.chooseAnotherPeriod}
+    </button>
   );
 }

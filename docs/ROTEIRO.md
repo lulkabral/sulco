@@ -181,6 +181,13 @@ Pedido do dono do projeto: indicar nas 4 listas de "O que mais tocou" (Artistas,
 
 ---
 
+## Revisão editorial da home e do perfil (26/11/2026)
+
+- [x] Home com formulário e prévia mais próximos e retorno da vitrine à prévia.
+- [x] Ações de exportação sob a imagem nas três abas e ajustes com menos molduras.
+- [x] Rankings com divisórias, atalho “Criar card” e um destaque principal no Raio-X.
+- [x] Abas das listas operáveis pelas setas, paletas com alvo de toque ampliado e acesso ao seletor quando o período está vazio.
+
 ## Ideias para depois
 
 - Formato quadrado 1080x1080.

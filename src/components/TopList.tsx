@@ -46,8 +46,8 @@ type Props = {
 
 /**
  * Lista numerada de um top, num cartão editorial.
- * A proporção em relação ao #1 aparece como preenchimento quente (`bg-bar-fill`) atrás de
- * cada linha, e os números de reproduções ficam em destaque na coluna direita.
+ * A linha fina abaixo de cada item indica a proporção em relação ao #1.
+ * As reproduções ficam em destaque na coluna direita.
  */
 export function TopList({
   title,
@@ -83,7 +83,7 @@ export function TopList({
       <div className="mb-4 flex items-center justify-between gap-2 border-b border-stage-line pb-3">
         <h3
           id={`top-${title}`}
-          className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.12em] text-amber"
+          className="flex items-center gap-2 text-lg font-bold leading-tight tracking-tight text-stage-ink sm:text-xl"
         >
           <ListIcon name={icon} />
           {title}
@@ -95,7 +95,7 @@ export function TopList({
         <p className="text-sm text-stage-soft">{t.lists.empty}</p>
       ) : (
         <>
-          <ol className="flex flex-col gap-1.5">
+          <ol className="flex flex-col">
             {hero && (
               <li
                 key={`${hero.rank}-${hero.name}`}
@@ -216,12 +216,12 @@ export function TopList({
                 return (
                   <li
                     key={`${item.rank}-${item.name}`}
-                    className="group relative overflow-hidden rounded-xl border border-stage-line/80 bg-stage-card/70"
+                    className="relative border-b border-stage-line last:border-b-0"
                   >
-                    {/* Preenchimento proporcional limpo (sem linha cortando a ponta). */}
+                    {/* Linha proporcional ao total de reproduções do #1. */}
                     <div
                       aria-hidden
-                      className="pointer-events-none absolute inset-y-0 left-0 origin-left bg-white/[0.085] transition-colors duration-200 group-hover:bg-white/[0.13] motion-safe:animate-grow"
+                      className="ranking-meter motion-safe:animate-grow"
                       style={{
                         width: `${pct}%`,
                         animationDelay: `${Math.min(i, 10) * 25}ms`,
@@ -244,7 +244,7 @@ export function TopList({
                           href={item.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="block truncate text-sm font-bold text-stage-ink transition-colors duration-200 ease-smooth hover:text-amber"
+                          className="block truncate text-[15px] font-bold text-stage-ink transition-colors duration-200 ease-smooth hover:text-amber"
                         >
                           {item.name}
                         </a>
@@ -267,11 +267,11 @@ export function TopList({
               return (
                 <li
                   key={`${item.rank}-${item.name}`}
-                  className="group relative overflow-hidden rounded-xl border border-stage-line/80 bg-stage-card/70"
+                  className="relative border-b border-stage-line last:border-b-0"
                 >
                   <div
                     aria-hidden
-                    className="pointer-events-none absolute inset-y-0 left-0 origin-left bg-white/[0.085] transition-colors duration-200 group-hover:bg-white/[0.13] motion-safe:animate-grow"
+                    className="ranking-meter motion-safe:animate-grow"
                     style={{
                       width: `${pct}%`,
                       animationDelay: `${Math.min(i, 10) * 25}ms`,

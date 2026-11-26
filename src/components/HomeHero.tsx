@@ -78,7 +78,7 @@ export function HomeHero({ covers, caption }: Props) {
     <>
       {/* HERO UNIFICADO: título + formulário + palco real ao vivo já na 1ª tela */}
       <section className="mx-auto w-full max-w-[88rem] px-4 pb-6 pt-4 sm:px-6 md:py-6 lg:px-10">
-        <div className="grid grid-cols-1 items-center gap-5 lg:grid-cols-[1.05fr_0.95fr] lg:gap-12 xl:gap-16">
+        <div className="mx-auto grid max-w-[69rem] grid-cols-1 items-center gap-5 lg:grid-cols-[1.05fr_1fr] lg:gap-12">
           <div className="flex flex-col gap-3.5 sm:gap-5">
             <h1 className="text-[clamp(2.35rem,1.25rem+5vw,5rem)] leading-[0.94] font-extrabold tracking-[-0.045em] text-ink">
               <span className="block">{t.home.titleLine1}</span>
@@ -98,7 +98,7 @@ export function HomeHero({ covers, caption }: Props) {
             </div>
           </div>
 
-          <div className="w-full lg:max-w-[38rem] lg:justify-self-end">
+          <div className="w-full lg:max-w-[32rem] lg:justify-self-end">
             {hasCovers ? (
               <HomePosterPreview
                 covers={covers}

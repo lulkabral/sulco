@@ -32,6 +32,7 @@ const subscribeNever = () => () => {};
 export function ExportButtons({ canvasRef, filename, shareTitle, disabled }: Props) {
   const { t } = useI18n();
   const [busy, setBusy] = useState(false);
+  const [copyFallback, setCopyFallback] = useState(false);
   const [copied, setCopied] = useState(false);
   const canShare = useSyncExternalStore(subscribeNever, canShareFiles, () => false);
   const canCopy = useSyncExternalStore(subscribeNever, canCopyImage, () => false);
@@ -39,6 +40,7 @@ export function ExportButtons({ canvasRef, filename, shareTitle, disabled }: Pro
   async function handle(action: "download" | "share") {
     if (!canvasRef.current) return;
     setBusy(true);
+    setCopyFallback(false);
     try {
       const canvas = canvasRef.current;
       if (action === "share" && !canShare && canCopy) {
@@ -51,6 +53,7 @@ export function ExportButtons({ canvasRef, filename, shareTitle, disabled }: Pro
         } catch {
           const file = await canvasToShareFile(canvas, filename);
           downloadBlob(file.blob, file.name);
+          setCopyFallback(true);
         }
         return;
       }
@@ -68,7 +71,7 @@ export function ExportButtons({ canvasRef, filename, shareTitle, disabled }: Pro
   const shareLabel = copied ? t.export.copied : canShare || !canCopy ? t.export.share : t.export.copy;
 
   return (
-    <div className="grid grid-cols-2 gap-2.5">
+    <div className="mt-4 grid grid-cols-2 gap-2">
       <button
         type="button"
         onClick={() => handle("download")}
@@ -87,6 +90,7 @@ export function ExportButtons({ canvasRef, filename, shareTitle, disabled }: Pro
         {copied ? <CheckIcon /> : <ShareIcon />}
         <span aria-live="polite">{shareLabel}</span>
       </button>
+      <p role="status" className="col-span-2 text-center text-xs text-stage-soft empty:hidden">{copyFallback && t.export.copyFallback}</p>
     </div>
   );
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useI18n } from "@/i18n/client";
 import { coverUrl } from "@/lib/grid/layout";
 import type { TrendingCover } from "@/lib/trending";
@@ -32,6 +33,18 @@ export function ShowcaseShelf({ covers, caption, activeIndex, vinylColors, onSel
   const { t } = useI18n();
   const items = covers.slice(0, SHELF_SIZE);
 
+  const [previewOutside, setPreviewOutside] = useState(false);
+  useEffect(() => {
+    const stage = document.getElementById("palco");
+    if (!stage) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setPreviewOutside(entry.intersectionRatio < 0.6),
+      { threshold: 0.6 },
+    );
+    observer.observe(stage);
+    return () => observer.disconnect();
+  }, [covers]);
+
   return (
     <section aria-labelledby="vitrine-titulo" className="bg-terra text-terra-ink">
       <div className="mx-auto max-w-[88rem] px-4 py-6 sm:px-6 sm:py-7 lg:px-10">
@@ -58,47 +71,71 @@ export function ShowcaseShelf({ covers, caption, activeIndex, vinylColors, onSel
               const discColor = vinylColors[i] ?? null;
               const coverSrc = coverUrl(cover.imageUrl, 300);
               return (
-                <button
-                  key={cover.imageUrl}
-                  type="button"
-                  aria-pressed={active}
-                  aria-label={t.home.shelfItem(cover.name, cover.artist)}
-                  onClick={() => onSelect(i)}
-                  className="group flex w-[134px] shrink-0 flex-col items-center gap-2.5 text-center transition-transform duration-200 ease-smooth active:scale-[0.98] sm:w-auto"
-                >
-                  {/* Conjunto LP: capa quadrada na frente + vinil colorido girando metade para fora */}
-                  <span
-                    aria-hidden
-                    className={
-                      "relative block h-[86px] w-[128px] transition-transform duration-300 ease-smooth sm:h-[100px] sm:w-[148px] lg:h-[94px] lg:w-[140px] xl:h-[116px] xl:w-[172px] " +
-                      (active ? "-translate-y-0.5" : "group-hover:-translate-y-0.5")
-                    }
+                <div key={cover.imageUrl} className="flex shrink-0 flex-col items-center">
+                  <button
+                    type="button"
+                    aria-pressed={active}
+                    aria-label={t.home.shelfItem(cover.name, cover.artist)}
+                    onClick={() => onSelect(i)}
+                    className="group flex w-[134px] shrink-0 flex-col items-center gap-2.5 text-center transition-transform duration-200 ease-smooth active:scale-[0.98] sm:w-auto"
                   >
-                    {/* Camada do deslize (separada do giro para o translate-x não brigar com o rotate) */}
+                    {/* Conjunto LP: capa quadrada na frente + vinil colorido girando metade para fora */}
                     <span
+                      aria-hidden
                       className={
-                        "absolute left-[40px] top-[3px] block size-[80px] transition-transform duration-300 ease-smooth sm:left-[48px] sm:top-[4px] sm:size-[92px] lg:left-[46px] lg:size-[86px] xl:left-[56px] xl:size-[108px] " +
-                        (active ? "translate-x-1.5" : "group-hover:translate-x-1.5")
+                        "relative block h-[86px] w-[128px] transition-transform duration-300 ease-smooth sm:h-[100px] sm:w-[148px] lg:h-[94px] lg:w-[140px] xl:h-[116px] xl:w-[172px] " +
+                        (active ? "-translate-y-0.5" : "group-hover:-translate-y-0.5")
                       }
                     >
+                      {/* Camada do deslize (separada do giro para o translate-x não brigar com o rotate) */}
                       <span
                         className={
-                          "relative block size-full overflow-hidden rounded-full shadow-lg shadow-black/40 transition-[background-color] duration-300 ease-smooth motion-safe:animate-spin-slow " +
-                          (active
-                            ? "[animation-play-state:running]"
-                            : "[animation-play-state:paused] group-hover:[animation-play-state:running]")
+                          "absolute left-[40px] top-[3px] block size-[80px] transition-transform duration-300 ease-smooth sm:left-[48px] sm:top-[4px] sm:size-[92px] lg:left-[46px] lg:size-[86px] xl:left-[56px] xl:size-[108px] " +
+                          (active ? "translate-x-1.5" : "group-hover:translate-x-1.5")
                         }
-                        style={{
-                          backgroundColor: discColor ?? "var(--color-vinyl)",
-                          backgroundImage: VINYL_GROOVES,
-                          boxShadow:
-                            "inset 0 0 0 1px rgba(255, 255, 255, 0.24), inset 0 0 10px rgba(0, 0, 0, 0.16), 0 8px 18px rgba(0, 0, 0, 0.35)",
-                        }}
                       >
                         <span
-                          className="absolute inset-0 rounded-full"
-                          style={{ background: VINYL_SHEEN }}
-                        />
+                          className={
+                            "relative block size-full overflow-hidden rounded-full shadow-lg shadow-black/40 transition-[background-color] duration-300 ease-smooth motion-safe:animate-spin-slow " +
+                            (active
+                              ? "[animation-play-state:running]"
+                              : "[animation-play-state:paused] group-hover:[animation-play-state:running]")
+                          }
+                          style={{
+                            backgroundColor: discColor ?? "var(--color-vinyl)",
+                            backgroundImage: VINYL_GROOVES,
+                            boxShadow:
+                              "inset 0 0 0 1px rgba(255, 255, 255, 0.24), inset 0 0 10px rgba(0, 0, 0, 0.16), 0 8px 18px rgba(0, 0, 0, 0.35)",
+                          }}
+                        >
+                          <span
+                            className="absolute inset-0 rounded-full"
+                            style={{ background: VINYL_SHEEN }}
+                          />
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={coverSrc}
+                            alt=""
+                            width={300}
+                            height={300}
+                            loading="eager"
+                            crossOrigin="anonymous"
+                            decoding="async"
+                            className="absolute inset-[30%] size-[40%] rounded-full object-cover ring-1 ring-black/30"
+                          />
+                          <span className="absolute inset-[46%] rounded-full bg-vinyl ring-1 ring-white/20" />
+                        </span>
+                      </span>
+
+                      {/* Capa quadrada do álbum na frente (sem cantos arredondados, como capa real de LP) */}
+                      <span
+                        className={
+                          "relative z-10 block size-[86px] overflow-hidden bg-stage-card shadow-[4px_6px_14px_rgba(0,0,0,0.45)] transition-[box-shadow] duration-300 ease-smooth sm:size-[100px] lg:size-[94px] xl:size-[116px] " +
+                          (active
+                            ? "ring-2 ring-terra-ink"
+                            : "ring-1 ring-black/25 group-hover:ring-terra-ink/70")
+                        }
+                      >
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src={coverSrc}
@@ -108,42 +145,24 @@ export function ShowcaseShelf({ covers, caption, activeIndex, vinylColors, onSel
                           loading="eager"
                           crossOrigin="anonymous"
                           decoding="async"
-                          className="absolute inset-[30%] size-[40%] rounded-full object-cover ring-1 ring-black/30"
+                          className="size-full object-cover"
                         />
-                        <span className="absolute inset-[46%] rounded-full bg-vinyl ring-1 ring-white/20" />
                       </span>
                     </span>
 
-                    {/* Capa quadrada do álbum na frente (sem cantos arredondados, como capa real de LP) */}
-                    <span
-                      className={
-                        "relative z-10 block size-[86px] overflow-hidden bg-stage-card shadow-[4px_6px_14px_rgba(0,0,0,0.45)] transition-[box-shadow] duration-300 ease-smooth sm:size-[100px] lg:size-[94px] xl:size-[116px] " +
-                        (active
-                          ? "ring-2 ring-terra-ink"
-                          : "ring-1 ring-black/25 group-hover:ring-terra-ink/70")
-                      }
-                    >
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={coverSrc}
-                        alt=""
-                        width={300}
-                        height={300}
-                        loading="eager"
-                        crossOrigin="anonymous"
-                        decoding="async"
-                        className="size-full object-cover"
-                      />
+                    <span className="w-full max-w-[148px] xl:max-w-[172px]">
+                      <span className="block truncate text-xs font-extrabold leading-tight text-terra-ink">
+                        {cover.artist}
+                      </span>
+                      <span className="block truncate text-xs text-terra-ink/85">{cover.name}</span>
                     </span>
-                  </span>
-
-                  <span className="w-full max-w-[148px] xl:max-w-[172px]">
-                    <span className="block truncate text-xs font-extrabold leading-tight text-terra-ink">
-                      {cover.artist}
-                    </span>
-                    <span className="block truncate text-xs text-terra-ink/85">{cover.name}</span>
-                  </span>
-                </button>
+                  </button>
+                  {active && previewOutside && (
+                    <a href="#palco" className="mt-1 inline-flex min-h-11 items-center gap-1 text-xs font-bold underline underline-offset-4">
+                      {t.home.viewPreview} <span aria-hidden>↑</span>
+                    </a>
+                  )}
+                </div>
               );
             })}
           </div>

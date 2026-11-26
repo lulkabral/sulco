@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useRef, useState, type ReactNode } from "react";
 import { useI18n } from "@/i18n/client";
 
 const LIST_KEYS = ["artists", "tracks", "albums", "genres"] as const;
@@ -26,12 +26,14 @@ export function ProfileLists({ artists, tracks, albums, genres, highlights }: Pr
   const { t } = useI18n();
   const [active, setActive] = useState<ListKey>("artists");
 
+  const buttons = useRef<(HTMLButtonElement | null)[]>([]);
+
   const panels: Record<ListKey, ReactNode> = { artists, tracks, albums, genres };
 
   return (
     <section aria-labelledby="listas-titulo" className="flex flex-col gap-3.5 motion-safe:animate-rise">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h2 id="listas-titulo" className="text-xl font-extrabold tracking-tight text-ink">
+        <h2 id="listas-titulo" className="text-2xl font-extrabold sm:text-[1.75rem] tracking-tight text-ink">
           {t.profile.topHeading}
         </h2>
         <p className="text-xs text-ink-faint">{t.profile.topHint}</p>
@@ -43,13 +45,30 @@ export function ProfileLists({ artists, tracks, albums, genres, highlights }: Pr
         aria-label={t.profile.listsTabsLabel}
         className="no-scrollbar -mx-1 flex gap-2 overflow-x-auto px-1 pb-1 md:hidden"
       >
-        {LIST_KEYS.map((key) => {
+        {LIST_KEYS.map((key, index) => {
           const on = active === key;
           return (
             <button
               key={key}
               type="button"
               role="tab"
+              id={`list-tab-${key}`}
+              aria-controls={`list-panel-${key}`}
+              tabIndex={on ? 0 : -1}
+              ref={(button) => { buttons.current[index] = button; }}
+              onKeyDown={(event) => {
+                let next = index;
+                switch (event.key) {
+                  case "ArrowRight": next = (index + 1) % LIST_KEYS.length; break;
+                  case "ArrowLeft": next = (index + LIST_KEYS.length - 1) % LIST_KEYS.length; break;
+                  case "Home": next = 0; break;
+                  case "End": next = LIST_KEYS.length - 1; break;
+                  default: return;
+                }
+                event.preventDefault();
+                setActive(LIST_KEYS[next]);
+                buttons.current[next]?.focus();
+              }}
               aria-selected={on}
               onClick={() => setActive(key)}
               className={
@@ -71,6 +90,9 @@ export function ProfileLists({ artists, tracks, albums, genres, highlights }: Pr
           return (
             <div
               key={key}
+              id={`list-panel-${key}`}
+              role="tabpanel"
+              aria-label={t.lists[key]}
               className={`min-w-0 ${desktopPlacement} ${active === key ? "block" : "hidden md:block"}`}
             >
               {panels[key]}

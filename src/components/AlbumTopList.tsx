@@ -52,10 +52,10 @@ export function AlbumTopList({ items, initialLimit = 10, changes, cardHref }: Pr
       aria-labelledby="top-albuns"
       className="min-w-0 rounded-[24px] border border-stage-line bg-stage p-5 text-stage-ink"
     >
-      <div className="mb-4 flex items-center justify-between gap-2 border-b border-stage-line pb-3">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-2 border-b border-stage-line pb-3">
         <h3
           id="top-albuns"
-          className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.12em] text-amber"
+          className="flex items-center gap-2 text-lg font-bold leading-tight tracking-tight text-stage-ink sm:text-xl"
         >
           <ListIcon name="albums" />
           {t.lists.albums}
@@ -190,7 +190,7 @@ export function AlbumTopList({ items, initialLimit = 10, changes, cardHref }: Pr
               </ol>
 
               {listItems.length > 0 && (
-                <ol start={4} className="mt-4 flex flex-col gap-1.5 border-t border-stage-line pt-3.5">
+                <ol start={4} className="mt-4 flex flex-col border-t border-stage-line pt-3.5">
                   {listItems.map((item, idx) => {
                     const i = idx + 3;
                     return (
@@ -208,7 +208,7 @@ export function AlbumTopList({ items, initialLimit = 10, changes, cardHref }: Pr
               )}
             </>
           ) : (
-            <ol className="flex flex-col gap-1.5">
+            <ol className="flex flex-col">
               {listHero && (
                 <li
                   key={`${listHero.rank}-${listHero.name}`}
@@ -348,10 +348,10 @@ function AlbumRow({
   const pct = Math.max(6, Math.round((item.playcount / top) * 100));
 
   return (
-    <li className="group relative overflow-hidden rounded-xl border border-stage-line/80 bg-stage-card/70">
+    <li className="relative border-b border-stage-line last:border-b-0">
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-y-0 left-0 origin-left bg-white/[0.085] transition-colors duration-200 group-hover:bg-white/[0.13] motion-safe:animate-grow"
+        className="ranking-meter motion-safe:animate-grow"
         style={{
           width: `${pct}%`,
           animationDelay: `${Math.min(index, 10) * 25}ms`,

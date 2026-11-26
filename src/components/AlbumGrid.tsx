@@ -178,11 +178,11 @@ export function AlbumGrid({ username, period, periodLabel, albums }: Props) {
         {t.grid.heading}
       </h2>
 
-      <div className="grid grid-cols-1 items-start gap-6 md:grid-cols-[minmax(0,26rem)_1fr] md:gap-8 lg:grid-cols-[minmax(0,32rem)_1fr] lg:gap-10 xl:grid-cols-[minmax(0,36rem)_1fr]">
+      <div className="grid grid-cols-1 items-start gap-6 md:grid-cols-2 lg:mx-auto lg:max-w-[70rem] lg:grid-cols-[minmax(0,1fr)_minmax(0,34rem)] lg:gap-10">
         <div
           className={
-            "relative mx-auto w-full transition-transform duration-300 ease-smooth hover:-translate-y-0.5 " +
-            (stories ? "max-w-[18rem] lg:max-w-[20rem]" : "max-w-md lg:max-w-[32rem] xl:max-w-[36rem]")
+            "relative mx-auto w-full " +
+            (stories ? "max-w-[18rem] lg:max-w-[26rem]" : "max-w-md lg:max-w-[32rem] xl:max-w-[36rem]")
           }
         >
           <div className={"relative w-full " + (stories ? "aspect-[9/16]" : "aspect-square")}>
@@ -217,6 +217,12 @@ export function AlbumGrid({ username, period, periodLabel, albums }: Props) {
             </p>
           )}
           {snapshot && <SaveHint />}
+          <ExportButtons
+            canvasRef={canvasRef}
+            filename={`grade-${showUsername ? `${username}-` : ""}${period}-${cols}x${rows}${stories ? "-stories" : ""}.png`}
+            shareTitle={t.grid.shareTitle(periodLabel)}
+            disabled={!complete}
+          />
         </div>
 
         <div className="flex flex-col gap-5 rounded-2xl border border-stage-line bg-stage-card p-4 sm:p-5 lg:p-6">
@@ -298,7 +304,7 @@ export function AlbumGrid({ username, period, periodLabel, albums }: Props) {
             <legend className="mb-2 text-xs font-bold uppercase tracking-[0.12em] text-stage-faint">
               {t.grid.show}
             </legend>
-            <label className="flex cursor-pointer items-center justify-between gap-3 rounded-2xl border border-stage-line p-3 transition-colors duration-200 ease-smooth hover:border-stage-faint has-[:checked]:border-amber/60 has-[:checked]:bg-amber/10">
+            <label className="flex cursor-pointer items-center justify-between gap-3 border-t border-stage-line py-3">
               <span className="text-sm font-semibold text-stage-ink">{t.grid.caption}</span>
               <input
                 type="checkbox"
@@ -312,7 +318,7 @@ export function AlbumGrid({ username, period, periodLabel, albums }: Props) {
                 className="relative h-6 w-11 shrink-0 rounded-full bg-white/20 ring-1 ring-white/15 transition-colors duration-200 ease-smooth peer-checked:bg-amber peer-checked:ring-amber peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-amber after:absolute after:left-1 after:top-1 after:size-4 after:rounded-full after:bg-stage-ink after:transition-[transform,background-color] after:duration-200 after:ease-smooth peer-checked:after:translate-x-5 peer-checked:after:bg-amber-ink"
               />
             </label>
-            <label className="flex cursor-pointer items-center justify-between gap-3 rounded-2xl border border-stage-line p-3 transition-colors duration-200 ease-smooth hover:border-stage-faint has-[:checked]:border-amber/60 has-[:checked]:bg-amber/10">
+            <label className="flex cursor-pointer items-center justify-between gap-3 border-t border-stage-line py-3">
               <span className="text-sm font-semibold text-stage-ink">{t.grid.plays}</span>
               <input
                 type="checkbox"
@@ -328,12 +334,6 @@ export function AlbumGrid({ username, period, periodLabel, albums }: Props) {
             </label>
           </fieldset>
 
-          <ExportButtons
-            canvasRef={canvasRef}
-            filename={`grade-${showUsername ? `${username}-` : ""}${period}-${cols}x${rows}${stories ? "-stories" : ""}.png`}
-            shareTitle={t.grid.shareTitle(periodLabel)}
-            disabled={!complete}
-          />
         </div>
       </div>
     </section>

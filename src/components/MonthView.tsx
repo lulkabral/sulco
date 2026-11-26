@@ -1,5 +1,6 @@
 "use client";
 
+import { ChooseAnotherPeriod } from "@/components/PeriodPicker";
 import dynamic from "next/dynamic";
 import { artistPictures } from "@/lib/artist-image";
 import { useEffect, useMemo, useState } from "react";
@@ -272,6 +273,7 @@ export function MonthView({ username, period, label, tab, initialCard = null, re
       <div className="rounded-[24px] border border-line bg-card p-6">
         <h2 className="text-lg font-extrabold tracking-tight text-ink">{t.month.noMusicTitle(label)}</h2>
         <p className="mt-1 text-soft">{t.month.noMusicBody}</p>
+        <ChooseAnotherPeriod />
       </div>
     );
   }

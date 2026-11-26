@@ -384,12 +384,12 @@ export function TopsImage({
         {t.tops.heading}
       </h2>
 
-      <div className="grid grid-cols-1 items-start gap-6 md:grid-cols-[minmax(0,22rem)_1fr] md:gap-8 lg:grid-cols-[minmax(0,28rem)_1fr] lg:gap-10 xl:grid-cols-[minmax(0,32rem)_1fr]">
+      <div className="grid grid-cols-1 items-start gap-6 md:grid-cols-2 lg:mx-auto lg:max-w-[70rem] lg:grid-cols-[minmax(0,1fr)_minmax(0,34rem)] lg:gap-10">
         {/* Prévia */}
         <div
           className={
-            "mx-auto w-full transition-[max-width,transform] duration-300 ease-smooth hover:-translate-y-0.5 " +
-            (prefs.format === "stories" ? "max-w-xs lg:max-w-[22.5rem] xl:max-w-[24rem]" : "max-w-md lg:max-w-lg")
+            "mx-auto w-full motion-safe:transition-[max-width] duration-300 ease-smooth " +
+            (prefs.format === "stories" ? "max-w-xs lg:max-w-[26rem]" : "max-w-md lg:max-w-lg")
           }
         >
           <div className={`relative w-full ${prefs.format === "stories" ? "aspect-[9/16]" : "aspect-square"}`}>
@@ -429,6 +429,12 @@ export function TopsImage({
             </p>
           )}
           {complete && <SaveHint />}
+          <ExportButtons
+            canvasRef={canvasRef}
+            filename={filename}
+            shareTitle={t.tops.shareTitle(periodLabel, kindLabel)}
+            disabled={!complete}
+          />
         </div>
 
         {/* Controles */}
@@ -538,7 +544,7 @@ export function TopsImage({
               <span>{t.tops.color}</span>
               <span className="text-stage-ink">{activePaletteLabel}</span>
             </legend>
-            <div className="flex flex-wrap gap-2.5">
+            <div className="flex flex-wrap">
               {PALETTES.map((pal) => (
                 <Swatch
                   key={pal.id}
@@ -564,7 +570,7 @@ export function TopsImage({
           {/* Switches */}
           <div className="flex flex-col gap-3">
             {isAlbums && (
-              <label className="flex cursor-pointer items-center justify-between gap-3 rounded-2xl border border-stage-line p-3.5 transition-colors duration-200 ease-smooth hover:border-stage-faint has-[:checked]:border-amber/60 has-[:checked]:bg-amber/10">
+              <label className="flex cursor-pointer items-center justify-between gap-3 border-t border-stage-line py-3">
                 <span>
                   <span className="block text-sm font-bold text-stage-ink">{t.recap.coloredVinyl}</span>
                   <span className="block text-xs text-stage-soft">{t.recap.coloredVinylHint}</span>
@@ -584,7 +590,7 @@ export function TopsImage({
             )}
 
             {!isGenres && (
-              <label className="flex cursor-pointer items-center justify-between gap-3 rounded-2xl border border-stage-line p-3.5 transition-colors duration-200 ease-smooth hover:border-stage-faint has-[:checked]:border-amber/60 has-[:checked]:bg-amber/10">
+              <label className="flex cursor-pointer items-center justify-between gap-3 border-t border-stage-line py-3">
                 <span>
                   <span className="block text-sm font-bold text-stage-ink">{t.tops.showNumbers}</span>
                   <span className="block text-xs text-stage-soft">{t.tops.showNumbersHint}</span>
@@ -603,7 +609,7 @@ export function TopsImage({
               </label>
             )}
 
-            <label className="flex cursor-pointer items-center justify-between gap-3 rounded-2xl border border-stage-line p-3.5 transition-colors duration-200 ease-smooth hover:border-stage-faint has-[:checked]:border-amber/60 has-[:checked]:bg-amber/10">
+            <label className="flex cursor-pointer items-center justify-between gap-3 border-t border-stage-line py-3">
               <span>
                 <span className="block text-sm font-bold text-stage-ink">{t.tops.showUsername}</span>
                 <span className="block text-xs text-stage-soft">{t.tops.showUsernameHint}</span>
@@ -622,12 +628,6 @@ export function TopsImage({
             </label>
           </div>
 
-          <ExportButtons
-            canvasRef={canvasRef}
-            filename={filename}
-            shareTitle={t.tops.shareTitle(periodLabel, kindLabel)}
-            disabled={!complete}
-          />
         </div>
       </div>
     </section>

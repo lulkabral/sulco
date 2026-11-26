@@ -249,8 +249,8 @@ export function RecapImage(props: Props) {
         {t.recap.heading}
       </h2>
 
-      <div className="grid grid-cols-1 items-start gap-6 md:grid-cols-[minmax(0,22rem)_1fr] md:gap-8 lg:grid-cols-[minmax(0,28rem)_1fr] lg:gap-10 xl:grid-cols-[minmax(0,32rem)_1fr]">
-        <div className="mx-auto w-full max-w-xs transition-transform duration-300 ease-smooth hover:-translate-y-0.5 lg:max-w-[22.5rem] xl:max-w-[24rem]">
+      <div className="grid grid-cols-1 items-start gap-6 md:grid-cols-2 lg:mx-auto lg:max-w-[70rem] lg:grid-cols-[minmax(0,1fr)_minmax(0,34rem)] lg:gap-10">
+        <div className="mx-auto w-full max-w-xs lg:max-w-[26rem]">
           <div className="relative aspect-[9/16] w-full">
             {([0, 1] as const).map((i) => {
               const isActive = i === slot;
@@ -290,29 +290,16 @@ export function RecapImage(props: Props) {
             </p>
           )}
           {complete && <SaveHint />}
+          <ExportButtons
+            canvasRef={slot === 0 ? canvas0Ref : canvas1Ref}
+            // Sem o @ (opção desligada), o nome do arquivo também sai sem o username.
+            filename={`recap-${prefs.showUsername ? `${username}-` : ""}${period}-${prefs.layout}.png`}
+            shareTitle={t.recap.shareTitle(periodLabel)}
+            disabled={!complete}
+          />
         </div>
 
         <div className="flex flex-col gap-5 rounded-2xl border border-stage-line bg-stage-card p-4 sm:p-5 lg:p-6">
-          {/* Ficha técnica: período em DM Sans e números em Space Grotesk alinhados. */}
-          <div className="text-sm">
-            <p className="border-b border-stage-line pb-2 text-xs font-bold uppercase tracking-[0.12em] text-amber">
-              {periodLabel}
-            </p>
-            <dl className="divide-y divide-stage-line border-b border-stage-line">
-              <div className="flex items-baseline justify-between gap-3 py-2">
-                <dt className="text-stage-soft">{t.units.scrobbles}</dt>
-                <dd className="font-bold text-stage-ink tabular-nums">{formatNumber(total, lang)}</dd>
-              </div>
-              {minutesValue !== null && (
-                <div className="flex items-baseline justify-between gap-3 py-2">
-                  <dt className="text-stage-soft">{t.units.minutes}</dt>
-                  <dd className="font-bold text-stage-ink tabular-nums">{formatNumber(minutesValue, lang)}</dd>
-                </div>
-              )}
-            </dl>
-            {minutesValue !== null && <p className="mt-2 text-xs text-stage-faint">{t.recap.minutesNote}</p>}
-          </div>
-
           <fieldset>
             <legend className="mb-2.5 text-xs font-bold uppercase tracking-[0.12em] text-stage-faint">
               {t.recap.format}
@@ -352,7 +339,7 @@ export function RecapImage(props: Props) {
               <span>{t.recap.color}</span>
               <span className="text-stage-ink">{activePaletteLabel}</span>
             </legend>
-            <div className="flex flex-wrap gap-2.5">
+            <div className="flex flex-wrap">
               {PALETTES.map((p) => (
                 <Swatch
                   key={p.id}
@@ -384,7 +371,7 @@ export function RecapImage(props: Props) {
               }
             >
               <div className="overflow-hidden">
-                <label className="flex cursor-pointer items-center justify-between gap-3 rounded-2xl border border-stage-line p-3.5 transition-colors duration-200 ease-smooth hover:border-stage-faint has-[:checked]:border-amber/60 has-[:checked]:bg-amber/10">
+                <label className="flex cursor-pointer items-center justify-between gap-3 border-t border-stage-line py-3">
                   <span>
                     <span className="flex items-center gap-2 text-sm font-bold text-stage-ink">
                       <span
@@ -413,7 +400,7 @@ export function RecapImage(props: Props) {
               </div>
             </div>
 
-            <label className="flex cursor-pointer items-center justify-between gap-3 rounded-2xl border border-stage-line p-3.5 transition-colors duration-200 ease-smooth hover:border-stage-faint has-[:checked]:border-amber/60 has-[:checked]:bg-amber/10">
+            <label className="flex cursor-pointer items-center justify-between gap-3 border-t border-stage-line py-3">
               <span>
                 <span className="block text-sm font-bold text-stage-ink">{t.recap.showNumbers}</span>
                 <span className="block text-xs text-stage-soft">{t.recap.showNumbersHint}</span>
@@ -431,7 +418,7 @@ export function RecapImage(props: Props) {
               />
             </label>
 
-            <label className="mt-3 flex cursor-pointer items-center justify-between gap-3 rounded-2xl border border-stage-line p-3.5 transition-colors duration-200 ease-smooth hover:border-stage-faint has-[:checked]:border-amber/60 has-[:checked]:bg-amber/10">
+            <label className="mt-3 flex cursor-pointer items-center justify-between gap-3 border-t border-stage-line py-3">
               <span>
                 <span className="block text-sm font-bold text-stage-ink">{t.recap.showUsername}</span>
                 <span className="block text-xs text-stage-soft">{t.recap.showUsernameHint}</span>
@@ -450,13 +437,24 @@ export function RecapImage(props: Props) {
             </label>
           </div>
 
-          <ExportButtons
-            canvasRef={slot === 0 ? canvas0Ref : canvas1Ref}
-            // Sem o @ (opção desligada), o nome do arquivo também sai sem o username.
-            filename={`recap-${prefs.showUsername ? `${username}-` : ""}${period}-${prefs.layout}.png`}
-            shareTitle={t.recap.shareTitle(periodLabel)}
-            disabled={!complete}
-          />
+          <div className="text-sm">
+            <p className="border-b border-stage-line pb-2 text-xs font-bold uppercase tracking-[0.12em] text-amber">
+              {periodLabel}
+            </p>
+            <dl className="divide-y divide-stage-line border-b border-stage-line">
+              <div className="flex items-baseline justify-between gap-3 py-2">
+                <dt className="text-stage-soft">{t.units.scrobbles}</dt>
+                <dd className="font-bold text-stage-ink tabular-nums">{formatNumber(total, lang)}</dd>
+              </div>
+              {minutesValue !== null && (
+                <div className="flex items-baseline justify-between gap-3 py-2">
+                  <dt className="text-stage-soft">{t.units.minutes}</dt>
+                  <dd className="font-bold text-stage-ink tabular-nums">{formatNumber(minutesValue, lang)}</dd>
+                </div>
+              )}
+            </dl>
+            {minutesValue !== null && <p className="mt-2 text-xs text-stage-faint">{t.recap.minutesNote}</p>}
+          </div>
         </div>
       </div>
     </section>

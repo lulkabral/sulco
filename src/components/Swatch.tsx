@@ -25,11 +25,19 @@ export function Swatch({
       onClick={onClick}
       disabled={disabled}
       className={
-        "rounded-full ring-offset-2 ring-offset-stage-card transition duration-200 ease-smooth hover:scale-[1.06] active:scale-[0.95] disabled:opacity-35 " +
-        (compact ? "size-8 lg:size-7 " : "size-8 sm:size-9 ") +
-        (active ? "ring-2 ring-amber" : "ring-1 ring-white/25 hover:ring-stage-ink")
+        "group grid size-11 shrink-0 place-items-center rounded-full disabled:opacity-35 " +
+        (compact ? "[@media(pointer:fine)]:size-9" : "")
       }
-      style={{ background }}
-    />
+    >
+      <span
+        aria-hidden
+        className={
+          "rounded-full ring-offset-2 ring-offset-stage-card transition duration-200 ease-smooth motion-safe:group-hover:scale-[1.06] motion-safe:group-active:scale-[0.95] " +
+          (compact ? "size-8 lg:size-7 " : "size-8 sm:size-9 ") +
+          (active ? "ring-2 ring-amber" : "ring-1 ring-white/25 group-hover:ring-stage-ink")
+        }
+        style={{ background }}
+      />
+    </button>
   );
 }

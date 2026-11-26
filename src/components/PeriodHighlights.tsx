@@ -49,7 +49,7 @@ export function PeriodHighlights({ artists, tracks, albums, totalScrobbles, chan
 
   if (!hasPeriodInsights(insights)) return null;
 
-  const cards: { key: string; fillPercent?: number; content: ReactNode }[] = [];
+  const cards: { key: string; content: ReactNode }[] = [];
 
   if (insights.biggestClimb) {
     const climb = insights.biggestClimb;
@@ -65,7 +65,7 @@ export function PeriodHighlights({ artists, tracks, albums, totalScrobbles, chan
               {t.lists.insights.categoryShort[climb.category]}
             </span>
           </div>
-          <p className="mt-1.5 truncate text-sm font-extrabold text-stage-ink" title={climb.name}>
+          <p className="mt-1.5 break-words text-sm font-extrabold text-stage-ink" title={climb.name}>
             {climb.name}
           </p>
           <p className="mt-1 inline-flex items-center gap-1.5 text-xs font-semibold text-trend-up-stage">
@@ -104,18 +104,14 @@ export function PeriodHighlights({ artists, tracks, albums, totalScrobbles, chan
     const share = insights.topArtistShare;
     cards.push({
       key: "share",
-      fillPercent: Math.max(8, share.percent),
       content: (
         <>
           <div className="flex items-baseline justify-between gap-2">
             <span className="text-[11px] font-semibold uppercase tracking-[0.06em] text-stage-faint">
               {t.lists.insights.topArtistShare}
             </span>
-            <span className="text-sm font-bold text-amber tabular-nums">
-              {share.percent}%
-            </span>
           </div>
-          <p className="mt-1.5 truncate text-sm font-extrabold text-stage-ink" title={share.name}>
+          <p className="mt-1.5 break-words text-sm font-extrabold text-stage-ink" title={share.name}>
             {share.name}
           </p>
           <p className="mt-1 text-xs text-stage-soft">
@@ -139,7 +135,7 @@ export function PeriodHighlights({ artists, tracks, albums, totalScrobbles, chan
           <span className="block text-[11px] font-semibold uppercase tracking-[0.06em] text-stage-faint">
             {t.lists.insights.repeatTrack}
           </span>
-          <p className="mt-1.5 truncate text-sm font-extrabold text-stage-ink" title={repeat.name}>
+          <p className="mt-1.5 break-words text-sm font-extrabold text-stage-ink" title={repeat.name}>
             {repeat.name}
           </p>
           <p className="truncate text-xs text-stage-soft">{repeat.artist}</p>
@@ -171,28 +167,17 @@ export function PeriodHighlights({ artists, tracks, albums, totalScrobbles, chan
         {t.lists.insights.heading}
       </h3>
 
-      <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
-        {cards.map((card, idx) => {
-          const spanFull = cards.length === 1 || (cards.length === 3 && idx === 2);
-          return (
-            <div
-              key={card.key}
-              className={
-                "relative min-w-0 overflow-hidden rounded-2xl border border-stage-line bg-stage-card p-3.5 " +
-                (spanFull ? "sm:col-span-2" : "")
-              }
-            >
-              {card.fillPercent !== undefined && (
-                <div
-                  aria-hidden
-                  className="pointer-events-none absolute inset-y-0 left-0 origin-left bg-white/[0.085] motion-safe:animate-grow"
-                  style={{ width: `${card.fillPercent}%` }}
-                />
-              )}
-              <div className="relative">{card.content}</div>
-            </div>
-          );
-        })}
+      <div className="divide-y divide-stage-line">
+        {cards.map((card, index) => (
+          <div
+            key={card.key}
+            className={index === 0
+              ? "border-l-2 border-l-amber pb-4 pl-4 [&>p:first-of-type]:text-2xl [&>p:first-of-type]:tracking-tight"
+              : "py-3 last:pb-0"}
+          >
+            {card.content}
+          </div>
+        ))}
       </div>
     </section>
   );
