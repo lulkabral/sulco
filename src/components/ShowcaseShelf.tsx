@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useI18n } from "@/i18n/client";
 import { coverUrl } from "@/lib/grid/layout";
 import type { TrendingCover } from "@/lib/trending";
@@ -33,64 +33,114 @@ export function ShowcaseShelf({ covers, caption, activeIndex, vinylColors, onSel
   const { t } = useI18n();
   const items = covers.slice(0, SHELF_SIZE);
 
-  const [previewOutside, setPreviewOutside] = useState(false);
+  const rail = useRef<HTMLDivElement>(null);
+  const [edges, setEdges] = useState({ start: true, end: false });
+  const hasRecords = items.length >= 4;
+
   useEffect(() => {
-    const stage = document.getElementById("palco");
-    if (!stage) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => setPreviewOutside(entry.intersectionRatio < 0.6),
-      { threshold: 0.6 },
-    );
-    observer.observe(stage);
-    return () => observer.disconnect();
-  }, [covers]);
+    const element = rail.current;
+    if (!element) return;
+
+    function updateEdges() {
+      if (!element) return;
+      setEdges({
+        start: element.scrollLeft <= 1,
+        end: element.scrollLeft + element.clientWidth >= element.scrollWidth - 1,
+      });
+    }
+
+    const observer = new ResizeObserver(updateEdges);
+    observer.observe(element);
+    element.addEventListener("scroll", updateEdges, { passive: true });
+    return () => {
+      observer.disconnect();
+      element.removeEventListener("scroll", updateEdges);
+    };
+  }, [hasRecords]);
+
+  useEffect(() => {
+    const element = rail.current;
+    const record = element?.children[activeIndex];
+    if (!element || !(record instanceof HTMLElement)) return;
+
+    const right = record.offsetLeft + record.offsetWidth;
+    if (record.offsetLeft < element.scrollLeft) {
+      element.scrollTo({ left: record.offsetLeft });
+    } else if (right > element.scrollLeft + element.clientWidth) {
+      element.scrollTo({ left: right - element.clientWidth });
+    }
+  }, [activeIndex]);
+
+  function browse(direction: -1 | 1) {
+    const element = rail.current;
+    if (!element) return;
+    element.scrollBy({ left: direction * element.clientWidth });
+  }
 
   return (
-    <section aria-labelledby="vitrine-titulo" className="bg-terra text-terra-ink">
-      <div className="mx-auto max-w-[88rem] px-4 py-6 sm:px-6 sm:py-7 lg:px-10">
-        <div className="mb-4 flex flex-wrap items-baseline justify-between gap-2">
-          <div>
-            <h2 id="vitrine-titulo" className="text-lg font-extrabold tracking-tight sm:text-xl">
-              {caption}
-            </h2>
-            {items.length >= 4 && (
-              <p className="text-xs text-terra-ink/90">{t.home.discStripHint}</p>
-            )}
-          </div>
-          {items.length >= 4 && (
-            <span className="rounded-full bg-black/20 px-3 py-1 text-xs font-semibold tracking-[0.06em] uppercase tabular-nums">
-              {t.home.discCount(items.length)}
-            </span>
+    <section aria-labelledby="vitrine-titulo" className="mt-1 rounded-xl bg-terra text-terra-ink">
+      <div className="px-3.5 pb-2 pt-3.5 sm:px-4 lg:pb-3">
+        <div className="flex items-center justify-between gap-2">
+          <h2 id="vitrine-titulo" className="text-lg font-extrabold leading-tight tracking-tight sm:text-xl">
+            {caption}
+          </h2>
+          {hasRecords && (
+            <div className="hidden shrink-0 gap-1 lg:flex">
+              <button
+                type="button"
+                aria-label={t.home.previousRecords}
+                aria-controls="vitrine-discos"
+                disabled={edges.start}
+                onClick={() => browse(-1)}
+                className="grid size-9 place-items-center rounded-full border border-terra-ink/40 text-xl leading-none hover:bg-terra-ink/15 disabled:opacity-35"
+              >
+                <span aria-hidden>‹</span>
+              </button>
+              <button
+                type="button"
+                aria-label={t.home.nextRecords}
+                aria-controls="vitrine-discos"
+                disabled={edges.end}
+                onClick={() => browse(1)}
+                className="grid size-9 place-items-center rounded-full border border-terra-ink/40 text-xl leading-none hover:bg-terra-ink/15 disabled:opacity-35"
+              >
+                <span aria-hidden>›</span>
+              </button>
+            </div>
           )}
         </div>
 
-        {items.length >= 4 ? (
-          <div className="no-scrollbar -mx-2 flex gap-4 overflow-x-auto px-2 py-3 sm:mx-0 sm:grid sm:grid-cols-3 sm:gap-5 sm:overflow-visible sm:px-0 sm:py-2 lg:grid-cols-6 lg:gap-3 xl:gap-4">
+        {hasRecords ? (
+          <div
+            id="vitrine-discos"
+            ref={rail}
+            className="no-scrollbar relative -mx-3.5 flex snap-x gap-3 overflow-x-auto px-3.5 pb-1 pt-3 sm:-mx-4 sm:px-4 lg:mx-0 lg:snap-mandatory lg:gap-2 lg:px-0"
+          >
             {items.map((cover, i) => {
               const active = i === activeIndex % items.length;
               const discColor = vinylColors[i] ?? null;
               const coverSrc = coverUrl(cover.imageUrl, 300);
               return (
-                <div key={cover.imageUrl} className="flex shrink-0 flex-col items-center">
+                <div key={cover.imageUrl} className="w-[7.5rem] shrink-0 snap-start scroll-ml-3.5 lg:w-[calc((100%-1rem)/3)] lg:scroll-ml-0">
                   <button
                     type="button"
                     aria-pressed={active}
                     aria-label={t.home.shelfItem(cover.name, cover.artist)}
                     onClick={() => onSelect(i)}
-                    className="group flex w-[134px] shrink-0 flex-col items-center gap-2.5 text-center transition-transform duration-200 ease-smooth active:scale-[0.98] sm:w-auto"
+                    className="group flex w-full flex-col items-start gap-2 rounded text-left focus-visible:-outline-offset-2 motion-safe:active:scale-[0.98] lg:px-1.5"
                   >
                     {/* Conjunto LP: capa quadrada na frente + vinil colorido girando metade para fora */}
                     <span
                       aria-hidden
                       className={
-                        "relative block h-[86px] w-[128px] transition-transform duration-300 ease-smooth sm:h-[100px] sm:w-[148px] lg:h-[94px] lg:w-[140px] xl:h-[116px] xl:w-[172px] " +
+                        "relative block aspect-[1.38] w-full max-w-[8rem] transition-transform duration-300 ease-smooth " +
                         (active ? "-translate-y-0.5" : "group-hover:-translate-y-0.5")
                       }
                     >
                       {/* Camada do deslize (separada do giro para o translate-x não brigar com o rotate) */}
                       <span
                         className={
-                          "absolute left-[40px] top-[3px] block size-[80px] transition-transform duration-300 ease-smooth sm:left-[48px] sm:top-[4px] sm:size-[92px] lg:left-[46px] lg:size-[86px] xl:left-[56px] xl:size-[108px] " +
+                          "absolute left-[29%] top-[4%] block aspect-square w-[65%] transition-transform duration-300 ease-smooth " +
                           (active ? "translate-x-1.5" : "group-hover:translate-x-1.5")
                         }
                       >
@@ -130,7 +180,7 @@ export function ShowcaseShelf({ covers, caption, activeIndex, vinylColors, onSel
                       {/* Capa quadrada do álbum na frente (sem cantos arredondados, como capa real de LP) */}
                       <span
                         className={
-                          "relative z-10 block size-[86px] overflow-hidden bg-stage-card shadow-[4px_6px_14px_rgba(0,0,0,0.45)] transition-[box-shadow] duration-300 ease-smooth sm:size-[100px] lg:size-[94px] xl:size-[116px] " +
+                          "relative z-10 block aspect-square w-[72.5%] overflow-hidden bg-stage-card shadow-md shadow-black/40 transition-shadow duration-300 ease-smooth " +
                           (active
                             ? "ring-2 ring-terra-ink"
                             : "ring-1 ring-black/25 group-hover:ring-terra-ink/70")
@@ -150,18 +200,13 @@ export function ShowcaseShelf({ covers, caption, activeIndex, vinylColors, onSel
                       </span>
                     </span>
 
-                    <span className="w-full max-w-[148px] xl:max-w-[172px]">
+                    <span className="w-full">
                       <span className="block truncate text-xs font-extrabold leading-tight text-terra-ink">
                         {cover.artist}
                       </span>
                       <span className="block truncate text-xs text-terra-ink/85">{cover.name}</span>
                     </span>
                   </button>
-                  {active && previewOutside && (
-                    <a href="#palco" className="mt-1 inline-flex min-h-11 items-center gap-1 text-xs font-bold underline underline-offset-4">
-                      {t.home.viewPreview} <span aria-hidden>↑</span>
-                    </a>
-                  )}
                 </div>
               );
             })}
@@ -170,6 +215,11 @@ export function ShowcaseShelf({ covers, caption, activeIndex, vinylColors, onSel
           <div aria-hidden className="flex flex-col gap-2 py-2">
             <Marquee size={68} seconds={85} />
           </div>
+        )}
+        {hasRecords && (
+          <a href="#palco" className="inline-flex min-h-10 items-center gap-1 text-xs font-bold underline underline-offset-4 lg:hidden">
+            {t.home.viewPreview} <span aria-hidden>↓</span>
+          </a>
         )}
       </div>
     </section>
