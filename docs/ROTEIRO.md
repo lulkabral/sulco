@@ -188,6 +188,11 @@ Pedido do dono do projeto: indicar nas 4 listas de "O que mais tocou" (Artistas,
 - [x] Rankings com divisórias, atalho “Criar card” e um destaque principal no Raio-X.
 - [x] Abas das listas operáveis pelas setas, paletas com alvo de toque ampliado e acesso ao seletor quando o período está vazio.
 
+## Cor do vinil (27/11/2026)
+
+- [x] Oferecer preto clássico, automático pela capa, seis cores prontas e seletor de cor personalizada em Toca-discos e Top Álbuns.
+- [x] Preservar a preferência de quem já usava a opção de vinil colorido.
+
 ## Ideias para depois
 
 - Formato quadrado 1080x1080.

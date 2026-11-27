@@ -28,7 +28,7 @@ Os tokens viram classes do Tailwind (`bg-room`, `bg-card`, `bg-terra`, `bg-stage
 | `trend-up` / `trend-down` / `trend-new` | `#147538` / `#C92A2A` / `#1D64D8` | `#3ECF7C` / `#F46666` / `#5CA4FF` | setas de subida/queda e bolinha de estreia nas listas (no cartão terracota de Gêneros, entram numa pílula escura com os tons claros `*-stage`) |
 | `vinyl` / `vinyl-groove` | `#0B0A09` / `#1B1714` | `#0B0A09` / `#1B1714` | sulcos dos discos |
 
-**Imagens geradas no canvas:** o recap (`src/lib/recap/*`), a grade (`src/lib/grid/*`) e a prévia do link (`src/app/og/*`) continuam usando `src/lib/theme.ts` e `src/lib/recap/palettes.ts`. No formato **Toca-discos**, há a opção **Vinil colorido** (desligada por padrão, salva no `localStorage`): quando ligada, desenha um LP colorido liso com poucos sulcos sutis na cor que melhor contrasta com a capa nº 1; desligada, mantém o vinil preto clássico intacto.
+**Imagens geradas no canvas:** o recap (`src/lib/recap/*`), a grade (`src/lib/grid/*`) e a prévia do link (`src/app/og/*`) continuam usando `src/lib/theme.ts` e `src/lib/recap/palettes.ts`. No perfil, **Cor do vinil** aparece no **Toca-discos** e em **Top Álbuns**. Inclui preto clássico, cor automática que contrasta com a capa nº 1, seis cores prontas e uma cor personalizada pelo seletor do navegador. A escolha fica no `localStorage` e vale para a prévia e para o arquivo baixado. A paleta do card é independente.
 
 ### Destaque do palco no perfil (`AccentScope`)
 

@@ -19,6 +19,11 @@ describe("tops-card/prefs", () => {
     );
   });
 
+  it("migra a opção de vinil colorido para o modo automático", () => {
+    expect(parseTopsPrefs('{"coloredVinyl":true}').vinylChoice).toBe("auto");
+    expect(parseTopsPrefs('{"coloredVinyl":false}').vinylChoice).toBe("classic");
+  });
+
   it("mantém escolhas válidas", () => {
     const saved = {
       kind: "albums",
@@ -27,7 +32,7 @@ describe("tops-card/prefs", () => {
       paletteId: "vinho",
       showNumbers: false,
       showUsername: false,
-      coloredVinyl: true,
+      vinylChoice: "#6a33cc",
     };
     expect(parseTopsPrefs(JSON.stringify(saved))).toEqual(saved);
   });

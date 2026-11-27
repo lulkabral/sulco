@@ -7,14 +7,19 @@ describe("parsePrefs", () => {
       layout: "toca-discos",
       paletteId: "ambar",
       showNumbers: false,
-      coloredVinyl: false,
+      vinylChoice: "classic",
       showUsername: true,
     });
   });
 
   it("lê escolhas válidas", () => {
     const raw = JSON.stringify({ layout: "lineup", paletteId: "capa", showNumbers: true, coloredVinyl: true, showUsername: false });
-    expect(parsePrefs(raw)).toEqual({ layout: "lineup", paletteId: "capa", showNumbers: true, coloredVinyl: true, showUsername: false });
+    expect(parsePrefs(raw)).toEqual({ layout: "lineup", paletteId: "capa", showNumbers: true, vinylChoice: "auto", showUsername: false });
+  });
+
+  it("guarda a cor personalizada e ignora cores inválidas", () => {
+    expect(parsePrefs('{"vinylChoice":"#123abc"}').vinylChoice).toBe("#123abc");
+    expect(parsePrefs('{"vinylChoice":"#xyzxyz"}').vinylChoice).toBe("classic");
   });
 
   it("campo inválido volta ao padrão só naquele campo", () => {

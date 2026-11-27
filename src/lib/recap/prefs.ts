@@ -1,6 +1,7 @@
 // Escolhas da pessoa para a imagem (formato, cor, números), guardadas só no navegador
 // dela (localStorage). Não é cookie e nunca vai para o servidor.
 
+import { parseVinylChoice, type VinylChoice } from "@/lib/vinyl-choice";
 import { DEFAULT_LAYOUT, isLayoutId, type RecapLayoutId } from "./draw";
 import { COVER_PALETTE_ID, DEFAULT_PALETTE_ID, PALETTES } from "./palettes";
 
@@ -8,8 +9,8 @@ export type RecapPrefs = {
   layout: RecapLayoutId;
   paletteId: string;
   showNumbers: boolean;
-  /** No formato Toca-discos: disco colorido contrastando com a capa nº 1 (desligado = vinil preto clássico). */
-  coloredVinyl: boolean;
+  /** Cor do disco no formato Toca-discos. */
+  vinylChoice: VinylChoice;
   /** Mostrar o @ do Last.fm na imagem e no nome do arquivo (ligado por padrão). */
   showUsername: boolean;
 };
@@ -18,7 +19,7 @@ export const DEFAULT_PREFS: RecapPrefs = {
   layout: DEFAULT_LAYOUT,
   paletteId: DEFAULT_PALETTE_ID,
   showNumbers: false,
-  coloredVinyl: false,
+  vinylChoice: "classic",
   showUsername: true,
 };
 
@@ -32,14 +33,14 @@ const EVENT = "recap-prefs-change";
 export function parsePrefs(raw: string | null): RecapPrefs {
   if (!raw) return DEFAULT_PREFS;
   try {
-    const data = JSON.parse(raw) as Partial<Record<keyof RecapPrefs, unknown>>;
+    const data = JSON.parse(raw) as Partial<Record<keyof RecapPrefs, unknown>> & { coloredVinyl?: unknown };
     const validPalette =
       data.paletteId === COVER_PALETTE_ID || PALETTES.some((p) => p.id === data.paletteId);
     return {
       layout: isLayoutId(data.layout) ? data.layout : DEFAULT_PREFS.layout,
       paletteId: validPalette ? (data.paletteId as string) : DEFAULT_PREFS.paletteId,
       showNumbers: typeof data.showNumbers === "boolean" ? data.showNumbers : DEFAULT_PREFS.showNumbers,
-      coloredVinyl: typeof data.coloredVinyl === "boolean" ? data.coloredVinyl : DEFAULT_PREFS.coloredVinyl,
+      vinylChoice: parseVinylChoice(data.vinylChoice, data.coloredVinyl),
       showUsername: typeof data.showUsername === "boolean" ? data.showUsername : DEFAULT_PREFS.showUsername,
     };
   } catch {

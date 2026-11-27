@@ -1,6 +1,7 @@
 // Preferências dos cards da aba Tops (categoria, formato, quantidade, paleta e switches),
 // guardadas só no navegador do visitante (localStorage).
 
+import { parseVinylChoice, type VinylChoice } from "@/lib/vinyl-choice";
 import { COVER_PALETTE_ID, PALETTES } from "@/lib/recap/palettes";
 
 export const TOPS_CARD_KINDS = ["artists", "tracks", "albums", "genres"] as const;
@@ -19,7 +20,7 @@ export type TopsPrefs = {
   paletteId: string;
   showNumbers: boolean;
   showUsername: boolean;
-  coloredVinyl: boolean;
+  vinylChoice: VinylChoice;
 };
 
 export const DEFAULT_TOPS_PREFS: TopsPrefs = {
@@ -29,7 +30,7 @@ export const DEFAULT_TOPS_PREFS: TopsPrefs = {
   paletteId: "esmeralda",
   showNumbers: true,
   showUsername: true,
-  coloredVinyl: false,
+  vinylChoice: "classic",
 };
 
 const KEY = "tops-prefs";
@@ -44,7 +45,7 @@ export function parseTopsCard(raw: string | string[] | undefined): TopsCardKind 
 export function parseTopsPrefs(raw: string | null): TopsPrefs {
   if (!raw) return DEFAULT_TOPS_PREFS;
   try {
-    const data = JSON.parse(raw) as Partial<Record<keyof TopsPrefs, unknown>>;
+    const data = JSON.parse(raw) as Partial<Record<keyof TopsPrefs, unknown>> & { coloredVinyl?: unknown };
     const validKind = TOPS_CARD_KINDS.includes(data.kind as TopsCardKind);
     const validFormat = TOPS_FORMATS.includes(data.format as TopsCardFormat);
     const validCount = TOPS_COUNTS.includes(data.count as TopsCardCount);
@@ -57,7 +58,7 @@ export function parseTopsPrefs(raw: string | null): TopsPrefs {
       paletteId: validPalette ? (data.paletteId as string) : DEFAULT_TOPS_PREFS.paletteId,
       showNumbers: typeof data.showNumbers === "boolean" ? data.showNumbers : DEFAULT_TOPS_PREFS.showNumbers,
       showUsername: typeof data.showUsername === "boolean" ? data.showUsername : DEFAULT_TOPS_PREFS.showUsername,
-      coloredVinyl: typeof data.coloredVinyl === "boolean" ? data.coloredVinyl : DEFAULT_TOPS_PREFS.coloredVinyl,
+      vinylChoice: parseVinylChoice(data.vinylChoice, data.coloredVinyl),
     };
   } catch {
     return DEFAULT_TOPS_PREFS;

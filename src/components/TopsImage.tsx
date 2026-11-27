@@ -1,5 +1,7 @@
 "use client";
 
+import { VinylColorPicker } from "@/components/VinylColorPicker";
+import { resolveVinylColor } from "@/lib/vinyl-choice";
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { useReportCoverPalette } from "@/components/AccentScope";
 import { ExportButtons } from "@/components/ExportButtons";
@@ -299,11 +301,12 @@ export function TopsImage({
   // Cor contrastante do vinil colorido no card de Álbuns (mesma lógica da aba Recap)
   const leadAlbumCover = kind === "albums" && albums[0] ? (loadedImgs[`album:${albums[0].artist}\u0000${albums[0].name}`] ?? null) : null;
   const leadAlbumSeed = `${albums[0]?.artist ?? ""}-${albums[0]?.name ?? ""}`;
-  const vinylColor = useMemo(() => {
+  const automaticVinylColor = useMemo(() => {
     if (!leadAlbumCover) return null;
     const rgb = sampleCoverRgb(leadAlbumCover);
     return rgb ? pickVinylFinish(rgb, leadAlbumSeed).base : null;
   }, [leadAlbumCover, leadAlbumSeed]);
+  const vinylColor = resolveVinylColor(prefs.vinylChoice, automaticVinylColor);
 
   const isGenres = kind === "genres";
   const isAlbums = kind === "albums";
@@ -335,7 +338,7 @@ export function TopsImage({
         palette,
         showNumbers: prefs.showNumbers,
         showUsername: prefs.showUsername,
-        vinylColor: isAlbums && prefs.coloredVinyl ? vinylColor : null,
+        vinylColor: isAlbums ? vinylColor : null,
         font,
         lang,
       },
@@ -541,7 +544,7 @@ export function TopsImage({
           {/* Paletas */}
           <fieldset>
             <legend className="mb-2.5 flex w-full items-center justify-between text-xs font-bold uppercase tracking-[0.12em] text-stage-faint">
-              <span>{t.tops.color}</span>
+              <span>{t.recap.cardPalette}</span>
               <span className="text-stage-ink">{activePaletteLabel}</span>
             </legend>
             <div className="flex flex-wrap">
@@ -570,23 +573,11 @@ export function TopsImage({
           {/* Switches */}
           <div className="flex flex-col gap-3">
             {isAlbums && (
-              <label className="flex cursor-pointer items-center justify-between gap-3 border-t border-stage-line py-3">
-                <span>
-                  <span className="block text-sm font-bold text-stage-ink">{t.recap.coloredVinyl}</span>
-                  <span className="block text-xs text-stage-soft">{t.recap.coloredVinylHint}</span>
-                </span>
-                <input
-                  type="checkbox"
-                  role="switch"
-                  checked={prefs.coloredVinyl}
-                  onChange={(e) => choose({ coloredVinyl: e.target.checked })}
-                  className="peer sr-only"
-                />
-                <span
-                  aria-hidden
-                  className="relative h-6 w-11 shrink-0 rounded-full bg-white/20 ring-1 ring-white/15 transition-colors duration-200 ease-smooth peer-checked:bg-amber peer-checked:ring-amber peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-amber after:absolute after:left-1 after:top-1 after:size-4 after:rounded-full after:bg-stage-ink after:transition-[transform,background-color] after:duration-200 after:ease-smooth peer-checked:after:translate-x-5 peer-checked:after:bg-amber-ink"
-                />
-              </label>
+              <VinylColorPicker
+                value={prefs.vinylChoice}
+                color={vinylColor}
+                onChange={(vinylChoice) => choose({ vinylChoice })}
+              />
             )}
 
             {!isGenres && (

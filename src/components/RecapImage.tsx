@@ -1,5 +1,7 @@
 "use client";
 
+import { VinylColorPicker } from "@/components/VinylColorPicker";
+import { resolveVinylColor } from "@/lib/vinyl-choice";
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { useReportCoverPalette } from "@/components/AccentScope";
 import { ExportButtons } from "@/components/ExportButtons";
@@ -115,14 +117,15 @@ export function RecapImage(props: Props) {
   const palette =
     prefs.paletteId === COVER_PALETTE_ID ? (coverPalette ?? PALETTES[0]) : paletteById(prefs.paletteId);
 
-  // Cor contrastante do vinil colorido (só usada quando a pessoa liga a opção no formato Toca-discos).
+  // Cor contrastante para a opção automática.
   const leadCover = covers[0] ?? null;
   const leadSeed = `${albums[0]?.artist ?? ""}-${albums[0]?.name ?? ""}`;
-  const vinylColor = useMemo(() => {
+  const automaticVinylColor = useMemo(() => {
     if (!leadCover) return null;
     const rgb = sampleCoverRgb(leadCover);
     return rgb ? pickVinylFinish(rgb, leadSeed).base : null;
   }, [leadCover, leadSeed]);
+  const vinylColor = resolveVinylColor(prefs.vinylChoice, automaticVinylColor);
 
   // 1) Fonte: o único item que segura o 1º desenho (sem ela, o texto sairia na fonte reserva).
   useEffect(() => {
@@ -219,7 +222,7 @@ export function RecapImage(props: Props) {
         palette,
         showNumbers: prefs.showNumbers,
         showUsername: prefs.showUsername,
-        vinylColor: prefs.coloredVinyl ? vinylColor : null,
+        vinylColor,
         font,
         lang,
       },
@@ -336,7 +339,7 @@ export function RecapImage(props: Props) {
 
           <fieldset>
             <legend className="mb-2.5 flex w-full items-center justify-between text-xs font-bold uppercase tracking-[0.12em] text-stage-faint">
-              <span>{t.recap.color}</span>
+              <span>{t.recap.cardPalette}</span>
               <span className="text-stage-ink">{activePaletteLabel}</span>
             </legend>
             <div className="flex flex-wrap">
@@ -363,42 +366,13 @@ export function RecapImage(props: Props) {
           </fieldset>
 
           <div className="flex flex-col">
-            <div
-              aria-hidden={!isTurntable}
-              className={
-                "grid transition-[grid-template-rows,opacity,margin] duration-300 ease-smooth motion-reduce:transition-none " +
-                (isTurntable ? "mb-2.5 grid-rows-[1fr] opacity-100" : "pointer-events-none mb-0 grid-rows-[0fr] opacity-0")
-              }
-            >
-              <div className="overflow-hidden">
-                <label className="flex cursor-pointer items-center justify-between gap-3 border-t border-stage-line py-3">
-                  <span>
-                    <span className="flex items-center gap-2 text-sm font-bold text-stage-ink">
-                      <span
-                        aria-hidden
-                        className="size-3 shrink-0 rounded-full ring-1 ring-white/25 transition-colors duration-300 ease-smooth"
-                        style={{ backgroundColor: prefs.coloredVinyl && vinylColor ? vinylColor : "var(--color-vinyl)" }}
-                      />
-                      {t.recap.coloredVinyl}
-                    </span>
-                    <span className="block text-xs text-stage-soft">{t.recap.coloredVinylHint}</span>
-                  </span>
-                  <input
-                    type="checkbox"
-                    role="switch"
-                    tabIndex={isTurntable ? 0 : -1}
-                    disabled={!isTurntable}
-                    checked={prefs.coloredVinyl}
-                    onChange={(e) => choose({ coloredVinyl: e.target.checked })}
-                    className="peer sr-only"
-                  />
-                  <span
-                    aria-hidden
-                    className="relative h-6 w-11 shrink-0 rounded-full bg-white/20 ring-1 ring-white/15 transition-colors duration-200 ease-smooth peer-checked:bg-amber peer-checked:ring-amber peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-amber after:absolute after:left-1 after:top-1 after:size-4 after:rounded-full after:bg-stage-ink after:transition-[transform,background-color] after:duration-200 after:ease-smooth peer-checked:after:translate-x-5 peer-checked:after:bg-amber-ink"
-                  />
-                </label>
-              </div>
-            </div>
+            {isTurntable && (
+              <VinylColorPicker
+                value={prefs.vinylChoice}
+                color={vinylColor}
+                onChange={(vinylChoice) => choose({ vinylChoice })}
+              />
+            )}
 
             <label className="flex cursor-pointer items-center justify-between gap-3 border-t border-stage-line py-3">
               <span>
