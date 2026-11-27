@@ -207,19 +207,21 @@ export function TopsImage({
     };
 
     for (const job of pendingJobs) {
-      job.fetchUrl().then((url) => {
+      job.fetchUrl().then(async (url) => {
         if (cancelled) return;
-        if (!url) {
-          setLoadedImgs((prev) => ({ ...prev, [job.cacheKey]: null }));
-          settle();
-          return;
+        let img = null;
+        if (url) {
+          const sized = coverUrl(url, job.isHero ? 600 : 300);
+          img = await getCachedImage(sized);
+          if (kind === "albums" && !img && !cancelled) {
+            // A CDN pode ter só a versão menor, mesmo com uma URL válida na API.
+            const smaller = coverUrl(url, 300);
+            if (smaller !== sized) img = await getCachedImage(smaller);
+          }
         }
-        const sized = coverUrl(url, job.isHero ? 600 : 300);
-        getCachedImage(sized).then((img) => {
-          if (cancelled) return;
-          setLoadedImgs((prev) => ({ ...prev, [job.cacheKey]: img }));
-          settle();
-        });
+        if (cancelled) return;
+        setLoadedImgs((prev) => ({ ...prev, [job.cacheKey]: img }));
+        settle();
       });
     }
 
